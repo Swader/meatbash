@@ -429,29 +429,22 @@ export function applyBipedLocomotion(
   if (ankleR?.joint) setMotor(ankleR.joint, 0, ankleK, ankleD);
 
   // ============================================================
-  // SUPPORT SPRING — ONLY when at least one foot is grounded
-  // Applied along the ground normal. Mass-scaled via supportMul.
+  // SUPPORT SPRING — ONLY when at least one foot is grounded.
+  // Applied along WORLD UP, not the ground normal. Using the ground
+  // normal pushes the beast DOWN a slope, which is how a ledge-landing
+  // immediately slid off. The spring only needs to cancel gravity; it
+  // doesn't need to fight slopes horizontally — friction + the slope
+  // stability brake below do that.
   // Skipped during jump holdoff so upward impulse can build height.
   // ============================================================
   const inJumpHoldoff = locoState.jumpTimer < 0.4;
   if (groundedFeet > 0 && supportMul > 0 && !inJumpHoldoff && isFinite(groundDist)) {
     const compression = tuning.standingHeight - groundDist;
     if (compression > -0.1) {
-      const relVel =
-        pelvisVel.x * groundNormal.x +
-        pelvisVel.y * groundNormal.y +
-        pelvisVel.z * groundNormal.z;
       const supportMag =
-        (tuning.heightStiffness * compression - tuning.heightDamping * relVel) *
+        (tuning.heightStiffness * compression - tuning.heightDamping * pelvisVel.y) *
         supportMul;
-      pelvis.addForce(
-        {
-          x: groundNormal.x * supportMag,
-          y: groundNormal.y * supportMag,
-          z: groundNormal.z * supportMag,
-        },
-        true
-      );
+      pelvis.addForce({ x: 0, y: supportMag, z: 0 }, true);
     }
   }
 
@@ -518,18 +511,32 @@ export function applyBipedLocomotion(
   }
 
   // ============================================================
-  // FORWARD DRIVE — mass-scaled, gated by state + tilt + foot count
+  // FORWARD DRIVE — mass-scaled, state-aware.
+  //
+  // Ground drive uses driveMul * tiltScale * footScale.
+  // AIRBORNE drive uses airControlMul so the player keeps some steering
+  // influence mid-jump — less than on the ground, but not zero.
   // ============================================================
-  if (driveMul > 0 && groundedFeet > 0) {
-    const fwdX = 2 * (rot.x * rot.z + rot.w * rot.y);
-    const fwdZ = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
-    const fwdLen = Math.sqrt(fwdX * fwdX + fwdZ * fwdZ) || 1;
-    const fX = fwdX / fwdLen;
-    const fZ = fwdZ / fwdLen;
+  const fwdX = 2 * (rot.x * rot.z + rot.w * rot.y);
+  const fwdZ = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
+  const fwdLen = Math.sqrt(fwdX * fwdX + fwdZ * fwdZ) || 1;
+  const fX = fwdX / fwdLen;
+  const fZ = fwdZ / fwdLen;
 
-    // Tilt-based scaling: 1.0 upright → 0.0 at stumbleTiltDeg
+  const isAirborne = locoState.mode === 'AIRBORNE';
+
+  if (isAirborne && (wDown || sDown)) {
+    // Mid-jump steering — always available, weaker than ground drive
+    let accel = 0;
+    if (wDown) accel += tuning.forwardAccel;
+    if (sDown) accel -= tuning.backwardAccel;
+    accel *= tuning.airControlMul;
+    const force = accel * totalMass;
+    pelvis.addForce({ x: fX * force, y: 0, z: fZ * force }, true);
+  } else if (driveMul > 0 && groundedFeet > 0) {
+    // Grounded drive
     const tiltScale = Math.max(0, 1 - tiltDeg / tuning.stumbleTiltDeg);
-    const footScale = groundedFeet / 2; // 0.5 for single foot, 1.0 for both
+    const footScale = groundedFeet / 2;
 
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
@@ -540,8 +547,12 @@ export function applyBipedLocomotion(
       const force = accel * totalMass;
       pelvis.addForce({ x: fX * force, y: 0, z: fZ * force }, true);
     } else if (locoState.mode === 'SUPPORTED') {
-      // Horizontal damping — mass-scaled, MUCH weaker than before
-      const brakeForce = tuning.horizontalBrake * totalMass;
+      // Horizontal damping. Boosted on slopes to prevent ledge-sliding.
+      // Detect slope via ground normal: flat = (0,1,0), normal.y = 1.
+      // The lower normal.y gets, the steeper the slope.
+      const slopiness = isFinite(groundDist) ? Math.max(0, 1 - groundNormal.y) : 0;
+      const slopeBrake = 1 + slopiness * (tuning.slopeStabilityBoost - 1);
+      const brakeForce = tuning.horizontalBrake * totalMass * slopeBrake;
       pelvis.addForce(
         {
           x: -pelvisVel.x * brakeForce,

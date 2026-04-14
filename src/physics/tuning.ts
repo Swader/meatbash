@@ -41,8 +41,8 @@ export const tuning = {
   standingHeight: 1.05,
 
   // ---- State machine thresholds ----
-  /** Tilt (°) above which the beast enters STUMBLING. */
-  stumbleTiltDeg: 45,
+  /** Tilt (°) above which the beast enters STUMBLING. Measured vs ground normal, so slope-relative. */
+  stumbleTiltDeg: 55,
   /** Tilt (°) above which the beast is counted as FALLEN (but only if support is also lost). */
   fallTiltDeg: 105,
   /** Seconds ungrounded before AIRBORNE takes effect (grace period for steps/jumps). */
@@ -84,6 +84,18 @@ export const tuning = {
   /** Jump velocity (m/s). Applied as impulse = totalMass * jumpVelocity. */
   jumpVelocity: 11.0,
   jumpCooldown: 0.35,
+  /**
+   * Fraction of forwardAccel/backwardAccel that still applies while AIRBORNE.
+   * Lets the player steer mid-jump. 0 = no air control, 1 = full ground-level drive.
+   */
+  airControlMul: 0.35,
+
+  /**
+   * Extra horizontal damping multiplier applied when standing on a slope.
+   * Prevents the beast from rolling off ledges it just landed on.
+   * Multiplied into horizontalBrake when groundNormal.y < 0.98.
+   */
+  slopeStabilityBoost: 4.0,
 
   // ---- Turning ----
   /** Maximum yaw rate (rad/s) when fully supported. */
@@ -322,6 +334,14 @@ export function initTuningPanel(): void {
   tip(
     move.addBinding(tuning, 'footFriction', { min: 0, max: 10, step: 0.1 }),
     'Foot collider friction. Higher = better grip. Requires respawn.'
+  );
+  tip(
+    move.addBinding(tuning, 'airControlMul', { min: 0, max: 1, step: 0.05 }),
+    'Fraction of forward/backward drive force still available while AIRBORNE. 0 = no air control, 1 = full drive in air.'
+  );
+  tip(
+    move.addBinding(tuning, 'slopeStabilityBoost', { min: 1, max: 15, step: 0.25 }),
+    'Multiplier to horizontal brake when standing on a slope. Prevents rolling off ledges. Higher = more "stuck" on slopes.'
   );
 
   // ============================================================
