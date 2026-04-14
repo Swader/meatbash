@@ -82,18 +82,24 @@ export const tuning = {
   /** Horizontal damping when no drive input and supported (N per m/s per kg). */
   horizontalBrake: 1.4,
   /** Jump velocity (m/s). Applied as impulse = totalMass * jumpVelocity. */
-  jumpVelocity: 6.0,
+  jumpVelocity: 11.0,
   jumpCooldown: 0.35,
 
   // ---- Turning ----
   /** Maximum yaw rate (rad/s) when fully supported. */
-  maxYawRate: 0.75,
+  maxYawRate: 3.0,
   /** Smoothing speed for raw turn input. */
-  turnSharpness: 5.0,
+  turnSharpness: 18.0,
   /** Smoothing speed for desired yaw rate. */
-  yawRateSharpness: 4.0,
+  yawRateSharpness: 16.0,
   /** Yaw error gain per kg of total body mass. */
-  turnTorquePerKg: 0.6,
+  turnTorquePerKg: 3.0,
+  /**
+   * Per-kg damping applied to pelvis X/Z angular velocity WHILE turning,
+   * to stop yaw torque from leaking into tilt and tipping the beast over.
+   * Higher = more rigid turn-in-place, lower = more wobbly.
+   */
+  turnTiltDamp: 1.2,
 
   // ---- Foot ----
   footFriction: 1.2,
@@ -338,6 +344,10 @@ export function initTuningPanel(): void {
   tip(
     turn.addBinding(tuning, 'turnTorquePerKg', { min: 0, max: 5, step: 0.05 }),
     'Yaw correction torque per kg of body mass. Mass-scaled.'
+  );
+  tip(
+    turn.addBinding(tuning, 'turnTiltDamp', { min: 0, max: 10, step: 0.1 }),
+    'Per-kg damping applied to pelvis X/Z angular velocity while turning. Stops yaw torque from leaking into tilt and tipping the beast over when turning in place. Higher = more rigid turn-in-place.'
   );
 
   // ============================================================

@@ -4,6 +4,7 @@ import { RapierWorld } from './rapier-world';
 import type { BipedSkeleton } from './skeleton';
 import { getTotalMass } from './skeleton';
 import { tuning } from './tuning';
+import { sampleTerrainHeight } from '../engine/terrain';
 
 /**
  * Active-ragdoll bipedal locomotion.
@@ -117,6 +118,33 @@ export function applyBipedLocomotion(
   locoState.totalMass = totalMass;
 
   // ============================================================
+  // HARD-FLOOR SAFETY CLAMP
+  //
+  // After many falls/jumps, Rapier's solver can leave creature bodies
+  // slightly penetrated into the heightfield — and each cycle the
+  // penetration grows, until knees and feet end up underground. This
+  // loop catches any body below the local terrain surface and lifts
+  // it back out. It's a cheat, but a physically honest one: we only
+  // push up, we never teleport sideways, and we kill the downward
+  // velocity component so gravity can't re-penetrate on the same frame.
+  // ============================================================
+  {
+    const penetrationTolerance = 0.02; // m of slop before we clamp
+    for (const body of skeleton.allBodies) {
+      const p = body.translation();
+      const terrainY = sampleTerrainHeight(p.x, p.z);
+      const minY = terrainY + penetrationTolerance;
+      if (p.y < minY) {
+        body.setTranslation({ x: p.x, y: minY, z: p.z }, true);
+        const v = body.linvel();
+        if (v.y < 0) {
+          body.setLinvel({ x: v.x, y: 0, z: v.z }, true);
+        }
+      }
+    }
+  }
+
+  // ============================================================
   // SUPPORT — per-foot downward raycast against arena
   //
   // Sensor colliders turn out not to reliably detect heightfield
@@ -189,13 +217,28 @@ export function applyBipedLocomotion(
   locoState.groundDist = groundDist;
 
   // ============================================================
-  // Tilt
+  // Tilt — measured relative to the GROUND NORMAL, not world up.
+  //
+  // This way, a beast standing perfectly aligned with a 35° slope
+  // reads as 0° tilt, not 35°. Recovery works on rocks as long as
+  // the body is oriented with the slope. If we can't find a ground
+  // normal (ray missed), fall back to world up.
   // ============================================================
   const rot = pelvis.rotation();
   const pelvisUpX = 2 * (rot.x * rot.y + rot.w * rot.z);
   const pelvisUpY = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
   const pelvisUpZ = 2 * (rot.y * rot.z - rot.w * rot.x);
-  const tiltCos = Math.max(-1, Math.min(1, pelvisUpY));
+
+  // Blend ground normal toward world up for extreme slopes so the
+  // beast doesn't try to stand perfectly aligned with a cliff.
+  let refX = 0, refY = 1, refZ = 0;
+  if (isFinite(groundDist) && groundNormal.y > 0.5) {
+    refX = groundNormal.x;
+    refY = groundNormal.y;
+    refZ = groundNormal.z;
+  }
+  const tiltDot = pelvisUpX * refX + pelvisUpY * refY + pelvisUpZ * refZ;
+  const tiltCos = Math.max(-1, Math.min(1, tiltDot));
   const tiltDeg = Math.acos(tiltCos) * (180 / Math.PI);
   locoState.tiltDeg = tiltDeg;
 
@@ -413,17 +456,25 @@ export function applyBipedLocomotion(
   }
 
   // ============================================================
-  // UPRIGHT TORQUE — PD spring, scaled by supportMul * uprightBoost
+  // UPRIGHT TORQUE — PD spring aligning pelvis up to the reference
+  // (ground normal or world up). Scaled by supportMul * uprightBoost.
+  //
+  // Error = pelvisUp × reference → axis of rotation needed to align.
   // ============================================================
   const uprightMul = supportMul * uprightBoost;
   if (uprightMul > 0) {
-    const errX = pelvisUpZ;
-    const errZ = -pelvisUpX;
+    // Cross product: pelvisUp × ref (the torque axis to align them)
+    const errX = pelvisUpY * refZ - pelvisUpZ * refY;
+    const errY = pelvisUpZ * refX - pelvisUpX * refZ;
+    const errZ = pelvisUpX * refY - pelvisUpY * refX;
+
     const angVel = pelvis.angvel();
     const k = tuning.uprightStiffness * uprightMul;
     const d = tuning.uprightDamping * uprightMul;
+    // Damp on X/Z only — don't fight yaw here; that's the turning system's job
     const torqueX = errX * k - angVel.x * d;
     const torqueZ = errZ * k - angVel.z * d;
+    void errY;
     pelvis.addTorque({ x: torqueX, y: 0, z: torqueZ }, true);
   }
 
@@ -454,6 +505,16 @@ export function applyBipedLocomotion(
       { x: 0, y: yawErr * tuning.turnTorquePerKg * totalMass, z: 0 },
       true
     );
+
+    // Actively damp X/Z angular velocity while turning so yaw torque
+    // does not leak into tilt and tip the beast over in place.
+    if (rawTurn !== 0 && (locoState.mode === 'SUPPORTED' || locoState.mode === 'STUMBLING')) {
+      const turnTiltDamp = tuning.turnTiltDamp * totalMass;
+      pelvis.addTorque(
+        { x: -angVel.x * turnTiltDamp, y: 0, z: -angVel.z * turnTiltDamp },
+        true
+      );
+    }
   }
 
   // ============================================================

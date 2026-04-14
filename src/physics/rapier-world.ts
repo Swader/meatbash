@@ -187,21 +187,25 @@ export class RapierWorld {
   /**
    * Create a dynamic rigid body with explicit additional mass.
    *
-   * NOTE: The `mass` argument is now actually applied via setAdditionalMass.
-   * Previously it was accepted but ignored, leading to confusing tuning.
+   * CCD (Continuous Collision Detection) is enabled by default so
+   * fast-moving creature parts don't tunnel through the heightfield
+   * during jumps / falls / recoveries. Without this, the beast
+   * progressively sinks into the ground.
    */
   createDynamicBody(
     x: number, y: number, z: number,
     mass: number = 0,
     angularDamping: number = 0.5,
     linearDamping: number = 0.3,
-    extraSolverIterations: number = 4
+    extraSolverIterations: number = 4,
+    enableCcd: boolean = true
   ): RAPIER.RigidBody {
     const bodyDesc = this.rapier.RigidBodyDesc.dynamic()
       .setTranslation(x, y, z)
       .setLinearDamping(linearDamping)
       .setAngularDamping(angularDamping)
-      .setAdditionalSolverIterations(extraSolverIterations);
+      .setAdditionalSolverIterations(extraSolverIterations)
+      .setCcdEnabled(enableCcd);
     if (mass > 0) {
       bodyDesc.setAdditionalMass(mass);
     }
