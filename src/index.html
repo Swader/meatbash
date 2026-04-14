@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEATBASH</title>
+  <meta name="description" content="Organic destruction derby. Sculpt gooey meatbeasts. QWOP them into battle. Vibejam 2026.">
+  <meta property="og:title" content="MEATBASH">
+  <meta property="og:description" content="Organic destruction derby with gooey ragdoll meatbeasts">
+  <meta property="og:image" content="/og-image.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { 
+      width: 100%; height: 100%; 
+      overflow: hidden; 
+      background: #1a0a0a;
+      font-family: 'Courier New', monospace;
+      color: #f0d0d0;
+    }
+    #game-canvas {
+      width: 100%; height: 100%;
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    #ui-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #ui-overlay > * {
+      pointer-events: auto;
+    }
+    #loading-msg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #ff6b6b;
+      text-align: center;
+    }
+    #loading-msg .pulse {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+  <div id="ui-overlay">
+    <div id="loading-msg">
+      <div class="pulse">🥩 MEATBASH 🥩</div>
+      <div style="font-size: 14px; margin-top: 8px; opacity: 0.6">warming up the meat...</div>
+    </div>
+  </div>
+  <script type="module" src="./main.ts"></script>
+  <script async src="https://vibejam.cc/2026/widget.js"></script>
+</body>
+</html>
