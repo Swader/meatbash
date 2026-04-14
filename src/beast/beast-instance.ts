@@ -4,6 +4,35 @@ import { InputManager } from '../engine/input';
 import { RapierWorld } from '../physics/rapier-world';
 import { BipedSkeleton } from '../physics/skeleton';
 import { applyBipedLocomotion, createLocomotionState, type LocomotionState } from '../physics/locomotion';
+import type { BeastDefinition } from './beast-data';
+
+/**
+ * Generic skeleton shape that any archetype can provide. BipedSkeleton
+ * and QuadSkeleton both satisfy this — they expose `joints`, `allBodies`,
+ * `pelvis`, and `restingPelvisY`. The archetype-specific details
+ * (knee joint names, foot count) are hidden behind the joint map.
+ */
+export interface GenericSkeleton {
+  joints: Map<string, { name: string; body: RAPIER.RigidBody; joint?: RAPIER.RevoluteImpulseJoint }>;
+  allBodies: RAPIER.RigidBody[];
+  pelvis: RAPIER.RigidBody;
+  restingPelvisY: number;
+  restingPelvisHeightAboveGround?: number;
+}
+
+/**
+ * Locomotion adapter. Both biped and quad locomotion have the same
+ * shape: a state struct + an update function. BeastInstance calls
+ * the right one based on the beast's archetype.
+ */
+export type LocomotionUpdate = (
+  skeleton: any,
+  input: InputManager,
+  dt: number,
+  stamina: { current: number; max: number; regen: number },
+  physics: RapierWorld,
+  state: any
+) => void;
 
 /**
  * Deterministic sin-based noise for vertex displacement.
@@ -63,13 +92,16 @@ function storeOriginalPositions(geometry: THREE.BufferGeometry): Float32Array {
  * Phase 2: SDF meat layer rendered on top.
  */
 export class BeastInstance {
-  skeleton: BipedSkeleton;
+  skeleton: GenericSkeleton;
   physics: RapierWorld;
   group: THREE.Group;
   stamina: { current: number; max: number; regen: number };
+  definition?: BeastDefinition;
 
-  // Locomotion state (tracks stride alternation)
-  private locoState: LocomotionState;
+  // Locomotion state — shape depends on archetype; treat as any
+  locoState: any;
+  // Per-archetype locomotion update function
+  private locomotionUpdate: LocomotionUpdate;
 
   // Map from joint name -> visual mesh
   private visuals = new Map<string, THREE.Mesh>();
@@ -83,24 +115,34 @@ export class BeastInstance {
   private prevPositions = new Map<string, THREE.Vector3>();
 
   constructor(
-    skeleton: BipedSkeleton,
+    skeleton: GenericSkeleton,
     physics: RapierWorld,
-    scene: THREE.Scene
+    scene: THREE.Scene,
+    definition?: BeastDefinition,
+    locomotionUpdate?: LocomotionUpdate,
+    locomotionState?: any
   ) {
     this.skeleton = skeleton;
     this.physics = physics;
+    this.definition = definition;
     this.group = new THREE.Group();
     scene.add(this.group);
 
     this.stamina = { current: 100, max: 100, regen: 5.0 };
-    this.locoState = createLocomotionState();
+    // Default to biped locomotion unless the caller passes quad
+    this.locomotionUpdate = locomotionUpdate || (applyBipedLocomotion as any);
+    this.locoState = locomotionState || createLocomotionState();
+
+    // Pull color/emissive from definition if provided
+    const color = definition?.visuals.color ?? 0xdd4444;
+    const emissive = definition?.visuals.emissive ?? 0x330808;
 
     // Wet, glisteny meat material with fresnel rim glow
     this.meatMaterial = new THREE.MeshStandardMaterial({
-      color: 0xdd4444,
+      color,
       roughness: 0.4,
       metalness: 0.05,
-      emissive: 0x330808,
+      emissive,
       emissiveIntensity: 0.2,
     });
 
@@ -158,19 +200,47 @@ gl_FragColor.rgb += rimColor;
       | { kind: 'capsule'; halfHeight: number; radius: number; isMeat: boolean }
       | { kind: 'box'; hx: number; hy: number; hz: number; isMeat: boolean };
 
-    const segmentConfigs: Record<string, SegConfig> = {
+    const torsoScale = this.definition?.visuals.torsoScale ?? 1.0;
+    const archetype = this.definition?.archetype ?? 'bipedal';
+
+    const bipedConfigs: Record<string, SegConfig> = {
       // Torso: big meaty sphere covering the small pelvis collider
-      'torso':   { kind: 'sphere', radius: 0.42, isMeat: true },
+      'torso':   { kind: 'sphere', radius: 0.42 * torsoScale, isMeat: true },
       // Upper legs: thigh capsules matching collider dimensions (halfH=0.21, rad=0.12)
       'hip_l':   { kind: 'capsule', halfHeight: 0.21, radius: 0.13, isMeat: true },
       'hip_r':   { kind: 'capsule', halfHeight: 0.21, radius: 0.13, isMeat: true },
-      // Lower legs: shin capsules (halfH=0.20, rad=0.10)
+      // Lower legs: shin capsules
       'knee_l':  { kind: 'capsule', halfHeight: 0.20, radius: 0.11, isMeat: true },
       'knee_r':  { kind: 'capsule', halfHeight: 0.20, radius: 0.11, isMeat: true },
-      // Feet: flat boxes (matching collider 0.10 x 0.05 x 0.16 half-extents)
+      // Feet: flat boxes
       'ankle_l': { kind: 'box', hx: 0.10, hy: 0.05, hz: 0.16, isMeat: false },
       'ankle_r': { kind: 'box', hx: 0.10, hy: 0.05, hz: 0.16, isMeat: false },
     };
+
+    const quadConfigs: Record<string, SegConfig> = {
+      // Front torso is the "head" — bigger, gets the eyes.
+      // Rear torso is smaller so the silhouette reads as one body
+      // with a head at the front, not two joined heads.
+      'torso':      { kind: 'sphere', radius: 0.36 * torsoScale, isMeat: true },
+      'torso_rear': { kind: 'sphere', radius: 0.22 * torsoScale, isMeat: true },
+      // Upper legs (hip = thigh segment)
+      'hip_fl': { kind: 'capsule', halfHeight: 0.15, radius: 0.11, isMeat: true },
+      'hip_fr': { kind: 'capsule', halfHeight: 0.15, radius: 0.11, isMeat: true },
+      'hip_bl': { kind: 'capsule', halfHeight: 0.15, radius: 0.11, isMeat: true },
+      'hip_br': { kind: 'capsule', halfHeight: 0.15, radius: 0.11, isMeat: true },
+      // Lower legs (knee = shin segment)
+      'knee_fl': { kind: 'capsule', halfHeight: 0.14, radius: 0.09, isMeat: true },
+      'knee_fr': { kind: 'capsule', halfHeight: 0.14, radius: 0.09, isMeat: true },
+      'knee_bl': { kind: 'capsule', halfHeight: 0.14, radius: 0.09, isMeat: true },
+      'knee_br': { kind: 'capsule', halfHeight: 0.14, radius: 0.09, isMeat: true },
+      // Feet
+      'ankle_fl': { kind: 'box', hx: 0.08, hy: 0.04, hz: 0.12, isMeat: false },
+      'ankle_fr': { kind: 'box', hx: 0.08, hy: 0.04, hz: 0.12, isMeat: false },
+      'ankle_bl': { kind: 'box', hx: 0.08, hy: 0.04, hz: 0.12, isMeat: false },
+      'ankle_br': { kind: 'box', hx: 0.08, hy: 0.04, hz: 0.12, isMeat: false },
+    };
+
+    const segmentConfigs = archetype === 'quadruped' ? quadConfigs : bipedConfigs;
 
     let seedCounter = 0;
 
@@ -232,9 +302,26 @@ gl_FragColor.rgb += rimColor;
     }
   }
 
+  /**
+   * Optional override input source — if set, `applyInput` ignores the
+   * InputManager passed in and uses this instead. Used to drive the
+   * opponent beast with BotAI while the player beast uses the keyboard.
+   */
+  inputOverride?: InputManager;
+
+  /** Whether to apply input at all this frame. Match controller may disable
+   * during countdown / result screens. */
+  inputActive: boolean = true;
+
   /** Apply player input as physics torques */
   applyInput(input: InputManager, dt: number) {
-    applyBipedLocomotion(this.skeleton, input, dt, this.stamina, this.physics, this.locoState);
+    if (!this.inputActive) return;
+    const src = this.inputOverride || input;
+    // Bot-driven inputs need beginFixedStep called too
+    if (this.inputOverride && typeof (this.inputOverride as any).beginFixedStep === 'function') {
+      (this.inputOverride as any).beginFixedStep();
+    }
+    this.locomotionUpdate(this.skeleton as any, src, dt, this.stamina, this.physics, this.locoState);
   }
 
   /** Sync visual mesh positions/rotations from physics bodies, apply jiggle */
@@ -320,9 +407,34 @@ gl_FragColor.rgb += rimColor;
     return new THREE.Vector3(pos.x, pos.y, pos.z);
   }
 
-  /** Get current mass percentage (for HP display) */
+  /**
+   * Get the beast's current facing yaw in radians.
+   * Computed from the torso quaternion's rotation around world Y.
+   */
+  getYaw(): number {
+    const torso = this.skeleton.joints.get('torso');
+    if (!torso) return 0;
+    const r = torso.body.rotation();
+    // yaw = atan2(2*(wy + xz), 1 - 2*(y² + x²)) for rotation around Y
+    // Derivation: forward vector after rotation (0,0,1) → (2(xz+wy), ..., 1-2(x²+y²))
+    const fx = 2 * (r.x * r.z + r.w * r.y);
+    const fz = 1 - 2 * (r.x * r.x + r.y * r.y);
+    return Math.atan2(fx, fz);
+  }
+
+  /** Whether the beast is currently considered on the ground by locomotion. */
+  isGrounded(): boolean {
+    return this.locoState.isGrounded;
+  }
+
+  /** Current stamina as a fraction [0..1]. */
+  getStaminaFraction(): number {
+    return this.stamina.current / this.stamina.max;
+  }
+
+  /** Get current mass fraction of starting mass (for HP display). */
   getMassPercent(): number {
-    // Phase 1: always 100%. Phase 3 will track actual mass loss.
+    // Phase 1: always 100%. Phase 2 Block 2 will track real mass loss.
     return 100;
   }
 

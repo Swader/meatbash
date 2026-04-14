@@ -11,6 +11,8 @@ export interface GameLoopConfig {
   physics: RapierWorld;
   input: InputManager;
   beasts: BeastInstance[];
+  /** Per-fixed-step hook fired AFTER physics.step() and BEFORE beast sync. */
+  onPostPhysics?: (dt: number) => void;
   onVariableUpdate?: (dt: number) => void;
   onPostRender?: () => void;
 }
@@ -112,6 +114,9 @@ export class GameLoop {
 
     // Step physics world
     physics.step();
+
+    // Post-physics hook (damage, particle spawn, sensor queries)
+    this.config.onPostPhysics?.(dt);
 
     // Sync beast visual positions from physics
     for (const beast of beasts) {

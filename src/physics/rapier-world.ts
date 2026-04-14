@@ -12,23 +12,79 @@ import RAPIER from '@dimforge/rapier3d-compat';
 // - CREATURE_SOLID: physical creature bodies (no self-collision)
 // - CREATURE_SENSOR: foot sensors (intersect with arena only)
 const GROUP_ARENA_BIT = 0x0001;
-const GROUP_CREATURE_BIT = 0x0002;
-const GROUP_SENSOR_BIT = 0x0004;
+/**
+ * Bits 1..8 are available for PER-BEAST collision membership. Each spawned
+ * beast is assigned a unique bit so its own body parts don't collide with
+ * each other (self-collision = ragdoll explosions), but parts still collide
+ * with the arena AND with every OTHER beast's parts.
+ *
+ * Arena filter accepts everything.
+ * Beast N membership bit = 1 << (N+1).
+ * Beast N solid filter = arena bit + all other beast bits (i.e. NOT its own).
+ *
+ * Helpers below compute the right groups given a beast index.
+ */
+const MAX_BEASTS = 8;
+const ALL_BEAST_BITS = ((1 << MAX_BEASTS) - 1) << 1; // bits 1..8 set
+
+const GROUP_SENSOR_BIT = 0x0400; // bit 10 — well above beast bits
 
 export const COLLISION_GROUPS = {
   // Arena collides with everything
   ARENA: (GROUP_ARENA_BIT << 16) | 0xFFFF,
-  // Creature solid bodies collide with arena only (no self-collision)
-  CREATURE_SOLID: (GROUP_CREATURE_BIT << 16) | GROUP_ARENA_BIT,
+  // Default solid (legacy arena-only). Replaced per-beast at spawn time.
+  CREATURE_SOLID: (0x0002 << 16) | GROUP_ARENA_BIT,
   // Sensor colliders intersect with arena only
   CREATURE_SENSOR: (GROUP_SENSOR_BIT << 16) | GROUP_ARENA_BIT,
 };
+
+/**
+ * Compute the InteractionGroups for a specific beast's solid colliders.
+ *
+ * @param beastIndex   0-based index (0..MAX_BEASTS-1)
+ * @returns A 32-bit groups value where membership = this beast's unique bit
+ *          and filter = arena + every OTHER beast's bit (but not its own).
+ */
+export function creatureSolidGroups(beastIndex: number): number {
+  const myBit = 1 << (beastIndex + 1);
+  const otherBeasts = ALL_BEAST_BITS & ~myBit;
+  const filter = GROUP_ARENA_BIT | otherBeasts;
+  return (myBit << 16) | filter;
+}
+
+/**
+ * Compute the sensor groups for a specific beast — foot sensors
+ * should only detect the arena, never other creatures.
+ */
+export function creatureSensorGroups(_beastIndex: number): number {
+  // Sensors: same for all beasts — intersect with arena only
+  return (GROUP_SENSOR_BIT << 16) | GROUP_ARENA_BIT;
+}
 
 export class RapierWorld {
   world!: RAPIER.World;
   rapier!: typeof RAPIER;
   eventQueue!: RAPIER.EventQueue;
   private initialized = false;
+
+  /**
+   * Current creature collision groups. Skeleton builders set this via
+   * `beginBeast(index)` before creating any creature bodies; collider
+   * helpers pick it up automatically. Default is beast index 0.
+   */
+  private activeCreatureGroups = creatureSolidGroups(0);
+  private activeSensorGroups = creatureSensorGroups(0);
+
+  /**
+   * Begin building the colliders for beast N. All subsequent calls to
+   * `addCapsuleCollider`, `addCuboidCollider`, `addBallCollider`, and
+   * `addSensorCollider` will use beast N's collision groups until the
+   * next `beginBeast` call.
+   */
+  beginBeast(beastIndex: number): void {
+    this.activeCreatureGroups = creatureSolidGroups(beastIndex);
+    this.activeSensorGroups = creatureSensorGroups(beastIndex);
+  }
 
   async init() {
     await RAPIER.init();
@@ -225,7 +281,7 @@ export class RapierWorld {
       .setDensity(density)
       .setFriction(friction)
       .setRestitution(restitution)
-      .setCollisionGroups(COLLISION_GROUPS.CREATURE_SOLID);
+      .setCollisionGroups(this.activeCreatureGroups);
     return this.world.createCollider(colliderDesc, body);
   }
 
@@ -243,7 +299,7 @@ export class RapierWorld {
       .setFriction(friction)
       .setRestitution(restitution)
       .setTranslation(0, offsetY, 0)
-      .setCollisionGroups(COLLISION_GROUPS.CREATURE_SOLID);
+      .setCollisionGroups(this.activeCreatureGroups);
     return this.world.createCollider(colliderDesc, body);
   }
 
@@ -257,7 +313,7 @@ export class RapierWorld {
       .setDensity(density)
       .setFriction(0.6)
       .setRestitution(0.0)
-      .setCollisionGroups(COLLISION_GROUPS.CREATURE_SOLID);
+      .setCollisionGroups(this.activeCreatureGroups);
     return this.world.createCollider(colliderDesc, body);
   }
 
@@ -274,7 +330,7 @@ export class RapierWorld {
     const colliderDesc = this.rapier.ColliderDesc.cuboid(hx, hy, hz)
       .setSensor(true)
       .setTranslation(offset.x, offset.y, offset.z)
-      .setCollisionGroups(COLLISION_GROUPS.CREATURE_SENSOR)
+      .setCollisionGroups(this.activeSensorGroups)
       .setActiveEvents(this.rapier.ActiveEvents.COLLISION_EVENTS);
     return this.world.createCollider(colliderDesc, body);
   }
