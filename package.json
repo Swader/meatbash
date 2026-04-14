@@ -1,7 +1,7 @@
 {
   "name": "meatbash-game",
   "version": "0.1.0",
-  "description": "Organic destruction derby. Sculpt gooey meatbeasts. QWOP them into battle.",
+  "description": "Organic destruction derby. Sculpt gooey meatbeasts. Stumble them into battle.",
   "type": "module",
   "private": true,
   "scripts": {

@@ -4,7 +4,7 @@ import { createCamera } from './engine/camera';
 import { InputManager } from './engine/input';
 import { GameLoop } from './engine/loop';
 import { RapierWorld } from './physics/rapier-world';
-import { createTestBeast } from './beast/test-beast';
+import { createTestBeast, createPhysicsArena } from './beast/test-beast';
 import { AudioManager } from './audio/audio-manager';
 import { DebugHud } from './ui/debug-hud';
 import { initTuningPanel } from './physics/tuning';
@@ -25,6 +25,11 @@ async function main() {
   const camera = createCamera(canvas);
   const input = new InputManager();
   const audio = new AudioManager();
+
+  // Build the physics arena to match the visual scene (heightfield ground,
+  // convex-hull rocks, walls). MUST happen before spawning the beast so
+  // ground raycasts see the real terrain.
+  createPhysicsArena(physics, arena.rockData);
 
   // Create a test beast for Phase 1
   const beast = createTestBeast(scene, physics);
@@ -50,7 +55,7 @@ async function main() {
     beasts: [beast],
     onVariableUpdate: (dt) => updateArena(dt),
     onPostRender: () => {
-      hud.update(beast.getStaminaPercent(), loop.getFps());
+      hud.update(beast.getStaminaPercent(), loop.getFps(), beast.getDebugState());
     },
   });
 

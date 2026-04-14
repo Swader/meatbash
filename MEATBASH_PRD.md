@@ -10,7 +10,7 @@
 
 ## 1. Elevator Pitch
 
-MEATBASH is an organic destruction derby where players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in QWOP-style ragdoll arena combat. Think Robot Wars meets QWOP meets Play-Doh. Multiplayer, spectatable, instantly memeable.
+MEATBASH is an organic destruction derby where players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in WASD ragdoll arena combat. Think Robot Wars meets Gang Beasts meets Play-Doh. Multiplayer, spectatable, instantly memeable.
 
 ---
 
@@ -352,7 +352,7 @@ Ship with 6–8 premade certified beasts for instant play:
 - Hinge/ball joints at each joint position from the skeleton
 - Collider shapes approximating bone positions
 - Ground contact, wall collision, beast-vs-beast collision
-- Joint motors driven by player input (QWOP keys apply torques to joints)
+- Joint motors driven by player input (WASD targets gait poses; the SUPPORTED/STUMBLING/FALLEN/RECOVERING state machine handles balance)
 - Gravity, friction, restitution
 
 **Layer 2: Flesh (GPU Compute — WebGPU/TSL)**
@@ -650,15 +650,16 @@ CREATE TABLE matches (
 
 ### Phase 1: Core Loop (Days 1–5) — April 13–17
 
-**Goal:** A meat blob controlled with QWOP keys walking across a flat plane.
+**Goal:** A meat blob controlled with WASD that stands, walks, turns, jumps, falls, and recovers on a real heightfield arena.
 
-- [ ] Project setup (Bun, Three.js WebGPU, Rapier WASM)
-- [ ] WebGPU renderer with basic scene (ground plane, lighting)
+- [x] Project setup (Bun, Three.js WebGPU, Rapier WASM)
+- [x] WebGPU renderer with basic scene (heightfield ground, lighting, dust, walls)
 - [ ] SDF blob rendering (single meat sphere, ray-marched or marching-cubed)
-- [ ] Rapier skeleton: single bipedal rig with 2 legs + spine
-- [ ] Joint motor control: Q/W applies torques to hip joints
-- [ ] Basic locomotion: the biped stumbles forward
-- [ ] Camera follow
+- [x] Rapier skeleton: dynamic bipedal rig with motorized hip/knee/ankle joints, foot sensors, joint contact disabled
+- [x] Active-ragdoll locomotion: WASD movement, smoothed turning, support-based standing, jump
+- [x] SUPPORTED/STUMBLING/FALLEN/RECOVERING state machine (no balloon mode)
+- [x] Honest physics arena: heightfield ground + convex-hull rocks matching the visual mesh
+- [x] Camera follow
 
 ### Phase 2: Sculpting & Materials (Days 6–8) — April 18–20
 
@@ -846,7 +847,7 @@ The game is submittable when:
 
 - [ ] Player can open the URL and see the home screen instantly
 - [ ] Player can select a premade beast and fight a bot in the arena
-- [ ] QWOP-style controls make the beast stumble around and attack
+- [ ] WASD active-ragdoll controls make the beast stumble around and attack (clumsiness from physics, not awkward keys)
 - [ ] Damage is visible (meat chunks fly off, mass bar decreases)
 - [ ] Gene Lab allows sculpting a beast with meat/chitin/bone
 - [ ] At least 2 archetypes work (bipedal, quadruped)

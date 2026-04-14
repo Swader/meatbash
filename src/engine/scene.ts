@@ -1,43 +1,20 @@
 import * as THREE from 'three';
+import { fbmNoise, hashNoise, sampleTerrainHeight } from './terrain';
+
+/** Geometry data exposed for matching physics colliders. */
+export interface RockGeometryData {
+  /** World-space position of the rock body. */
+  position: { x: number; y: number; z: number };
+  /** Vertices in LOCAL space (relative to position). Float32Array of (x,y,z) triples. */
+  vertices: Float32Array;
+}
 
 export interface ArenaObjects {
   ground: THREE.Mesh;
   rocks: THREE.Mesh[];
+  rockData: RockGeometryData[];
   walls: THREE.Mesh[];
   dust: THREE.Points;
-}
-
-// Simple seeded pseudo-random for deterministic noise
-function hashNoise(x: number, y: number): number {
-  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-  return n - Math.floor(n);
-}
-
-// Multi-octave value noise for terrain
-function fbmNoise(x: number, y: number, octaves: number = 4): number {
-  let value = 0;
-  let amplitude = 1;
-  let frequency = 1;
-  let maxAmp = 0;
-  for (let i = 0; i < octaves; i++) {
-    const ix = Math.floor(x * frequency);
-    const iy = Math.floor(y * frequency);
-    const fx = x * frequency - ix;
-    const fy = y * frequency - iy;
-    // Bilinear interpolation of hash noise
-    const a = hashNoise(ix, iy);
-    const b = hashNoise(ix + 1, iy);
-    const c = hashNoise(ix, iy + 1);
-    const d = hashNoise(ix + 1, iy + 1);
-    const sx = fx * fx * (3 - 2 * fx);
-    const sy = fy * fy * (3 - 2 * fy);
-    const lerped = a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
-    value += lerped * amplitude;
-    maxAmp += amplitude;
-    amplitude *= 0.5;
-    frequency *= 2.0;
-  }
-  return value / maxAmp;
 }
 
 /**
@@ -124,20 +101,11 @@ export function createScene(): {
     // Distance from center (in ground plane, before rotation)
     const dist = Math.sqrt(x * x + y * y);
 
-    // Multi-octave noise displacement
-    const baseNoise = fbmNoise(x * 0.08 + 50, y * 0.08 + 50, 5);
-    const detailNoise = fbmNoise(x * 0.3 + 100, y * 0.3 + 100, 3) * 0.15;
-    let displacement = (baseNoise - 0.5) * 1.2 + detailNoise;
-
-    // Flatten center fighting area (within radius ~12)
-    const centerFade = Math.max(0, 1 - dist / 14);
-    const centerSmooth = centerFade * centerFade * (3 - 2 * centerFade); // smoothstep
-    displacement *= 1 - centerSmooth * 0.85;
-
-    // Slight depression in the very center (worn combat pit)
-    if (dist < 10) {
-      displacement -= (1 - dist / 10) * 0.15;
-    }
+    // CRITICAL: use the shared terrain function so the visual ground
+    // and the physics heightfield are exactly the same surface.
+    // The plane geometry is XY in mesh-local space — after rotation -π/2
+    // around X, the plane's Y becomes world Z.
+    const displacement = sampleTerrainHeight(x, y);
 
     posAttr.setZ(i, displacement);
 
@@ -201,6 +169,7 @@ export function createScene(): {
   // DO NOT CHANGE rock positions - they must match physics colliders in test-beast.ts
 
   const rocks: THREE.Mesh[] = [];
+  const rockData: RockGeometryData[] = [];
   const rockMat = new THREE.MeshStandardMaterial({
     color: 0x665544,
     roughness: 0.85,
@@ -233,12 +202,28 @@ export function createScene(): {
     }
     rockGeo.computeVertexNormals();
 
+    // Place the rock on top of the terrain at its X/Z location
+    const groundY = sampleTerrainHeight(rp.x, rp.z);
+    const rockY = groundY + rp.scale * 0.3;
+
     const rock = new THREE.Mesh(rockGeo, rockMat);
-    rock.position.set(rp.x, rp.scale * 0.3, rp.z);
+    rock.position.set(rp.x, rockY, rp.z);
     rock.castShadow = true;
     rock.receiveShadow = true;
     scene.add(rock);
     rocks.push(rock);
+
+    // Capture deformed vertices in LOCAL space for convex hull collider
+    const verts = new Float32Array(rockPos.count * 3);
+    for (let i = 0; i < rockPos.count; i++) {
+      verts[i * 3 + 0] = rockPos.getX(i);
+      verts[i * 3 + 1] = rockPos.getY(i);
+      verts[i * 3 + 2] = rockPos.getZ(i);
+    }
+    rockData.push({
+      position: { x: rp.x, y: rockY, z: rp.z },
+      vertices: verts,
+    });
   }
 
   // === ARENA WALLS ===
@@ -460,7 +445,7 @@ export function createScene(): {
 
   return {
     scene,
-    arena: { ground, rocks, walls, dust },
+    arena: { ground, rocks, rockData, walls, dust },
     updateArena,
   };
 }

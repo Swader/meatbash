@@ -19,78 +19,85 @@ export interface BipedSkeleton {
   pelvis: RAPIER.RigidBody;
   footL: FootInfo;
   footR: FootInfo;
-  /** Resting pelvis Y when both feet planted. */
+  /** Resting pelvis Y when both feet planted, in WORLD space (includes terrain offset). */
   restingPelvisY: number;
+  /** Resting pelvis HEIGHT above terrain (constant, terrain-relative). */
+  restingPelvisHeightAboveGround: number;
 }
 
 /**
  * Build an active-ragdoll bipedal skeleton.
  *
- * Architecture (per the locomotion audit):
- * - DYNAMIC pelvis body (NOT kinematic). Falls under gravity, can be hit.
+ * Architecture:
+ * - DYNAMIC pelvis body, hidden small capsule. NOT kinematic.
+ * - 70%+ of mass in pelvis, COM positioned slightly LOW (toward hips).
  * - Real foot bodies (cuboids) with high friction and intersection sensors.
  * - Hip / knee / ankle revolute joints, all motorized.
- * - Self-collision disabled via collision groups (creature parts ignore each
- *   other, only collide with arena).
+ * - Self-collision disabled via collision groups AND per-joint
+ *   `setContactsEnabled(false)` (belt and suspenders).
  *
- * The locomotion controller drives motor targets and applies balance forces
- * (upright torque + height spring) to the pelvis. Standing is EARNED through
- * support contact, not faked through teleporting.
+ * The physics rig is optimized for stability and contact quality, NOT
+ * for visual resemblance — the visible meat blob is a separate layer.
  */
 export function createBipedSkeleton(
   physics: RapierWorld,
   spawnX: number = 0,
-  spawnZ: number = 0
+  spawnZ: number = 0,
+  groundY: number = 0
 ): BipedSkeleton {
   const joints = new Map<string, SkeletonJoint>();
   const allBodies: RAPIER.RigidBody[] = [];
 
   // ---- Dimensions (m) ----
-  const pelvisHalfH = 0.18;     // capsule half-height (cylinder part)
-  const pelvisRadius = 0.22;
-  const upperLegLen = 0.42;     // capsule full length (cylinder part)
-  const upperLegRad = 0.12;
+  // Hidden pelvis — bigger than before so it actually sits inside the
+  // visible blob instead of rattling around like a marble in a balloon.
+  // Still smaller than the visual radius (~0.42) to let the meat hang
+  // over the edges naturally.
+  const pelvisHalfH = 0.16;
+  const pelvisRadius = 0.25;
+  const upperLegLen = 0.42;
+  const upperLegRad = 0.11;
   const lowerLegLen = 0.40;
-  const lowerLegRad = 0.10;
+  const lowerLegRad = 0.09;
   // Foot is a flat cuboid for stable support contact
-  const footHX = 0.10;          // half-width (sideways)
-  const footHY = 0.05;          // half-height (vertical) — 10cm thick total
-  const footHZ = 0.16;          // half-depth (forward/back)
-  const hipWidth = 0.16;        // half-distance between hips
+  const footHX = 0.10;
+  const footHY = 0.05;
+  const footHZ = 0.16;
+  const hipWidth = 0.16;
 
   // ---- Standing positions (calculated bottom-up so joint anchors match exactly) ----
-  // Foot bottom touches ground (Y=0) when standing
-  const footCenterY = footHY + 0.005;  // tiny ground clearance
+  // Foot bottom touches ground (groundY) when standing
+  const footCenterY = groundY + footHY + 0.005;
   // Ankle joint world Y = top of foot
   const ankleWorldY = footCenterY + footHY;
-  // Lower leg center: ankle is at lower leg bottom anchor
   const lowerLegCenterY = ankleWorldY + lowerLegLen / 2;
-  // Knee world Y = top of lower leg
   const kneeWorldY = lowerLegCenterY + lowerLegLen / 2;
-  // Upper leg center: knee is at upper leg bottom anchor
   const upperLegCenterY = kneeWorldY + upperLegLen / 2;
-  // Hip world Y = top of upper leg
   const hipWorldY = upperLegCenterY + upperLegLen / 2;
-  // Pelvis center: hip is just below pelvis bottom (we use local anchor -pelvisHalfH-0.02)
+  // Hip anchor on the pelvis is BELOW its center (lowers COM toward hips)
   const pelvisHipLocalY = -(pelvisHalfH + 0.02);
   const pelvisCenterY = hipWorldY - pelvisHipLocalY;
 
-  // Sync the tuning standing height to the actual rest pose
-  tuning.standingHeight = pelvisCenterY;
+  // The constant "how high the pelvis sits above the terrain" — locomotion
+  // uses this for support height calculations independent of slope.
+  const restingPelvisHeightAboveGround = pelvisCenterY - groundY;
+  tuning.standingHeight = restingPelvisHeightAboveGround;
 
   // ============================================================
-  // PELVIS — dynamic root
+  // PELVIS — dynamic root, MOST of the beast's mass
   // ============================================================
-  // Pelvis must be heavy enough that the height spring can support it.
-  // We set additional mass directly so density tuning isn't confusing.
+  // 70% of total mass in the pelvis = stable base, less prone to
+  // helicopter-leg flipping. Damping is MODEST — the state machine
+  // + support spring do the real stabilizing work, not damping.
   const pelvis = physics.createDynamicBody(
     spawnX, pelvisCenterY, spawnZ,
-    3.0,    // additional mass: ~3 kg
-    1.5,    // angular damping (moderate, balance controller does the work)
-    0.5,    // linear damping
+    5.5,    // additional mass: ~5.5 kg
+    1.2,    // angular damping (moderate — was 2.6)
+    0.6,    // linear damping (moderate — was 1.4)
     8       // extra solver iterations
   );
-  physics.addCapsuleCollider(pelvis, pelvisHalfH, pelvisRadius, 1.0, 0.3, 0.0);
+  // Bigger, smoother pelvis collider — low friction so it doesn't catch on rocks.
+  physics.addCapsuleCollider(pelvis, pelvisHalfH, pelvisRadius, 1.0, 0.25, 0.0);
   joints.set('torso', { name: 'torso', body: pelvis });
   allBodies.push(pelvis);
 
@@ -101,12 +108,12 @@ export function createBipedSkeleton(
     const sign = side === 'l' ? -1 : 1;
     const legX = spawnX + hipWidth * sign;
 
-    // ---- Upper leg ----
+    // ---- Upper leg (light, motors do the work) ----
     const upperLeg = physics.createDynamicBody(
       legX, upperLegCenterY, spawnZ,
-      0.8,    // mass
-      0.6,    // angular damping (let motors drive, not damping)
-      0.3,    // linear damping
+      0.5,    // light limb mass
+      1.5,    // angular damping — was 2.8 (over-damped)
+      0.4,
       6
     );
     physics.addCapsuleCollider(upperLeg, upperLegLen / 2, upperLegRad, 1.0, 0.4, 0.0);
@@ -114,10 +121,10 @@ export function createBipedSkeleton(
 
     const hipJoint = physics.createHingeJoint(
       pelvis, upperLeg,
-      { x: hipWidth * sign, y: pelvisHipLocalY, z: 0 },   // pelvis local anchor
-      { x: 0, y: upperLegLen / 2, z: 0 },                  // upper leg local anchor (top)
-      { x: 1, y: 0, z: 0 },                                 // hinge axis: X (forward/back swing)
-      { min: -1.2, max: 1.2 },                              // limits ~±70°
+      { x: hipWidth * sign, y: pelvisHipLocalY, z: 0 },
+      { x: 0, y: upperLegLen / 2, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      { min: -1.2, max: 1.2 },
       {
         targetPos: tuning.neutralHip,
         stiffness: tuning.hipStiffness,
@@ -129,17 +136,17 @@ export function createBipedSkeleton(
     // ---- Lower leg ----
     const lowerLeg = physics.createDynamicBody(
       legX, lowerLegCenterY, spawnZ,
-      0.6, 0.6, 0.3, 6
+      0.4, 1.8, 0.4, 6  // angular damping was 3.4 (over-damped)
     );
     physics.addCapsuleCollider(lowerLeg, lowerLegLen / 2, lowerLegRad, 1.0, 0.4, 0.0);
     allBodies.push(lowerLeg);
 
     const kneeJoint = physics.createHingeJoint(
       upperLeg, lowerLeg,
-      { x: 0, y: -upperLegLen / 2, z: 0 },                 // upper leg bottom
-      { x: 0, y: lowerLegLen / 2, z: 0 },                  // lower leg top
+      { x: 0, y: -upperLegLen / 2, z: 0 },
+      { x: 0, y: lowerLegLen / 2, z: 0 },
       { x: 1, y: 0, z: 0 },
-      { min: -1.4, max: 0.05 },                             // knee bends backward only
+      { min: -1.4, max: 0.05 },
       {
         targetPos: tuning.neutralKnee,
         stiffness: tuning.kneeStiffness,
@@ -148,26 +155,25 @@ export function createBipedSkeleton(
     );
     joints.set(`knee_${side}`, { name: `knee_${side}`, body: lowerLeg, joint: kneeJoint });
 
-    // ---- Foot (cuboid) ----
-    // Foot body needs to be HEAVY enough to plant firmly.
+    // ---- Foot (cuboid with high friction) ----
     const foot = physics.createDynamicBody(
-      legX, footCenterY, spawnZ + 0.02,  // slight forward offset so foot extends forward
-      0.6, 1.0, 0.5, 6
+      legX, footCenterY, spawnZ + 0.02,
+      0.3, 1.0, 0.5, 6
     );
     physics.addCuboidCollider(foot, footHX, footHY, footHZ, 1.5, tuning.footFriction, 0.0);
     allBodies.push(foot);
 
-    // Foot sensor: thin cuboid just below the foot for ground contact detection
+    // Foot sensor extending well below — catches ground from a generous range
     const sensor = physics.addSensorCollider(
       foot,
-      footHX * 0.9, 0.03, footHZ * 0.9,
-      { x: 0, y: -footHY - 0.02, z: 0 }
+      footHX * 0.95, 0.08, footHZ * 0.95,
+      { x: 0, y: -footHY - 0.06, z: 0 }
     );
 
     const ankleJoint = physics.createHingeJoint(
       lowerLeg, foot,
-      { x: 0, y: -lowerLegLen / 2, z: 0 },                 // lower leg bottom
-      { x: 0, y: footHY, z: -0.02 },                        // foot top, matched to spawn offset
+      { x: 0, y: -lowerLegLen / 2, z: 0 },
+      { x: 0, y: footHY, z: -0.02 },
       { x: 1, y: 0, z: 0 },
       { min: -0.5, max: 0.5 },
       {
@@ -191,5 +197,21 @@ export function createBipedSkeleton(
     footL,
     footR,
     restingPelvisY: pelvisCenterY,
+    restingPelvisHeightAboveGround,
   };
+}
+
+/**
+ * Sum the actual masses of every body in a skeleton.
+ * Used to mass-normalize drive force, turn torque, jump impulse, stamina.
+ *
+ * Recomputed each frame so that future mass loss (combat damage) is
+ * automatically reflected in locomotion strength.
+ */
+export function getTotalMass(skeleton: BipedSkeleton): number {
+  let total = 0;
+  for (const body of skeleton.allBodies) {
+    total += body.mass();
+  }
+  return total;
 }

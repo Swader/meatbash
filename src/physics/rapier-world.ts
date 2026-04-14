@@ -55,7 +55,10 @@ export class RapierWorld {
   // ARENA — fixed colliders for ground, walls, rocks
   // ============================================================
 
-  /** Create a ground plane collider */
+  /**
+   * Create a flat ground plane collider.
+   * Use createHeightfieldGround for terrain that matches the visual mesh.
+   */
   createGround(): RAPIER.RigidBody {
     const bodyDesc = this.rapier.RigidBodyDesc.fixed();
     const body = this.world.createRigidBody(bodyDesc);
@@ -63,6 +66,75 @@ export class RapierWorld {
       .setTranslation(0, -0.5, 0)
       .setFriction(1.2)
       .setRestitution(0.0)
+      .setCollisionGroups(COLLISION_GROUPS.ARENA);
+    this.world.createCollider(colliderDesc, body);
+    return body;
+  }
+
+  /**
+   * Create a heightfield ground collider that matches a visual terrain mesh.
+   *
+   * IMPORTANT: Despite what the JSDoc on `ColliderDesc.heightfield` says,
+   * `nrows`/`ncols` are SUBDIVISION counts, not matrix dimensions.
+   * The heights array MUST contain `(nrows+1) * (ncols+1)` samples
+   * (one per grid intersection, including borders). This was verified
+   * empirically — passing `nrows*ncols` heights triggers a WASM panic.
+   *
+   * The grid is centered at the body origin and spans local coords
+   * [-0.5, 0.5] × [-0.5, 0.5], stretched to world units by the scale.
+   *
+   * @param subdivisionsX  Number of cell subdivisions along local X.
+   * @param subdivisionsZ  Number of cell subdivisions along local Z.
+   * @param heights        Column-major Float32Array of length (sx+1)*(sz+1).
+   * @param scale          World-space scale of the heightfield (X/Y/Z).
+   */
+  createHeightfieldGround(
+    subdivisionsX: number,
+    subdivisionsZ: number,
+    heights: Float32Array,
+    scale: { x: number; y: number; z: number }
+  ): RAPIER.RigidBody {
+    const expectedLen = (subdivisionsX + 1) * (subdivisionsZ + 1);
+    if (heights.length !== expectedLen) {
+      throw new Error(
+        `Heightfield: heights.length (${heights.length}) must equal ` +
+        `(subdivisionsX+1)*(subdivisionsZ+1) = ${expectedLen}`
+      );
+    }
+    const bodyDesc = this.rapier.RigidBodyDesc.fixed();
+    const body = this.world.createRigidBody(bodyDesc);
+    const scaleVec = { x: scale.x, y: scale.y, z: scale.z };
+    const colliderDesc = this.rapier.ColliderDesc.heightfield(
+      subdivisionsX, subdivisionsZ, heights, scaleVec
+    )
+      .setFriction(1.2)
+      .setRestitution(0.0)
+      .setCollisionGroups(COLLISION_GROUPS.ARENA);
+    this.world.createCollider(colliderDesc, body);
+    return body;
+  }
+
+  /**
+   * Create a fixed body with a convex-hull collider built from a vertex cloud.
+   * Used for rocks so their collider matches the deformed visual silhouette.
+   * @param vertices   Float32Array of (x,y,z) triples in LOCAL space.
+   * @param position   World-space position of the body.
+   */
+  createConvexHullBody(
+    vertices: Float32Array,
+    position: { x: number; y: number; z: number }
+  ): RAPIER.RigidBody | null {
+    const bodyDesc = this.rapier.RigidBodyDesc.fixed()
+      .setTranslation(position.x, position.y, position.z);
+    const body = this.world.createRigidBody(bodyDesc);
+    const colliderDesc = this.rapier.ColliderDesc.convexHull(vertices);
+    if (!colliderDesc) {
+      this.world.removeRigidBody(body);
+      return null;
+    }
+    colliderDesc
+      .setFriction(0.7)
+      .setRestitution(0.05)
       .setCollisionGroups(COLLISION_GROUPS.ARENA);
     this.world.createCollider(colliderDesc, body);
     return body;
@@ -221,6 +293,12 @@ export class RapierWorld {
 
   /**
    * Create a revolute (hinge) joint with optional motor and limits.
+   *
+   * IMPORTANT: contacts between the two linked bodies are EXPLICITLY DISABLED.
+   * The 4th boolean to createImpulseJoint in Rapier is `wakeUp`, NOT
+   * "disable contacts". We must call `setContactsEnabled(false)` on the
+   * joint after creation to prevent self-collision between connected
+   * skeleton parts (which would cause ragdoll explosions).
    */
   createHingeJoint(
     body1: RAPIER.RigidBody,
@@ -237,6 +315,7 @@ export class RapierWorld {
       params.limits = [limits.min, limits.max];
     }
     const joint = this.world.createImpulseJoint(params, body1, body2, true) as RAPIER.RevoluteImpulseJoint;
+    joint.setContactsEnabled(false);
     if (motor) {
       joint.configureMotorPosition(motor.targetPos, motor.stiffness, motor.damping);
     }

@@ -1,7 +1,7 @@
 # MEATBASH - AI Agent Context
 
 ## What Is This
-Organic destruction derby game for Vibejam 2026. Players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in QWOP-style ragdoll arena combat. Think Robot Wars + QWOP + Play-Doh.
+Organic destruction derby game for Vibejam 2026. Players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in WASD ragdoll arena combat. Think Robot Wars + Gang Beasts + Play-Doh.
 
 ## Critical Rules
 - **Bun only.** No Node.js, no npx, no npm. Use `bun` for everything.
@@ -22,7 +22,8 @@ Organic destruction derby game for Vibejam 2026. Players sculpt gooey meatbeasts
 
 ## Architecture
 - **Dual-layer physics:** Rapier handles rigid skeleton (joints, collisions). GPU compute (future) handles meat deformation/damage.
-- **QWOP locomotion:** Player keys apply torques to joint motors. No direct movement. Inherently clumsy by design.
+- **Active-ragdoll locomotion (WASD):** Dynamic pelvis root with hidden locomotion collider, motorized hip/knee/ankle joints, foot sensors, and a SUPPORTED/STUMBLING/FALLEN/RECOVERING state machine. Standing is earned through support contact, not faked. The clumsy Gang-Beasts-style feel comes from tuning, not from awkward controls.
+- **Honest arena:** ground is a heightfield collider built from the same noise function as the visual mesh. Rocks are convex-hull colliders built from the same deformed icosahedron geometry. What you see is what you can stand on.
 - **SDF sculpting:** Beasts are built from SDF blobs (meat/chitin/bone). Ray-marched in editor, meshed via marching cubes at runtime.
 - **Host-authoritative networking:** Host client runs physics. Server is relay only. Spectators get state broadcasts.
 
@@ -46,15 +47,27 @@ server/
 ```
 
 ## Current Phase: Phase 1 (Core Loop)
-Goal: A bipedal meat blob controlled with QWOP keys stumbling across a flat arena.
-Status: Project scaffolded, skeleton physics working, visual proxies in place.
+Goal: A bipedal meat blob controlled with WASD that stands, walks, turns, jumps, falls, and recovers on a real heightfield arena with real rock colliders.
+Status: Active-ragdoll locomotion with state machine + tuneable balance is working. Visual proxies in place.
+
+## Controls
+- **W** = walk forward (auto-cycling gait)
+- **S** = walk backward
+- **A / D** = turn left / right (smoothed yaw rate, not snap rotation)
+- **SPACE** = jump (when SUPPORTED) / panic flail (in air)
+- **Mouse drag** = orbit camera
 
 ## Key Files
 - `MEATBASH_PRD.md` — Full PRD (source of truth for all game design decisions)
-- `src/physics/skeleton.ts` — Bipedal skeleton builder (Rapier bodies + joints)
-- `src/physics/locomotion.ts` — QWOP torque application per key
+- `docs/MEATBASH_LOCOMOTION_AUDIT.md` — Architecture audit that drove the active-ragdoll rebuild
+- `src/engine/terrain.ts` — Shared terrain noise (visual ground + heightfield collider use this)
+- `src/physics/rapier-world.ts` — Rapier wrapper, collision groups, heightfield/convex-hull builders
+- `src/physics/skeleton.ts` — Bipedal skeleton builder (dynamic pelvis + 70% mass, motorized joints, foot sensors)
+- `src/physics/locomotion.ts` — State machine, support spring, smoothed turning, drive force
+- `src/physics/tuning.ts` — Centralized tuning + tweakpane panel with tooltips
+- `src/beast/test-beast.ts` — `createPhysicsArena` + `createTestBeast`
 - `src/beast/beast-instance.ts` — Links physics to Three.js visuals
-- `src/engine/loop.ts` — Fixed-timestep physics, variable render
+- `src/engine/loop.ts` — Fixed-timestep physics, variable render, per-step input latching
 
 ## Development Commands
 ```bash

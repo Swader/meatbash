@@ -6,17 +6,22 @@ All code is in `/home/claude/meatbash/`. Run `bun run dev` to test, `bun run bui
 ---
 
 ## PHASE 1 REMAINING — Core Loop Polish (Days 1-5)
-**Status: Skeleton scaffolded. Need tuning + visual improvements.**
+**Status: Active-ragdoll locomotion implemented. Tuning live via tweakpane.**
 
-### Task 1.1: Tune Bipedal Locomotion
-**Files:** `src/physics/locomotion.ts`, `src/physics/skeleton.ts`
-**Goal:** Make the biped actually walk forward when alternating Q/W. Currently just applies torques — needs tuning of:
-- Hip torque magnitude (HIP_TORQUE constant)
-- Joint damping values in skeleton.ts (angular damping on bodies)
-- Joint limits (min/max angles)
-- Knee spring-back strength
-- Foot friction
-**Acceptance:** Alternating Q→W→Q→W makes the beast stumble forward. Not smooth — clumsy is the point — but it should make forward progress. Leaning A/D should shift weight and enable turning.
+### Task 1.1: Tune Active-Ragdoll Locomotion ✅ ARCHITECTURE DONE
+**Files:** `src/physics/locomotion.ts`, `src/physics/skeleton.ts`, `src/physics/tuning.ts`
+**Architecture (per locomotion audit):**
+- Dynamic pelvis root (NOT kinematic) with 70% of beast mass
+- Motorized hip / knee / ankle joints, contacts disabled between linked bodies
+- Foot bodies (cuboids, high friction) with intersection sensors
+- Heightfield ground collider matching the visual mesh
+- Convex-hull rock colliders matching the visual rocks
+- SUPPORTED / STUMBLING / FALLEN / RECOVERING state machine
+- Support spring along ground normal (only when supported)
+- Smoothed A/D → desired yaw rate (no snap rotation)
+- Drive force scaled by tilt + support state
+**Controls:** WASD movement (W forward, S back, A/D turn), SPACE jump.
+**Remaining:** live-tune balance gains, motor stiffness, stride pose targets via the tweakpane panel until the gait feels right. The clumsiness should come from physics, not awkward keys.
 
 ### Task 1.2: Improve Meat Visuals
 **Files:** `src/beast/beast-instance.ts`
@@ -99,10 +104,11 @@ All code is in `/home/claude/meatbash/`. Run `bun run dev` to test, `bun run bui
 **Files:** `src/physics/skeleton.ts`, `src/physics/locomotion.ts`
 **Goal:** Second archetype — four-legged beast.
 - 4 hip joints, 4 knee joints, 4 feet
-- Q = left pair stride, W = right pair stride
-- A/D = differential steering (more force on one side)
-- More stable than biped, less agile
-**Acceptance:** Quadruped walks forward with Q/W alternation. Notably more stable than biped.
+- WASD: W forward, S back, A/D smoothed yaw turn (same as biped)
+- Diagonal-pair gait phases (front-left + back-right alternating with front-right + back-left)
+- Reuses the SUPPORTED/STUMBLING/FALLEN/RECOVERING state machine
+- More stable than biped (more support contributors), less agile turn
+**Acceptance:** Quadruped walks forward when W is held with diagonal-pair gait. Notably more stable than biped and harder to tip over.
 
 ---
 

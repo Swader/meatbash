@@ -329,4 +329,20 @@ gl_FragColor.rgb += rimColor;
   getStaminaPercent(): number {
     return (this.stamina.current / this.stamina.max) * 100;
   }
+
+  /**
+   * Snapshot of the controller's internal state, for the debug HUD.
+   * Reading this is free — the locomotion already updates these fields
+   * each fixed step.
+   */
+  getDebugState() {
+    return {
+      mode: this.locoState.mode,
+      groundedFeet: this.locoState.groundedFeet,
+      tiltDeg: this.locoState.tiltDeg,
+      groundDist: this.locoState.groundDist,
+      totalMass: this.locoState.totalMass,
+      regenPerSec: this.locoState.regenPerSec,
+    };
+  }
 }

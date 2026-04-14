@@ -2,54 +2,83 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import { InputManager } from '../engine/input';
 import { RapierWorld } from './rapier-world';
 import type { BipedSkeleton } from './skeleton';
+import { getTotalMass } from './skeleton';
 import { tuning } from './tuning';
 
 /**
  * Active-ragdoll bipedal locomotion.
  *
- * Architecture:
- *   1. Read input (now properly latched per fixed step).
- *   2. Determine grounded state from foot sensor intersections.
- *   3. Update gait state machine (which leg is swinging, which is driving).
- *   4. Set joint motor targets based on gait state.
- *   5. Apply balance forces to the dynamic pelvis:
- *      - Upright torque (PD spring around X/Z axes)
- *      - Height spring (PD spring on Y axis) — only when grounded
- *   6. Jump = single upward impulse on the pelvis (only when grounded).
+ * Pelvis is a DYNAMIC body. All forces/torques scale with total body
+ * mass so the controller survives mass loss and mass variation.
  *
- * Critical: forward motion comes from FOOT FRICTION reacting to leg motors
- * rotating the pelvis forward. NOT from impulses applied to body parts.
- * The legs do the locomotion. The pelvis is just along for the ride.
+ * State machine (post-audit):
+ *   SUPPORTED   — both feet planted, tilt low. Full assist.
+ *   STUMBLING   — one foot planted, or tilt > stumbleTiltDeg. Reduced assist.
+ *   AIRBORNE    — zero feet planted for > airborneGrace. Jump / fall / edge. No stand-up spring.
+ *   FALLEN      — tilt > fallTiltDeg AND support lost, or pelvis near ground. No assist; gravity wins.
+ *   RECOVERING  — delayed ramp after FALLEN. Uses a dedicated get-up pose and BOOSTED upright torque.
+ *
+ * Grounded state comes from the FOOT SENSORS, not a pelvis raycast.
+ * The pelvis ray is only used to compute ground distance / slope normal
+ * for the support spring.
  */
 
-// ---- Constants ----
-const PANIC_AMPLITUDE = 0.8;       // Hip target swing during panic
-const PANIC_FREQ = 6.0;            // Hz of panic flail
-const TURN_TORQUE = 25;             // Yaw torque on pelvis when A/D held
+const PANIC_AMPLITUDE = 0.8;
+const PANIC_FREQ = 6.0;
 const PANIC_STAMINA_PER_SEC = 30;
 const JUMP_STAMINA_COST = 15;
+const ARENA_QUERY = (0x0001 << 16) | 0x0001;
+
+export type LocomotionMode =
+  | 'SUPPORTED'
+  | 'STUMBLING'
+  | 'AIRBORNE'
+  | 'FALLEN'
+  | 'RECOVERING';
 
 export interface LocomotionState {
-  /** Time since last successful jump (for cooldown). */
   jumpTimer: number;
-  /** Whether the pelvis is currently considered grounded. */
+  /** Whether the creature has usable support (feet grounded in a non-FALLEN state). */
   isGrounded: boolean;
-  /** Time accumulator for the auto-cycling walk gait when W is held. */
+  /** 0, 1, or 2 — how many foot sensors are currently touching the ground. */
+  groundedFeet: number;
+  /** Seconds with 0 grounded feet. Reset to 0 when any foot touches. */
+  airborneTimer: number;
   gaitPhase: number;
+  mode: LocomotionMode;
+  modeTimer: number;
+  turnAxis: number;
+  yawRate: number;
+  // --- Debug readouts (updated each step for the HUD) ---
+  tiltDeg: number;
+  groundDist: number;
+  totalMass: number;
+  regenPerSec: number;
 }
 
 export function createLocomotionState(): LocomotionState {
   return {
     jumpTimer: 999,
     isGrounded: false,
+    groundedFeet: 0,
+    airborneTimer: 0,
     gaitPhase: 0,
+    mode: 'SUPPORTED',
+    modeTimer: 0,
+    turnAxis: 0,
+    yawRate: 0,
+    tiltDeg: 0,
+    groundDist: 0,
+    totalMass: 0,
+    regenPerSec: 0,
   };
 }
 
-/**
- * Configure a revolute joint motor with current tuning values.
- * Called every fixed step to support live tuning via tweakpane.
- */
+/** Critically-damped exponential smoothing. */
+function smooth(current: number, target: number, sharpness: number, dt: number): number {
+  return current + (target - current) * (1 - Math.exp(-sharpness * dt));
+}
+
 function setMotor(
   joint: RAPIER.RevoluteImpulseJoint | undefined,
   target: number,
@@ -78,60 +107,227 @@ export function applyBipedLocomotion(
 
   if (!hipL || !hipR || !kneeL || !kneeR) return;
 
-  // CRITICAL: addForce/addTorque ACCUMULATE in this Rapier version and
-  // do not auto-reset between steps. Reset them at the start of each
-  // fixed step before computing fresh forces.
   pelvis.resetForces(true);
   pelvis.resetTorques(true);
 
-  let staminaCost = 0;
   locoState.jumpTimer += dt;
+  locoState.modeTimer += dt;
+
+  const totalMass = getTotalMass(skeleton);
+  locoState.totalMass = totalMass;
 
   // ============================================================
-  // GROUND CONTACT — downward raycast from pelvis to arena
+  // SUPPORT — per-foot downward raycast against arena
   //
-  // Foot sensors are unreliable because the legs can fold, lifting
-  // the feet off the ground. The pelvis raycast directly tells us
-  // how far the body is from the ground regardless of leg state.
+  // Sensor colliders turn out not to reliably detect heightfield
+  // intersections in this Rapier version, so we shapecast straight
+  // down from each foot body and consider that foot grounded if the
+  // ray hits the arena within a short distance. This is robust across
+  // heightfields, rocks, and walls.
+  // ============================================================
+  const checkFootGrounded = (footBody: RAPIER.RigidBody): boolean => {
+    const p = footBody.translation();
+    // Ray from slightly above foot center, downward
+    const ray = new physics.rapier.Ray(
+      { x: p.x, y: p.y + 0.02, z: p.z },
+      { x: 0, y: -1, z: 0 }
+    );
+    // Max distance: foot body is ~0.07m above its collider bottom; allow
+    // a generous threshold so we count "about to step" as grounded.
+    const maxDist = 0.20;
+    const hit = physics.world.castRay(
+      ray,
+      maxDist,
+      true,
+      undefined,
+      ARENA_QUERY,
+      undefined,
+      footBody
+    );
+    return hit !== null;
+  };
+
+  const footL_grounded = checkFootGrounded(skeleton.footL.body);
+  const footR_grounded = checkFootGrounded(skeleton.footR.body);
+  const groundedFeet =
+    (footL_grounded ? 1 : 0) + (footR_grounded ? 1 : 0);
+  locoState.groundedFeet = groundedFeet;
+
+  if (groundedFeet === 0) {
+    locoState.airborneTimer += dt;
+  } else {
+    locoState.airborneTimer = 0;
+  }
+
+  // ============================================================
+  // Pelvis ground probe — for support spring height + slope normal.
+  // NOT used to decide grounded state.
   // ============================================================
   const pelvisPos = pelvis.translation();
+  const pelvisVel = pelvis.linvel();
   const downRay = new physics.rapier.Ray(
     { x: pelvisPos.x, y: pelvisPos.y, z: pelvisPos.z },
     { x: 0, y: -1, z: 0 }
   );
-  // Query filterGroups: hit ARENA group only (membership=1, filter=1)
-  const ARENA_QUERY = (0x0001 << 16) | 0x0001;
-  const groundHit = physics.world.castRay(
+  const hit = physics.world.castRayAndGetNormal(
     downRay,
-    tuning.standingHeight + 1.0,
+    tuning.standingHeight + 2.0,
     true,
     undefined,
     ARENA_QUERY,
     undefined,
     pelvis
   );
-  const distToGround = groundHit ? groundHit.timeOfImpact : Infinity;
-  // Grounded when the pelvis is within standing height (plus a generous tolerance)
-  // of the ground. This means "I have support somewhere below me".
-  locoState.isGrounded = distToGround < tuning.standingHeight + 0.3;
+  let groundDist = Infinity;
+  let groundNormal = { x: 0, y: 1, z: 0 };
+  if (hit) {
+    groundDist = hit.timeOfImpact;
+    if (hit.normal) {
+      groundNormal = { x: hit.normal.x, y: hit.normal.y, z: hit.normal.z };
+    }
+  }
+  locoState.groundDist = groundDist;
 
   // ============================================================
-  // GAIT STATE — WASD scheme with auto-cycling walk animation
+  // Tilt
   // ============================================================
-  // W held: walk forward — legs auto-alternate (left swing → right swing)
-  // S held: walk backward
-  // A/D: turn (handled below)
-  // SPACE: jump (grounded) / panic flail (airborne)
+  const rot = pelvis.rotation();
+  const pelvisUpX = 2 * (rot.x * rot.y + rot.w * rot.z);
+  const pelvisUpY = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
+  const pelvisUpZ = 2 * (rot.y * rot.z - rot.w * rot.x);
+  const tiltCos = Math.max(-1, Math.min(1, pelvisUpY));
+  const tiltDeg = Math.acos(tiltCos) * (180 / Math.PI);
+  locoState.tiltDeg = tiltDeg;
+
+  // Pelvis close to the ground → the body is literally down
+  const pelvisNearGround = isFinite(groundDist) && groundDist < 0.55;
+
+  // ============================================================
+  // STATE MACHINE
+  //
+  // ORDERING MATTERS: handle the current mode first so FALLEN /
+  // RECOVERING can transition correctly. Then look at everything else.
+  // ============================================================
+  let desiredMode: LocomotionMode;
+
+  if (locoState.mode === 'FALLEN') {
+    // Stay down for at least recoverDelay. Exit to RECOVERING when we
+    // have something to push off — either a foot on the ground OR the
+    // pelvis is close enough to use the get-up impulse.
+    if (
+      locoState.modeTimer >= tuning.recoverDelay &&
+      (groundedFeet > 0 || pelvisNearGround)
+    ) {
+      desiredMode = 'RECOVERING';
+    } else {
+      desiredMode = 'FALLEN';
+    }
+  } else if (locoState.mode === 'RECOVERING') {
+    // Recovery succeeded: feet on ground and upright again
+    if (
+      groundedFeet > 0 &&
+      tiltDeg < tuning.stumbleTiltDeg &&
+      locoState.modeTimer >= tuning.recoverRamp
+    ) {
+      desiredMode = 'SUPPORTED';
+    } else if (
+      tiltDeg > tuning.fallTiltDeg &&
+      locoState.modeTimer >= tuning.recoverRamp
+    ) {
+      // Recovery failed, slam back to FALLEN
+      desiredMode = 'FALLEN';
+    } else {
+      desiredMode = 'RECOVERING';
+    }
+  } else {
+    // Not already FALLEN / RECOVERING — pick a mode fresh.
+    const hardDown =
+      (tiltDeg > tuning.fallTiltDeg && groundedFeet === 0) ||
+      pelvisNearGround;
+
+    if (hardDown) {
+      desiredMode = 'FALLEN';
+    } else if (groundedFeet === 0) {
+      // Only count as airborne once the grace period has passed
+      if (locoState.airborneTimer > tuning.airborneGrace) {
+        desiredMode = 'AIRBORNE';
+      } else {
+        desiredMode = locoState.mode; // sticky during grace
+      }
+    } else if (groundedFeet === 1 || tiltDeg > tuning.stumbleTiltDeg) {
+      desiredMode = 'STUMBLING';
+    } else {
+      desiredMode = 'SUPPORTED';
+    }
+  }
+
+  if (desiredMode !== locoState.mode) {
+    const prevMode = locoState.mode;
+    locoState.mode = desiredMode;
+    locoState.modeTimer = 0;
+
+    // One-shot RECOVERING get-up impulse
+    if (desiredMode === 'RECOVERING' && prevMode === 'FALLEN') {
+      pelvis.applyImpulse(
+        {
+          x: 0,
+          y: totalMass * tuning.recoveringGetupImpulsePerKg,
+          z: 0,
+        },
+        true
+      );
+    }
+  }
+
+  // Per-mode multipliers
+  let supportMul: number;
+  let driveMul: number;
+  let uprightBoost = 1.0;
+  switch (locoState.mode) {
+    case 'SUPPORTED':
+      supportMul = 1.0;
+      driveMul = 1.0;
+      break;
+    case 'STUMBLING':
+      supportMul = 0.55;
+      driveMul = 0.5;
+      break;
+    case 'AIRBORNE':
+      supportMul = 0.0;
+      driveMul = 0.0;
+      break;
+    case 'FALLEN':
+      supportMul = 0.0;
+      driveMul = 0.0;
+      break;
+    case 'RECOVERING': {
+      const t = Math.min(1, locoState.modeTimer / Math.max(tuning.recoverRamp, 0.01));
+      supportMul = tuning.recoveringAssistStart +
+        (tuning.recoveringAssistEnd - tuning.recoveringAssistStart) * t;
+      driveMul = 0.0;
+      uprightBoost = tuning.recoveringUprightBoost;
+      break;
+    }
+  }
+
+  locoState.isGrounded =
+    groundedFeet > 0 &&
+    locoState.mode !== 'FALLEN' &&
+    locoState.mode !== 'AIRBORNE';
+
+  // ============================================================
+  // GAIT — auto-cycle when W/S held
+  // ============================================================
   const wDown = input.isDown('W') && stamina.current > 0;
   const sDown = input.isDown('S') && stamina.current > 0;
-  const panicDown = input.isDown(' ') && stamina.current > 0 && !locoState.isGrounded;
+  const aDown = input.isDown('A');
+  const dDown = input.isDown('D');
+  const panicDown =
+    input.isDown(' ') && stamina.current > 0 && locoState.mode === 'AIRBORNE';
 
-  // Advance the gait phase only when actively walking.
-  // tuning.gaitFrequency controls how fast the legs alternate.
   if (wDown || sDown) {
     locoState.gaitPhase += dt * tuning.gaitFrequency;
   } else {
-    // Settle gait phase smoothly back toward zero so legs return to neutral
     locoState.gaitPhase *= 0.85;
   }
 
@@ -140,49 +336,41 @@ export function applyBipedLocomotion(
   let rightHipTarget: number;
   let rightKneeTarget: number;
 
-  if (panicDown) {
-    // Panic flail in the air — swing legs wildly
+  if (locoState.mode === 'RECOVERING') {
+    // Dedicated get-up pose — hips slightly forward, knees bent hard
+    leftHipTarget = tuning.recoverHip;
+    rightHipTarget = tuning.recoverHip;
+    leftKneeTarget = tuning.recoverKnee;
+    rightKneeTarget = tuning.recoverKnee;
+  } else if (panicDown) {
     const t = performance.now() * 0.001 * PANIC_FREQ;
     leftHipTarget = Math.sin(t) * PANIC_AMPLITUDE;
     rightHipTarget = Math.sin(t + Math.PI) * PANIC_AMPLITUDE;
     leftKneeTarget = -0.4 + Math.sin(t * 1.7) * 0.3;
     rightKneeTarget = -0.4 + Math.cos(t * 1.7) * 0.3;
-    staminaCost += PANIC_STAMINA_PER_SEC * dt;
   } else if (wDown || sDown) {
-    // Walking: left and right legs alternate using a phase oscillator.
-    // sin(phase)   — left leg cycle (positive = swing forward)
-    // sin(phase+π) — right leg cycle, 180° out of phase
-    // When walking backward (S), the phase still advances but the
-    // forward force is negated below, so the legs visually still cycle.
     const lPhase = Math.sin(locoState.gaitPhase);
     const rPhase = Math.sin(locoState.gaitPhase + Math.PI);
-
-    // Map phase [-1..1] to (drive ↔ swing). When phase > 0: leg swinging.
-    // When phase < 0: leg planted/driving (slightly back).
-    const lerpHip = (p: number) => p > 0
-      ? p * tuning.swingHip                    // swing forward
-      : p * Math.abs(tuning.driveHip);         // negative = drive back
-    const lerpKnee = (p: number) => p > 0
-      ? p * tuning.swingKnee                   // bend on swing
-      : tuning.driveKnee;                       // straight on drive
-
+    const lerpHip = (p: number) =>
+      p > 0 ? p * tuning.swingHip : p * Math.abs(tuning.driveHip);
+    const lerpKnee = (p: number) =>
+      p > 0 ? p * tuning.swingKnee : tuning.driveKnee;
     leftHipTarget = lerpHip(lPhase);
     leftKneeTarget = lerpKnee(lPhase);
     rightHipTarget = lerpHip(rPhase);
     rightKneeTarget = lerpKnee(rPhase);
-    staminaCost += tuning.walkStaminaCost * dt;
   } else {
-    // Neutral standing — both legs hang straight at neutral angles
     leftHipTarget = tuning.neutralHip;
     leftKneeTarget = tuning.neutralKnee;
     rightHipTarget = tuning.neutralHip;
     rightKneeTarget = tuning.neutralKnee;
   }
 
-  // ============================================================
-  // APPLY MOTOR TARGETS — weakened when airborne
-  // ============================================================
-  const motorMul = locoState.isGrounded ? 1.0 : tuning.airMotorMul;
+  // Motor multiplier: weak in AIRBORNE and FALLEN, full on the ground
+  const motorMul =
+    locoState.mode === 'AIRBORNE' || locoState.mode === 'FALLEN'
+      ? tuning.airMotorMul
+      : 1.0;
   const hipK = tuning.hipStiffness * motorMul;
   const hipD = tuning.hipDamping * motorMul;
   const kneeK = tuning.kneeStiffness * motorMul;
@@ -194,126 +382,165 @@ export function applyBipedLocomotion(
   setMotor(hipR.joint, rightHipTarget, hipK, hipD);
   setMotor(kneeL.joint, leftKneeTarget, kneeK, kneeD);
   setMotor(kneeR.joint, rightKneeTarget, kneeK, kneeD);
-  // Ankles always hold flat
   if (ankleL?.joint) setMotor(ankleL.joint, 0, ankleK, ankleD);
   if (ankleR?.joint) setMotor(ankleR.joint, 0, ankleK, ankleD);
 
   // ============================================================
-  // YAW TURN — A/D apply torque around Y axis to pelvis
+  // SUPPORT SPRING — ONLY when at least one foot is grounded
+  // Applied along the ground normal. Mass-scaled via supportMul.
+  // Skipped during jump holdoff so upward impulse can build height.
   // ============================================================
-  if (input.isDown('A')) {
-    pelvis.applyTorqueImpulse({ x: 0, y: TURN_TORQUE * dt, z: 0 }, true);
-    staminaCost += tuning.turnStaminaCost * dt;
-  }
-  if (input.isDown('D')) {
-    pelvis.applyTorqueImpulse({ x: 0, y: -TURN_TORQUE * dt, z: 0 }, true);
-    staminaCost += tuning.turnStaminaCost * dt;
+  const inJumpHoldoff = locoState.jumpTimer < 0.4;
+  if (groundedFeet > 0 && supportMul > 0 && !inJumpHoldoff && isFinite(groundDist)) {
+    const compression = tuning.standingHeight - groundDist;
+    if (compression > -0.1) {
+      const relVel =
+        pelvisVel.x * groundNormal.x +
+        pelvisVel.y * groundNormal.y +
+        pelvisVel.z * groundNormal.z;
+      const supportMag =
+        (tuning.heightStiffness * compression - tuning.heightDamping * relVel) *
+        supportMul;
+      pelvis.addForce(
+        {
+          x: groundNormal.x * supportMag,
+          y: groundNormal.y * supportMag,
+          z: groundNormal.z * supportMag,
+        },
+        true
+      );
+    }
   }
 
   // ============================================================
-  // FORWARD MOVEMENT — direct force on the dynamic pelvis
-  //
-  // The auditor's "pure motor walk" is hard to tune in a jam.
-  // This is the fallback they suggested: apply force to the dynamic
-  // root in its facing direction. The pelvis is still dynamic so it
-  // can fall, get hit, collide with rocks/walls — only locomotion
-  // is "cheated". Movement only works when grounded.
+  // UPRIGHT TORQUE — PD spring, scaled by supportMul * uprightBoost
   // ============================================================
-  if (locoState.isGrounded) {
-    // Compute forward direction from pelvis yaw
-    const rot = pelvis.rotation();
-    // Forward vector = (0,0,1) rotated by quaternion → projected to XZ
+  const uprightMul = supportMul * uprightBoost;
+  if (uprightMul > 0) {
+    const errX = pelvisUpZ;
+    const errZ = -pelvisUpX;
+    const angVel = pelvis.angvel();
+    const k = tuning.uprightStiffness * uprightMul;
+    const d = tuning.uprightDamping * uprightMul;
+    const torqueX = errX * k - angVel.x * d;
+    const torqueZ = errZ * k - angVel.z * d;
+    pelvis.addTorque({ x: torqueX, y: 0, z: torqueZ }, true);
+  }
+
+  // ============================================================
+  // SMOOTHED TURNING — raw A/D → filtered axis → desired yaw rate → torque
+  // Yaw torque is mass-scaled so heavy beasts turn proportionally.
+  // ============================================================
+  const rawTurn = (aDown ? 1 : 0) - (dDown ? 1 : 0);
+  locoState.turnAxis = smooth(locoState.turnAxis, rawTurn, tuning.turnSharpness, dt);
+
+  const horizSpeed = Math.sqrt(pelvisVel.x * pelvisVel.x + pelvisVel.z * pelvisVel.z);
+  const speedMul = 1 - Math.min(1, horizSpeed / Math.max(tuning.maxSpeed, 0.001)) * 0.25;
+  // Further reduce turn rate based on grounded feet count (1 foot = weaker)
+  const groundFootMul = Math.min(groundedFeet, 2) / 2;
+
+  const targetYawRate =
+    locoState.turnAxis *
+    tuning.maxYawRate *
+    Math.max(groundFootMul, locoState.mode === 'AIRBORNE' ? 0.15 : 0) *
+    speedMul;
+
+  locoState.yawRate = smooth(locoState.yawRate, targetYawRate, tuning.yawRateSharpness, dt);
+
+  if (rawTurn !== 0 || Math.abs(locoState.yawRate) > 0.01) {
+    const angVel = pelvis.angvel();
+    const yawErr = locoState.yawRate - angVel.y;
+    pelvis.addTorque(
+      { x: 0, y: yawErr * tuning.turnTorquePerKg * totalMass, z: 0 },
+      true
+    );
+  }
+
+  // ============================================================
+  // FORWARD DRIVE — mass-scaled, gated by state + tilt + foot count
+  // ============================================================
+  if (driveMul > 0 && groundedFeet > 0) {
     const fwdX = 2 * (rot.x * rot.z + rot.w * rot.y);
     const fwdZ = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
     const fwdLen = Math.sqrt(fwdX * fwdX + fwdZ * fwdZ) || 1;
     const fX = fwdX / fwdLen;
     const fZ = fwdZ / fwdLen;
 
-    let forwardMag = 0;
-    if (wDown) forwardMag += tuning.forwardForce;
-    if (sDown) forwardMag -= tuning.backwardForce;
+    // Tilt-based scaling: 1.0 upright → 0.0 at stumbleTiltDeg
+    const tiltScale = Math.max(0, 1 - tiltDeg / tuning.stumbleTiltDeg);
+    const footScale = groundedFeet / 2; // 0.5 for single foot, 1.0 for both
 
-    if (forwardMag !== 0) {
-      pelvis.addForce({ x: fX * forwardMag, y: 0, z: fZ * forwardMag }, true);
+    let accel = 0;
+    if (wDown) accel += tuning.forwardAccel;
+    if (sDown) accel -= tuning.backwardAccel;
+    accel *= driveMul * tiltScale * footScale;
+
+    if (accel !== 0) {
+      const force = accel * totalMass;
+      pelvis.addForce({ x: fX * force, y: 0, z: fZ * force }, true);
+    } else if (locoState.mode === 'SUPPORTED') {
+      // Horizontal damping — mass-scaled, MUCH weaker than before
+      const brakeForce = tuning.horizontalBrake * totalMass;
+      pelvis.addForce(
+        {
+          x: -pelvisVel.x * brakeForce,
+          y: 0,
+          z: -pelvisVel.z * brakeForce,
+        },
+        true
+      );
     }
-
-    // Apply horizontal damping when no input — prevents endless sliding
-    if (forwardMag === 0) {
-      const vel = pelvis.linvel();
-      const dampForce = 30; // N per (m/s)
-      pelvis.addForce({ x: -vel.x * dampForce, y: 0, z: -vel.z * dampForce }, true);
-    }
   }
 
   // ============================================================
-  // BALANCE — upright torque (PD spring) on pelvis
-  // Strong when grounded, much weaker when airborne.
-  // ============================================================
-  {
-    const rot = pelvis.rotation();
-    // Pelvis local up vector rotated to world space (i.e., rotate (0,1,0))
-    const upX = 2 * (rot.x * rot.y + rot.w * rot.z);
-    const upY = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
-    const upZ = 2 * (rot.y * rot.z - rot.w * rot.x);
-    void upY;
-
-    // Tilt error = up × worldUp = (upZ, 0, -upX)
-    // Magnitude is sin(tilt angle)
-    const errX = upZ;
-    const errZ = -upX;
-
-    const angVel = pelvis.angvel();
-    const k = tuning.uprightStiffness * (locoState.isGrounded ? 1.0 : 0.3);
-    const d = tuning.uprightDamping * (locoState.isGrounded ? 1.0 : 0.3);
-
-    const torqueX = errX * k - angVel.x * d;
-    const torqueZ = errZ * k - angVel.z * d;
-
-    pelvis.addTorque({ x: torqueX, y: 0, z: torqueZ }, true);
-  }
-
-  // ============================================================
-  // BALANCE — height spring on pelvis (only while grounded)
-  // F = k * (targetHeight - currentY) - d * vy
-  //
-  // Skipped briefly after a jump so the upward impulse can build
-  // height before the spring damping kills it.
-  // ============================================================
-  const inJumpHoldoff = locoState.jumpTimer < 0.4;
-  if (locoState.isGrounded && !inJumpHoldoff) {
-    const pos = pelvis.translation();
-    const vel = pelvis.linvel();
-    const heightError = tuning.standingHeight - pos.y;
-    const clampedError = Math.max(-0.5, Math.min(0.5, heightError));
-    const fy = tuning.heightStiffness * clampedError - tuning.heightDamping * vel.y;
-    pelvis.addForce({ x: 0, y: fy, z: 0 }, true);
-  }
-
-  // ============================================================
-  // JUMP — single upward impulse, grounded + cooldown
+  // JUMP — MASS-scaled impulse so heavy beasts still get off the ground
   // ============================================================
   if (
     input.justPressed(' ') &&
-    locoState.isGrounded &&
+    locoState.mode === 'SUPPORTED' &&
+    groundedFeet > 0 &&
     locoState.jumpTimer >= tuning.jumpCooldown &&
     stamina.current >= JUMP_STAMINA_COST
   ) {
-    // Impulse = mass * desiredVelocity
-    // Use additionalMass + collider mass approximation
-    const approxMass = 3.5; // pelvis mass
     pelvis.applyImpulse(
-      { x: 0, y: approxMass * tuning.jumpVelocity, z: 0 },
+      { x: 0, y: totalMass * tuning.jumpVelocity, z: 0 },
       true
     );
     locoState.jumpTimer = 0;
-    staminaCost += JUMP_STAMINA_COST;
+    // Jump stamina cost is intentional — we still want it to matter
+    stamina.current = Math.max(0, stamina.current - JUMP_STAMINA_COST);
   }
 
   // ============================================================
-  // STAMINA
+  // STAMINA — mass-based regen. Recovery is free.
   // ============================================================
-  stamina.current = Math.max(0, stamina.current - staminaCost);
-  if (staminaCost === 0) {
-    stamina.current = Math.min(stamina.max, stamina.current + stamina.regen * dt);
+  let staminaCost = 0;
+  if (wDown || sDown) staminaCost += tuning.walkStaminaCost * dt;
+  if (aDown || dDown) staminaCost += tuning.turnStaminaCost * dt;
+  if (panicDown) staminaCost += PANIC_STAMINA_PER_SEC * dt;
+
+  // Recovery doesn't cost stamina
+  if (locoState.mode === 'RECOVERING' || locoState.mode === 'FALLEN') {
+    staminaCost = 0;
   }
+
+  // Mass-scaled regen: lightest beasts recover fast, heaviest get half
+  const massT = Math.max(
+    0,
+    Math.min(
+      1,
+      (totalMass - tuning.regenLightMass) /
+        Math.max(0.001, tuning.regenHeavyMass - tuning.regenLightMass)
+    )
+  );
+  const massMul = 1.0 - 0.5 * massT;
+  const anyMoveKey = wDown || sDown || aDown || dDown;
+  const regenPerSec =
+    (anyMoveKey ? tuning.movingRegen : tuning.idleRegenLight) * massMul;
+  locoState.regenPerSec = regenPerSec;
+
+  stamina.current = Math.max(
+    0,
+    Math.min(stamina.max, stamina.current - staminaCost + regenPerSec * dt)
+  );
 }
