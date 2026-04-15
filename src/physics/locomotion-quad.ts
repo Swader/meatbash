@@ -129,15 +129,34 @@ export function applyQuadLocomotion(
   locoState.modeTimer += dt;
 
   // ============================================================
-  // TERRAIN SAFETY CLAMP — lift any body that has penetrated the
-  // heightfield back out, kill its downward velocity so gravity can't
-  // re-penetrate on the same frame. Same pattern as the biped.
+  // TERRAIN SAFETY CLAMP + NaN GUARD — lift any body that has penetrated
+  // the heightfield back out, kill its downward velocity so gravity can't
+  // re-penetrate on the same frame. Also catch NaN positions and snap
+  // broken bodies back to the pelvis so a single bad solver step can't
+  // freeze the entire game. See the matching biped block for the why.
   // ============================================================
   {
     const penetrationTolerance = 0.02;
+    const pelvisP = pelvis.translation();
+    const pelvisOk =
+      isFinite(pelvisP.x) && isFinite(pelvisP.y) && isFinite(pelvisP.z);
+    const safeX = pelvisOk ? pelvisP.x : 0;
+    const safeY = pelvisOk
+      ? pelvisP.y + 0.5
+      : skeleton.restingPelvisHeightAboveGround + 1.0;
+    const safeZ = pelvisOk ? pelvisP.z : 0;
+
     for (const body of skeleton.allBodies) {
       const p = body.translation();
+      if (!isFinite(p.x) || !isFinite(p.y) || !isFinite(p.z)) {
+        console.warn('[locomotion-quad] NaN body position — snapping to pelvis');
+        body.setTranslation({ x: safeX, y: safeY, z: safeZ }, true);
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        continue;
+      }
       const terrainY = sampleTerrainHeight(p.x, p.z);
+      if (!isFinite(terrainY)) continue;
       const minY = terrainY + penetrationTolerance;
       if (p.y < minY) {
         body.setTranslation({ x: p.x, y: minY, z: p.z }, true);

@@ -38,6 +38,13 @@ export interface BeastDefinition {
   personality: 'tank' | 'skirmisher' | 'bully' | 'flailer' | 'nimble';
   /** Visual style overrides. */
   visuals: BeastVisuals;
+  /**
+   * Bipedal beasts only: build the skeleton with two arms (shoulder + elbow).
+   * Arms hang loosely and swing outward from centrifugal force when the
+   * beast spins, letting them deal melee damage by flailing past enemies.
+   * Defaults to false so existing beasts keep the no-arms silhouette.
+   */
+  hasArms?: boolean;
 }
 
 /**

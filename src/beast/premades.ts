@@ -13,10 +13,11 @@ export const PREMADE_BEASTS: BeastDefinition[] = [
   {
     id: 'chonkus',
     name: 'Chonkus',
-    description: 'A chunky pink tank with googly eyes and zero chill.',
+    description: 'Chunky pink tank. Big floppy arms hit hard if you spin into someone.',
     archetype: 'bipedal',
     isDefault: true,
     personality: 'tank',
+    hasArms: true,
     visuals: {
       color: 0xdd4444,
       emissive: 0x330808,
@@ -41,10 +42,11 @@ export const PREMADE_BEASTS: BeastDefinition[] = [
   {
     id: 'noodlesnake',
     name: 'Noodlesnake',
-    description: 'A wobbly biped with extra swagger. Fast but fragile.',
+    description: 'Wobbly biped with windmilling arms. Fast, fragile, slappy.',
     archetype: 'bipedal',
     isDefault: true,
     personality: 'skirmisher',
+    hasArms: true,
     visuals: {
       color: 0xe88b5a,
       emissive: 0x2e1608,

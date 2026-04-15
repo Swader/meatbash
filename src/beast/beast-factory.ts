@@ -57,7 +57,9 @@ export function spawnBeast(
   physics.beginBeast(beastIndex);
 
   if (def.archetype === 'bipedal') {
-    const skeleton = createBipedSkeleton(physics, opts.x, opts.z, groundY);
+    const skeleton = createBipedSkeleton(physics, opts.x, opts.z, groundY, {
+      withArms: !!def.hasArms,
+    });
     return new BeastInstance(
       skeleton,
       physics,

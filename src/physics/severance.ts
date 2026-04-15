@@ -62,6 +62,13 @@ export function processSeverance(
         void e;
       }
 
+      // CRITICAL: clear the joint reference. Locomotion still walks the
+      // joint map every step and calls `setMotor(joint.joint, ...)`. A
+      // freed Rapier joint handle hands back NaN at best and a WASM
+      // trap at worst. setMotor's `if (!joint) return` guard then makes
+      // the call a no-op, so the severed body just floats free.
+      joint.joint = undefined;
+
       state.segmentAttached.set(segmentName, false);
 
       const pos = joint.body.translation();

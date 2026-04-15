@@ -103,24 +103,54 @@ export class GameLoop {
     this.config.input.endFrame();
   };
 
-  /** Fixed-timestep update: physics + input processing */
+  /** Fixed-timestep update: physics + input processing.
+   *
+   * EVERY stage is wrapped so a Rapier WASM panic, NaN propagation, or
+   * a buggy locomotion controller cannot kill the requestAnimationFrame
+   * loop. Before this guard, an uncaught exception inside physics.step()
+   * would silently freeze the entire game (and tab-out wiped the canvas
+   * because no more frames were rendered). Now the loop survives.
+   */
   private fixedUpdate(dt: number) {
     const { input, physics, beasts } = this.config;
 
     // Apply beast locomotion from input
     for (const beast of beasts) {
-      beast.applyInput(input, dt);
+      try {
+        beast.applyInput(input, dt);
+      } catch (e) {
+        console.error('[loop] beast.applyInput threw', e);
+      }
     }
 
-    // Step physics world
-    physics.step();
+    // Step physics world — the most common crash site. A WASM trap here
+    // is non-recoverable for that step, but we can keep the loop alive
+    // and let the next frame try again. If the underlying issue is bad
+    // body state, the next step will likely fail too — but at least we
+    // get a stack trace and the canvas keeps refreshing.
+    try {
+      physics.step();
+    } catch (e) {
+      console.error('[loop] physics.step threw — keeping loop alive', e);
+      // Bump a counter on window so tests can detect runaway crashes
+      const w = window as any;
+      w.__physicsStepErrors = (w.__physicsStepErrors || 0) + 1;
+    }
 
     // Post-physics hook (damage, particle spawn, sensor queries)
-    this.config.onPostPhysics?.(dt);
+    try {
+      this.config.onPostPhysics?.(dt);
+    } catch (e) {
+      console.error('[loop] onPostPhysics threw', e);
+    }
 
     // Sync beast visual positions from physics
     for (const beast of beasts) {
-      beast.syncFromPhysics();
+      try {
+        beast.syncFromPhysics();
+      } catch (e) {
+        console.error('[loop] beast.syncFromPhysics threw', e);
+      }
     }
   }
 

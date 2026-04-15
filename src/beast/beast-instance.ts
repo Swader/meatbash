@@ -215,6 +215,14 @@ gl_FragColor.rgb += rimColor;
       // Feet: flat boxes
       'ankle_l': { kind: 'box', hx: 0.10, hy: 0.05, hz: 0.16, isMeat: false },
       'ankle_r': { kind: 'box', hx: 0.10, hy: 0.05, hz: 0.16, isMeat: false },
+      // Arms (optional — only present when the skeleton was built with
+      // withArms=true; missing keys silently no-op in the loop below).
+      // Match the collider dimensions in skeleton.ts (upperArmLen=0.36,
+      // upperArmRad=0.085 / lowerArmLen=0.34, lowerArmRad=0.075).
+      'shoulder_l': { kind: 'capsule', halfHeight: 0.18, radius: 0.10, isMeat: true },
+      'shoulder_r': { kind: 'capsule', halfHeight: 0.18, radius: 0.10, isMeat: true },
+      'elbow_l':    { kind: 'capsule', halfHeight: 0.17, radius: 0.085, isMeat: true },
+      'elbow_r':    { kind: 'capsule', halfHeight: 0.17, radius: 0.085, isMeat: true },
     };
 
     const quadConfigs: Record<string, SegConfig> = {

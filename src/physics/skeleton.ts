@@ -23,6 +23,16 @@ export interface BipedSkeleton {
   restingPelvisY: number;
   /** Resting pelvis HEIGHT above terrain (constant, terrain-relative). */
   restingPelvisHeightAboveGround: number;
+  /** True when this skeleton has arms (shoulder + elbow joints on each side). */
+  hasArms: boolean;
+}
+
+export interface BipedSkeletonOptions {
+  /** Build the beast with two arms. Adds upper-arm (shoulder) and lower-arm
+   *  (elbow) bodies on each side, attached to the pelvis via Z-axis hinges
+   *  so they swing freely from "down" to "out to the side" — perfect for
+   *  flailing, smacking enemies on the spin, and adding visual character. */
+  withArms?: boolean;
 }
 
 /**
@@ -43,10 +53,12 @@ export function createBipedSkeleton(
   physics: RapierWorld,
   spawnX: number = 0,
   spawnZ: number = 0,
-  groundY: number = 0
+  groundY: number = 0,
+  options: BipedSkeletonOptions = {}
 ): BipedSkeleton {
   const joints = new Map<string, SkeletonJoint>();
   const allBodies: RAPIER.RigidBody[] = [];
+  const withArms = !!options.withArms;
 
   // ---- Dimensions (m) ----
   // Hidden pelvis — bigger than before so it actually sits inside the
@@ -190,6 +202,136 @@ export function createBipedSkeleton(
   const footL = buildLeg('l');
   const footR = buildLeg('r');
 
+  // ============================================================
+  // ARMS (optional)
+  //
+  // Each arm = upper-arm capsule + lower-arm capsule.
+  // - Shoulder: revolute hinge attached to the TOP-SIDE of the pelvis.
+  //   Axis = Z (torso forward), so the arm can rotate from "hanging
+  //   down" to "out to the side" in the body's lateral plane. When the
+  //   beast spins (yaws) around Y, centrifugal force in the body frame
+  //   pushes radially outward — that translates into a torque around
+  //   the (rotated) Z axis at the shoulder, swinging the arm OUT. End
+  //   result: a fast spin makes the arms fly out and smack everything
+  //   they pass through.
+  // - Elbow: revolute hinge between upper and lower arm on the X axis,
+  //   so the lower arm can fold like a normal elbow.
+  // - Motors are very weak: we add just enough damping/restoring force
+  //   to keep arms from oscillating forever. Most of the motion comes
+  //   from physics — gravity hangs them down, momentum throws them.
+  //
+  // Arms add mass (~1.2 kg total), which lets them deal real damage
+  // on impact via the existing collision-event damage system. They're
+  // tagged as 'shoulder_l/r' (upper) and 'elbow_l/r' (lower) so they
+  // show up in the joint map alongside hip/knee/ankle without colliding
+  // with leg lookups.
+  // ============================================================
+  if (withArms) {
+    const upperArmLen = 0.36;
+    const upperArmRad = 0.085;
+    const lowerArmLen = 0.34;
+    const lowerArmRad = 0.075;
+    // Shoulder world position: ABOVE and OUTSIDE the visual torso.
+    //
+    // The visible meat blob is a sphere of radius 0.42 centered on the
+    // pelvis. If we anchor the shoulder anywhere inside that sphere, the
+    // arm's first 30 cm is buried in meat and the player just sees a
+    // limbless ball (which is exactly what was happening before this
+    // tweak). shoulderWidth=0.50 puts the anchor cleanly outside the
+    // sphere on the X axis, and the higher Y offset makes the arm hang
+    // visibly from the upper torso instead of poking out of the belly.
+    const shoulderWidth = 0.50;
+    const pelvisShoulderLocalY = pelvisHalfH + 0.10;
+    const shoulderWorldY = pelvisCenterY + pelvisShoulderLocalY;
+    // Upper-arm center hangs below the shoulder.
+    const upperArmCenterY = shoulderWorldY - upperArmLen / 2;
+    // Lower-arm center hangs below the upper arm (aligned, arm straight).
+    const lowerArmCenterY = upperArmCenterY - upperArmLen / 2 - lowerArmLen / 2;
+
+    const buildArm = (side: 'l' | 'r') => {
+      const sign = side === 'l' ? -1 : 1;
+      const armX = spawnX + shoulderWidth * sign;
+
+      // ---- Upper arm ----
+      // Light enough to swing fast, heavy enough to hurt on impact.
+      const upperArm = physics.createDynamicBody(
+        armX, upperArmCenterY, spawnZ,
+        0.6,    // additional mass ~0.6 kg — comparable to a thigh
+        1.2,    // angular damping (let it swing a bit)
+        0.4,    // linear damping
+        6
+      );
+      physics.addCapsuleCollider(upperArm, upperArmLen / 2, upperArmRad, 1.0, 0.4, 0.05);
+      allBodies.push(upperArm);
+
+      // Shoulder = Z-axis hinge. Arm rotates in the body's XY plane.
+      // Limits: a wide arc from "tucked across body" through "down" to
+      // "fully extended outward and up". For the right arm (sign=+1) we
+      // want positive rotation = arm out to the right / up. For left
+      // (sign=-1) we mirror it. Using `sign * angle` lets the same min/max
+      // describe both arms naturally — the hinge axis is always +Z, but
+      // the limit signs flip.
+      // The default rest target is hanging straight down (rotation = 0).
+      // We give it a TINY restoring spring so it doesn't drift outward
+      // when there's no input, but the spring is way too weak to fight a
+      // real spin. Result: floppy but not chaotic.
+      const minLimit = sign > 0 ? -1.4 : -2.6;
+      const maxLimit = sign > 0 ?  2.6 :  1.4;
+      const shoulderJoint = physics.createHingeJoint(
+        pelvis, upperArm,
+        { x: shoulderWidth * sign, y: pelvisShoulderLocalY, z: 0 },
+        { x: 0, y: upperArmLen / 2, z: 0 },
+        { x: 0, y: 0, z: 1 },               // Z-axis hinge
+        { min: minLimit, max: maxLimit },
+        {
+          targetPos: 0,
+          stiffness: 2.0,                   // very weak — gravity dominates
+          damping: 0.8,
+        }
+      );
+      joints.set(`shoulder_${side}`, {
+        name: `shoulder_${side}`,
+        body: upperArm,
+        joint: shoulderJoint,
+      });
+
+      // ---- Lower arm ----
+      const lowerArm = physics.createDynamicBody(
+        armX, lowerArmCenterY, spawnZ,
+        0.45,   // additional mass ~0.45 kg
+        1.2,
+        0.4,
+        6
+      );
+      physics.addCapsuleCollider(lowerArm, lowerArmLen / 2, lowerArmRad, 1.0, 0.4, 0.05);
+      allBodies.push(lowerArm);
+
+      // Elbow = X-axis hinge so the lower arm can fold forward (like a
+      // human elbow). Limits: -2.4 to 0.05 — almost full bend in one
+      // direction, barely any back-bend.
+      const elbowJoint = physics.createHingeJoint(
+        upperArm, lowerArm,
+        { x: 0, y: -upperArmLen / 2, z: 0 },
+        { x: 0, y:  lowerArmLen / 2, z: 0 },
+        { x: 1, y: 0, z: 0 },
+        { min: -2.4, max: 0.05 },
+        {
+          targetPos: -0.3,                  // slight rest bend
+          stiffness: 3.0,
+          damping: 1.2,
+        }
+      );
+      joints.set(`elbow_${side}`, {
+        name: `elbow_${side}`,
+        body: lowerArm,
+        joint: elbowJoint,
+      });
+    };
+
+    buildArm('l');
+    buildArm('r');
+  }
+
   return {
     joints,
     allBodies,
@@ -198,6 +340,7 @@ export function createBipedSkeleton(
     footR,
     restingPelvisY: pelvisCenterY,
     restingPelvisHeightAboveGround,
+    hasArms: withArms,
   };
 }
 

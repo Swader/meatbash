@@ -22,13 +22,28 @@ import type { BeastInstance } from '../beast/beast-instance';
 // ---- Tuneable constants ----
 
 /** Global damage scalar. Raise for squishier beasts, lower for durable. */
-const DAMAGE_SCALE = 0.018;
-/** Minimum impact speed (m/s) below which contacts are ignored. */
-const IMPACT_SPEED_THRESHOLD = 1.0;
+const DAMAGE_SCALE = 0.022;
+/** Minimum impact speed (m/s) below which contacts are ignored.
+ *  Lowered from 1.0 → 0.6 so arm flailing (which is slow) still registers. */
+const IMPACT_SPEED_THRESHOLD = 0.6;
 /** Max HP per body segment (so it takes multiple big hits to destroy one). */
 const SEGMENT_MAX_HP = 100;
 /** Cooldown (s) between damage events on the same pair, prevents rapid double-dipping. */
 const PAIR_COOLDOWN = 0.08;
+/**
+ * Bonus damage multiplier when an arm segment (shoulder_*, elbow_*) is the
+ * INCOMING side of a contact. Arms have momentum + reach, so a swung arm
+ * should hurt more than a casual torso bump. The arm itself still takes
+ * normal damage on its own segment.
+ */
+const ARM_IMPACT_BONUS = 2.5;
+
+const ARM_SEGMENTS = new Set([
+  'shoulder_l',
+  'shoulder_r',
+  'elbow_l',
+  'elbow_r',
+]);
 
 export interface DamageEvent {
   /** The beast that took damage. */
@@ -221,12 +236,21 @@ export class DamageResolver {
         z: (p1.z + p2.z) / 2,
       };
 
+      // Arm-impact bonus: when an arm hits something that ISN'T the same
+      // beast's arm, the receiving side takes 2.5× damage. The arm itself
+      // still takes baseDamage. This lets flailing arms dish out real
+      // punishment without making them invincible weapons.
+      const aIsArm = !!a && ARM_SEGMENTS.has(a.segment);
+      const bIsArm = !!b && ARM_SEGMENTS.has(b.segment);
+
       // Dispatch damage to whichever side is a beast
       if (a) {
-        this.damageSegment(a.beast, a.segment, baseDamage, b?.beast || null, point, impactSpeed);
+        const dmg = bIsArm ? baseDamage * ARM_IMPACT_BONUS : baseDamage;
+        this.damageSegment(a.beast, a.segment, dmg, b?.beast || null, point, impactSpeed);
       }
       if (b) {
-        this.damageSegment(b.beast, b.segment, baseDamage, a?.beast || null, point, impactSpeed);
+        const dmg = aIsArm ? baseDamage * ARM_IMPACT_BONUS : baseDamage;
+        this.damageSegment(b.beast, b.segment, dmg, a?.beast || null, point, impactSpeed);
       }
     };
 

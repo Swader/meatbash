@@ -118,21 +118,45 @@ export function applyBipedLocomotion(
   locoState.totalMass = totalMass;
 
   // ============================================================
-  // HARD-FLOOR SAFETY CLAMP
+  // HARD-FLOOR SAFETY CLAMP + NaN GUARD
   //
   // After many falls/jumps, Rapier's solver can leave creature bodies
   // slightly penetrated into the heightfield — and each cycle the
   // penetration grows, until knees and feet end up underground. This
   // loop catches any body below the local terrain surface and lifts
-  // it back out. It's a cheat, but a physically honest one: we only
-  // push up, we never teleport sideways, and we kill the downward
-  // velocity component so gravity can't re-penetrate on the same frame.
+  // it back out.
+  //
+  // It ALSO guards against NaN positions, which can leak in when the
+  // solver hits a degenerate contact configuration (e.g. a foot wedged
+  // between an angled rock convex hull and another beast body during a
+  // jump). Without this guard, NaN would propagate to every subsequent
+  // step and freeze the game. We snap broken bodies back to the pelvis.
   // ============================================================
   {
     const penetrationTolerance = 0.02; // m of slop before we clamp
+    const pelvisP = pelvis.translation();
+    const pelvisOk =
+      isFinite(pelvisP.x) && isFinite(pelvisP.y) && isFinite(pelvisP.z);
+    // Fallback safe spot if even the pelvis is broken — the standing height
+    // above world origin. Rare but possible after a catastrophic step.
+    const safeX = pelvisOk ? pelvisP.x : 0;
+    const safeY = pelvisOk ? pelvisP.y + 0.5 : tuning.standingHeight + 1.0;
+    const safeZ = pelvisOk ? pelvisP.z : 0;
+
     for (const body of skeleton.allBodies) {
       const p = body.translation();
+      // NaN / infinite position → snap back to pelvis area, kill velocity.
+      // Logged once-per-occurrence so we can see in console how often it
+      // happens during stress tests.
+      if (!isFinite(p.x) || !isFinite(p.y) || !isFinite(p.z)) {
+        console.warn('[locomotion] NaN body position — snapping to pelvis');
+        body.setTranslation({ x: safeX, y: safeY, z: safeZ }, true);
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        continue;
+      }
       const terrainY = sampleTerrainHeight(p.x, p.z);
+      if (!isFinite(terrainY)) continue; // sample borked, skip — don't make it worse
       const minY = terrainY + penetrationTolerance;
       if (p.y < minY) {
         body.setTranslation({ x: p.x, y: minY, z: p.z }, true);
