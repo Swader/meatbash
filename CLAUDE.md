@@ -1,84 +1,136 @@
-# MEATBASH - AI Agent Context
+# MEATBASH — Agent Orientation (code/)
 
-## What Is This
-Organic destruction derby game for Vibejam 2026. Players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in WASD ragdoll arena combat. Think Robot Wars + Gang Beasts + Play-Doh.
+Canonical orientation lives in **[../docs/CLAUDE_CONTEXT.md](../docs/CLAUDE_CONTEXT.md)**.
+This file is its mirror so that Claude Code auto-loads orientation when you
+invoke `claude` from inside `code/`. If anything below conflicts with
+`../docs/CLAUDE_CONTEXT.md`, the docs/ version wins.
 
-## Critical Rules
-- **Bun only.** No Node.js, no npx, no npm. Use `bun` for everything.
-- **No React.** Plain TypeScript + Three.js + DOM manipulation.
-- **Three.js** is the 3D engine. WebGPU renderer (WebGL fallback for Phase 1).
-- **Rapier 3D** (@dimforge/rapier3d-compat) for physics.
-- **No loading screens.** Game must be instantly playable per Vibejam rules.
-- **No login required.** localStorage for identity, server storage for certified beasts.
-- **Deadline: May 1, 2026 @ 13:37 UTC.**
+---
 
-## Stack
-- Runtime: Bun
-- 3D: Three.js (three) with WebGPURenderer (future) / WebGLRenderer (now)
-- Physics: Rapier 3D WASM via @dimforge/rapier3d-compat
-- Networking: Bun WebSocket server (server/)
-- Build: Bun.build() — see src/build.ts
-- Dev: `bun run dev` → src/dev-server.ts
+## What this is
 
-## Architecture
-- **Dual-layer physics:** Rapier handles rigid skeleton (joints, collisions). GPU compute (future) handles meat deformation/damage.
-- **Active-ragdoll locomotion (WASD):** Dynamic pelvis root with hidden locomotion collider, motorized hip/knee/ankle joints, foot sensors, and a SUPPORTED/STUMBLING/FALLEN/RECOVERING state machine. Standing is earned through support contact, not faked. The clumsy Gang-Beasts-style feel comes from tuning, not from awkward controls.
-- **Honest arena:** ground is a heightfield collider built from the same noise function as the visual mesh. Rocks are convex-hull colliders built from the same deformed icosahedron geometry. What you see is what you can stand on.
-- **SDF sculpting:** Beasts are built from SDF blobs (meat/chitin/bone). Ray-marched in editor, meshed via marching cubes at runtime.
-- **Host-authoritative networking:** Host client runs physics. Server is relay only. Spectators get state broadcasts.
+Organic destruction derby for **Vibejam 2026**. Players sculpt gooey
+meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness
+tests, then bash them together in WASD ragdoll arena combat. Robot Wars +
+Gang Beasts + Play-Doh.
 
-## Project Structure
-```
-src/
-  main.ts              # Entry point
-  engine/              # Renderer, scene, camera, input, game loop
-  physics/             # Rapier world, skeleton builder, locomotion, damage
-  sdf/                 # SDF volume, marching cubes, GPU deformation, materials
-  beast/               # Beast class, archetypes, serialization, premades
-  combat/              # Arena, match state, HUD, bot AI
-  lab/                 # Gene Lab sculpting UI
-  certification/       # Darwin certification challenges
-  network/             # WebSocket client, protocol, interpolation
-  ui/                  # Home screen, garage, lobby, results
-  particles/           # GPU particle effects (meat chunks, splatter)
-  audio/               # Stub audio manager
-server/
-  index.ts             # Bun WebSocket relay server
-```
+**Deadline:** May 1, 2026 @ 13:37 UTC.
 
-## Current Phase: Phase 1 (Core Loop)
-Goal: A bipedal meat blob controlled with WASD that stands, walks, turns, jumps, falls, and recovers on a real heightfield arena with real rock colliders.
-Status: Active-ragdoll locomotion with state machine + tuneable balance is working. Visual proxies in place.
+The clumsy slapstick comes from physics, not from awkward controls. Standing
+is *earned* through real foot contacts on a real heightfield, not snapped to
+a fixed height.
 
-## Controls
-- **W** = walk forward (auto-cycling gait)
-- **S** = walk backward
-- **A / D** = turn left / right (smoothed yaw rate, not snap rotation)
-- **SPACE** = jump (when SUPPORTED) / panic flail (in air)
-- **Mouse drag** = orbit camera
+## Critical rules
 
-## Key Files
-- `MEATBASH_PRD.md` — Full PRD (source of truth for all game design decisions)
-- `docs/MEATBASH_LOCOMOTION_AUDIT.md` — Architecture audit that drove the active-ragdoll rebuild
-- `src/engine/terrain.ts` — Shared terrain noise (visual ground + heightfield collider use this)
-- `src/physics/rapier-world.ts` — Rapier wrapper, collision groups, heightfield/convex-hull builders
-- `src/physics/skeleton.ts` — Bipedal skeleton builder (dynamic pelvis + 70% mass, motorized joints, foot sensors)
-- `src/physics/locomotion.ts` — State machine, support spring, smoothed turning, drive force
-- `src/physics/tuning.ts` — Centralized tuning + tweakpane panel with tooltips
-- `src/beast/test-beast.ts` — `createPhysicsArena` + `createTestBeast`
-- `src/beast/beast-instance.ts` — Links physics to Three.js visuals
-- `src/engine/loop.ts` — Fixed-timestep physics, variable render, per-step input latching
+- **Bun only.** No Node, no `npx`, no `npm`. `bun` for everything.
+- **No React, no framework.** Plain TypeScript + Three.js + DOM manipulation.
+- **Three.js** with `WebGLRenderer` (WebGPU upgrade planned).
+- **Rapier 3D** via `@dimforge/rapier3d-compat`. WASM-backed.
+- **No loading screens.** Game must be instantly playable — Vibejam rule.
+- **No login required.** localStorage for identity; Bun WS server later.
 
-## Development Commands
+## Run / build / test
+
 ```bash
-bun run dev      # Start dev server on :3000
-bun run build    # Production build to dist/
-bun run server   # Start WebSocket relay server
+bun install              # once
+bun run dev              # dev server on http://localhost:3000
+bun run build            # production build to dist/
+bun run zip              # distribution zip
 ```
+
+The dev server (`src/dev-server.ts`) rebuilds the bundle on every page load,
+so a hard refresh picks up code changes — no HMR yet.
+
+There is **no test suite**. Verification = playtest in the browser. Debug
+handles `window.__getPlayer()`, `window.__getOpponent()`, `window.__physics`,
+and `window.__physicsStepErrors` are exposed in `src/main.ts` for dev console
+pokes.
+
+## Where to look (current code map)
+
+| If you want to change… | Look in |
+|---|---|
+| how the beast walks, balances, jumps | `src/physics/locomotion.ts` (biped) or `locomotion-quad.ts` |
+| skeleton dimensions, joint limits, arms | `src/physics/skeleton.ts` (biped) or `skeleton-quad.ts` |
+| live tuning sliders | `src/physics/tuning.ts` (tweakpane panel) |
+| how rocks / ground / arena are built | `src/engine/scene.ts`, `src/engine/terrain.ts`, `src/beast/test-beast.ts::createPhysicsArena` |
+| collision damage formula or thresholds | `src/physics/damage.ts` |
+| limb severance | `src/physics/severance.ts` |
+| beast visuals (meshes, colors, jiggle) | `src/beast/beast-instance.ts` |
+| adding / changing default beasts | `src/beast/premades.ts` (+ `beast-data.ts` for new fields) |
+| bot behaviour | `src/combat/bot-ai.ts` |
+| match flow, win conditions, timer | `src/combat/match.ts`, wired in `src/main.ts` |
+| home screen layout / styling | `src/ui/home-screen.ts` |
+| in-fight HUD | `src/ui/match-hud.ts` |
+| game loop ordering, fixed step | `src/engine/loop.ts` |
+| rapier wrappers, collision groups | `src/physics/rapier-world.ts` |
+| dev server / build / hot reload | `src/dev-server.ts`, `src/build.ts` |
+
+## Architecture in a nutshell
+
+- **Game loop** (`src/engine/loop.ts`) — fixed-timestep physics (60 Hz) +
+  variable-rate render. Every stage wrapped in try/catch so a Rapier WASM
+  panic on one frame can't kill the rAF loop.
+- **Physics — active ragdoll, not kinematic puppet** (see
+  `../docs/MEATBASH_LOCOMOTION_AUDIT.md` before touching this). Dynamic
+  pelvis with ~70% of mass, motorized hip/knee/ankle hinges, hidden cuboid
+  feet, per-foot down-raycast for grounded state, SUPPORTED → STUMBLING →
+  AIRBORNE → FALLEN → RECOVERING state machine. Heightfield ground +
+  convex-hull rocks built from the same noise/geometry as the visual mesh.
+- **Per-beast collision groups** so two beasts collide with each other and
+  the arena, but not with their own body parts. `physics.beginBeast(index)`
+  before adding colliders.
+- **Beasts**: 4 default premades (Chonkus, Stomper, Noodlesnake,
+  Butterchonk). Chonkus + Noodlesnake are biped + armed (shoulder Z-axis
+  hinges so arms swing out from centrifugal force on spin).
+- **Combat**: contact events → per-segment HP loss with pair cooldowns;
+  arms get a 2.5× impact bonus; severance breaks joints when HP hits zero
+  and clears the joint reference so motors can't crash the WASM after.
+- **UI**: DOM overlays only. `game-shell.ts` runs HOME / ARENA screens;
+  `home-screen.ts` is the glassmorphic landing; `match-hud.ts` is the
+  in-fight HUD.
 
 ## Conventions
-- All physics units in meters, kilograms, seconds
-- Three.js Y-up coordinate system
-- Fixed physics timestep: 1/60s
-- Beast serialization: JSON (see PRD Section 8.4)
-- Match codes format: MEAT-XXXX (4 alphanumeric chars)
+
+- **Units:** meters, kilograms, seconds. Three.js Y-up.
+- **Fixed physics timestep:** 1/60 s.
+- **Forces / torques are mass-normalized** at apply time. Tuning values in
+  `tuning.ts` are per-kg accelerations.
+- **Beast collision groups** assigned per-spawn via
+  `physics.beginBeast(beastIndex)` before any of that beast's colliders are
+  created.
+- **Visual placeholders:** every body segment renders as a sphere/capsule/box
+  matching its physics collider. SDF-based meat is planned but not yet built.
+
+## Gotchas
+
+- **Heightfield API quirk:** Rapier's `nrows`/`ncols` are *subdivision
+  counts*; heights array length must be `(nrows+1)*(ncols+1)` in
+  column-major order. Wrong length → WASM panic.
+- **Joint contact disable is manual:** `createImpulseJoint(..., true)` 4th
+  arg is `wakeUp`, not "disable contacts". Call
+  `joint.setContactsEnabled(false)` explicitly. Done inside
+  `createHingeJoint`.
+- **Severed joint references must be cleared.** A removed Rapier joint
+  can't be reused via its old wrapper. `processSeverance` sets
+  `joint.joint = undefined`; locomotion's `setMotor` early-returns on
+  undefined.
+- **Foot sensors don't fire on heightfields** in our Rapier version. We
+  use per-foot down-raycasts instead — don't try to "fix" the sensors.
+- **Tab backgrounding pauses everything.** Chrome throttles backgrounded
+  tab rAF to ~0 Hz, so locomotion + match timer freeze. Bring the tab
+  forward before dev-console testing.
+- **`createBipedSkeleton` takes options:** `withArms: true` adds two
+  shoulder + two elbow hinges. The `BeastDefinition.hasArms` flag plumbs
+  through `beast-factory.ts`. Quadrupeds don't have arms yet.
+
+## Status & next steps
+
+See **[../docs/TASKS.md](../docs/TASKS.md)** for the current build status,
+recent fixes, and what to pick up next.
+
+## Game design source of truth
+
+See **[../docs/MEATBASH_PRD.md](../docs/MEATBASH_PRD.md)** for game design
+decisions, art direction, premade beast roster, network protocol, and the
+Darwin certification challenge designs.

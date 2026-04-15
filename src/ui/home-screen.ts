@@ -5,7 +5,7 @@
  * (the arena keeps rendering underneath so the glassmorphic panels
  * sit over a living, breathing scene).
  *
- * Layout (matches docs/Phase2.md sketch):
+ * Layout:
  *   - Top: big pulsating MEATBASH title
  *   - Left sidebar: Join match (code input + button) + Make a match button
  *   - Center: "Make your beast" preview region (visual framing only —
