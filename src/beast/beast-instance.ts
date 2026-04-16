@@ -5,6 +5,8 @@ import { RapierWorld } from '../physics/rapier-world';
 import { BipedSkeleton } from '../physics/skeleton';
 import { applyBipedLocomotion, createLocomotionState, type LocomotionState } from '../physics/locomotion';
 import type { BeastDefinition } from './beast-data';
+import { AttackController } from '../combat/attack-controller';
+import type { ActiveAttackContext, AttackSlotDefinition, AttackTelemetry } from '../combat/attack-types';
 
 /**
  * Generic skeleton shape that any archetype can provide. BipedSkeleton
@@ -102,6 +104,7 @@ export class BeastInstance {
   locoState: any;
   // Per-archetype locomotion update function
   private locomotionUpdate: LocomotionUpdate;
+  private attackController?: AttackController;
 
   // Map from joint name -> visual mesh
   private visuals = new Map<string, THREE.Mesh>();
@@ -113,6 +116,17 @@ export class BeastInstance {
   // Jiggle state: original positions + previous world positions for velocity
   private originalPositions = new Map<string, Float32Array>();
   private prevPositions = new Map<string, THREE.Vector3>();
+  private attackIndicatorGroup?: THREE.Group;
+  private attackIndicatorCore?: THREE.Mesh;
+  private attackIndicatorRing?: THREE.Mesh;
+  private attackIndicatorBeam?: THREE.Mesh;
+  private attackTempQuat = new THREE.Quaternion();
+  private attackTempVec = new THREE.Vector3();
+  private attackTempVec2 = new THREE.Vector3();
+  private attackTempVec3 = new THREE.Vector3();
+  private pendingAudioEvents: Array<{ type: 'jump' | 'land' | 'miss' }> = [];
+  private prevGroundedForAudio: boolean | null = null;
+  private prevJumpTimerForAudio: number | null = null;
 
   constructor(
     skeleton: GenericSkeleton,
@@ -132,6 +146,9 @@ export class BeastInstance {
     // Default to biped locomotion unless the caller passes quad
     this.locomotionUpdate = locomotionUpdate || (applyBipedLocomotion as any);
     this.locoState = locomotionState || createLocomotionState();
+    if (definition?.attackSlots?.length) {
+      this.attackController = new AttackController(this.skeleton as any, definition.attackSlots[0]!);
+    }
 
     // Pull color/emissive from definition if provided
     const color = definition?.visuals.color ?? 0xdd4444;
@@ -310,6 +327,10 @@ gl_FragColor.rgb += rimColor;
     }
   }
 
+  private createAttackIndicator() {
+    return;
+  }
+
   /**
    * Optional override input source — if set, `applyInput` ignores the
    * InputManager passed in and uses this instead. Used to drive the
@@ -330,10 +351,14 @@ gl_FragColor.rgb += rimColor;
       (this.inputOverride as any).beginFixedStep();
     }
     this.locomotionUpdate(this.skeleton as any, src, dt, this.stamina, this.physics, this.locoState);
+    this.attackController?.update(src as any, dt, this.stamina);
+    this.captureAudioEvents();
   }
 
   /** Sync visual mesh positions/rotations from physics bodies, apply jiggle */
   syncFromPhysics() {
+    const slot = this.getPrimaryAttackSlot();
+    const tele = this.getAttackTelemetry();
     for (const [name, joint] of this.skeleton.joints) {
       const mesh = this.visuals.get(name);
       if (!mesh) continue;
@@ -343,6 +368,10 @@ gl_FragColor.rgb += rimColor;
 
       mesh.position.set(pos.x, pos.y, pos.z);
       mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+      mesh.scale.setScalar(1);
+      if (slot && tele) {
+        this.applyAttackVisualPose(mesh, name, slot, tele);
+      }
 
       // Jiggle: offset vertices based on velocity
       const origPositions = this.originalPositions.get(name);
@@ -405,6 +434,10 @@ gl_FragColor.rgb += rimColor;
         prev.set(pos.x, pos.y, pos.z);
       }
     }
+    if (slot && tele) {
+      this.applyConnectedOverhandSmashVisual(slot, tele);
+    }
+    this.updateAttackTelegraph();
   }
 
   /** Get the torso position (for camera follow) */
@@ -464,5 +497,231 @@ gl_FragColor.rgb += rimColor;
       totalMass: this.locoState.totalMass,
       regenPerSec: this.locoState.regenPerSec,
     };
+  }
+
+  getAttackTelemetry(): AttackTelemetry | null {
+    return this.attackController?.getTelemetry() ?? null;
+  }
+
+  resolveActiveAttackForSegment(segment: string, attackerForwardDot: number): ActiveAttackContext | null {
+    return this.attackController?.resolveActiveHit(segment, attackerForwardDot) ?? null;
+  }
+
+  resolveGenericActiveAttack(attackerForwardDot: number): ActiveAttackContext | null {
+    return this.attackController?.resolveGenericActiveHit(attackerForwardDot) ?? null;
+  }
+
+  getAttackCommitSerial(): number {
+    return this.attackController?.getCommitSerial() ?? 0;
+  }
+
+  registerAttackHit(): void {
+    this.attackController?.registerConfirmedHit();
+  }
+
+  consumeAudioEvents(): Array<{ type: 'jump' | 'land' | 'miss' }> {
+    const out = this.pendingAudioEvents;
+    this.pendingAudioEvents = [];
+    return out;
+  }
+
+  getPrimaryAttackSlot(): AttackSlotDefinition | null {
+    return this.definition?.attackSlots?.[0] ?? null;
+  }
+
+  getJointBody(name: string): RAPIER.RigidBody | undefined {
+    return this.skeleton.joints.get(name)?.body;
+  }
+
+  getIncomingBlockReduction(attackerProfile: 'blunt' | 'spike' | 'shield'): number {
+    return this.attackController?.getIncomingBlockReduction(attackerProfile) ?? 0;
+  }
+
+  private updateAttackTelegraph(): void {
+    if (!this.attackController || !this.definition?.attackSlots?.length) {
+      if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
+      return;
+    }
+    const slot = this.definition.attackSlots[0];
+    if (!slot) return;
+    const tele = this.attackController.getTelemetry();
+    this.meatMaterial.emissiveIntensity = 0.2;
+    if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
+  }
+
+  private captureAudioEvents(): void {
+    const grounded = !!this.locoState.isGrounded;
+    const jumpTimer = typeof this.locoState.jumpTimer === 'number' ? this.locoState.jumpTimer : null;
+
+    if (this.prevGroundedForAudio !== null) {
+      if (this.prevGroundedForAudio === false && grounded === true) {
+        this.pendingAudioEvents.push({ type: 'land' });
+      }
+      if (
+        jumpTimer !== null &&
+        this.prevJumpTimerForAudio !== null &&
+        this.prevJumpTimerForAudio > 0.08 &&
+        jumpTimer < 0.02
+      ) {
+        this.pendingAudioEvents.push({ type: 'jump' });
+      }
+    }
+
+    if (this.attackController?.consumePendingMiss()) {
+      this.pendingAudioEvents.push({ type: 'miss' });
+    }
+
+    this.prevGroundedForAudio = grounded;
+    this.prevJumpTimerForAudio = jumpTimer;
+  }
+
+  private applyConnectedOverhandSmashVisual(
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ): void {
+    if (
+      this.definition?.id !== 'chonkus' ||
+      slot.appendageRoot !== 'shoulder_r' ||
+      tele.state === 'IDLE'
+    ) {
+      return;
+    }
+
+    const torsoBody = this.getJointBody('torso');
+    const shoulderMesh = this.visuals.get('shoulder_r');
+    const elbowMesh = this.visuals.get('elbow_r');
+    if (!torsoBody || !shoulderMesh || !elbowMesh) return;
+
+    const torsoPos = torsoBody.translation();
+    const torsoRot = torsoBody.rotation();
+    this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
+
+    const shoulderAnchorLocal = this.attackTempVec.set(0.34, 0.18, 0.02);
+    const shoulderAnchorWorld = this.attackTempVec2
+      .copy(shoulderAnchorLocal)
+      .applyQuaternion(this.attackTempQuat)
+      .add(new THREE.Vector3(torsoPos.x, torsoPos.y, torsoPos.z));
+
+    const upperRest = new THREE.Vector3(0.52, -0.84, 0.12);
+    const upperWindup = new THREE.Vector3(0.16, 0.92, 0.36);
+    const upperStrike = new THREE.Vector3(0.08, -0.5, 0.86);
+
+    const lowerRest = new THREE.Vector3(0.48, -0.86, 0.16);
+    const lowerWindup = new THREE.Vector3(0.1, 0.96, 0.24);
+    const lowerStrike = new THREE.Vector3(0.06, -0.78, 0.62);
+
+    let upperDir = new THREE.Vector3();
+    let lowerDir = new THREE.Vector3();
+    if (tele.state === 'WINDUP') {
+      upperDir = upperRest.clone().lerp(upperWindup, tele.stateProgress);
+      lowerDir = lowerRest.clone().lerp(lowerWindup, tele.stateProgress);
+    } else if (tele.state === 'HELD') {
+      const pulse = 0.05 * Math.sin(performance.now() * 0.02);
+      upperDir = upperWindup.clone().add(new THREE.Vector3(0, pulse, pulse * 0.5));
+      lowerDir = lowerWindup.clone().add(new THREE.Vector3(0, pulse, pulse * 0.4));
+    } else if (tele.state === 'COMMIT') {
+      const t = Math.max(tele.stateProgress, 0.25);
+      upperDir = upperWindup.clone().lerp(upperStrike, t);
+      lowerDir = lowerWindup.clone().lerp(lowerStrike, t);
+    } else {
+      upperDir = upperStrike.clone().lerp(upperRest, tele.stateProgress);
+      lowerDir = lowerStrike.clone().lerp(lowerRest, tele.stateProgress);
+    }
+
+    upperDir.normalize().applyQuaternion(this.attackTempQuat);
+    lowerDir.normalize().applyQuaternion(this.attackTempQuat);
+
+    const upperLen = 0.36;
+    const lowerLen = 0.34;
+    const elbowAnchorWorld = this.attackTempVec3
+      .copy(upperDir)
+      .multiplyScalar(upperLen * 0.92)
+      .add(shoulderAnchorWorld);
+
+    shoulderMesh.position.copy(
+      this.attackTempVec
+        .copy(upperDir)
+        .multiplyScalar(upperLen * 0.46)
+        .add(shoulderAnchorWorld)
+    );
+    shoulderMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), upperDir);
+    elbowMesh.position.copy(
+      this.attackTempVec2
+        .copy(lowerDir)
+        .multiplyScalar(lowerLen * 0.44)
+        .add(elbowAnchorWorld)
+    );
+    elbowMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), lowerDir);
+
+    const scaleBoost = tele.state === 'COMMIT' ? 1.22 : 1.1 + tele.chargeNorm * 0.08;
+    shoulderMesh.scale.setScalar(scaleBoost);
+    elbowMesh.scale.setScalar(scaleBoost * 1.02);
+  }
+
+  private applyAttackVisualPose(
+    mesh: THREE.Mesh,
+    name: string,
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ): void {
+    if (!slot.drivenJoints.includes(name)) return;
+    if (tele.state === 'IDLE') return;
+
+    let poseAngle = 0;
+    if (tele.state === 'WINDUP') {
+      poseAngle = (slot.windupPose[name] ?? 0) * tele.stateProgress;
+    } else if (tele.state === 'HELD') {
+      poseAngle = slot.windupPose[name] ?? 0;
+    } else if (tele.state === 'COMMIT') {
+      const from = slot.windupPose[name] ?? 0;
+      const to = slot.strikePose[name] ?? from;
+      poseAngle = this.lerp(from, to, Math.max(tele.stateProgress, 0.35));
+    } else if (tele.state === 'RECOVER') {
+      const from = slot.recoverPose[name] ?? slot.strikePose[name] ?? 0;
+      poseAngle = this.lerp(from, 0, tele.stateProgress);
+    }
+
+    const axis = this.getAttackVisualAxis(name);
+    if (!axis) return;
+
+    const exaggeration =
+      name.startsWith('shoulder') ? 2.05 :
+      name.startsWith('elbow') ? 2.35 :
+      0.9;
+    this.attackTempQuat.setFromAxisAngle(axis, poseAngle * exaggeration);
+    mesh.quaternion.multiply(this.attackTempQuat);
+
+    const lift =
+      (name.startsWith('elbow') ? 0.18 : 0.11) * Math.abs(poseAngle) +
+      (tele.state === 'COMMIT' ? 0.12 : 0.03);
+    const lateralBase = (name.endsWith('_r') ? 1 : name.endsWith('_l') ? -1 : 0) * Math.abs(poseAngle) * 0.15;
+    const forward =
+      tele.state === 'COMMIT'
+        ? 0.3 * Math.abs(poseAngle)
+        : tele.state === 'HELD' || tele.state === 'WINDUP'
+          ? -0.2 * Math.abs(poseAngle)
+          : 0;
+    this.attackTempVec.set(lateralBase, lift, forward).applyQuaternion(mesh.quaternion);
+    mesh.position.add(this.attackTempVec);
+
+    const scaleBoost = tele.state === 'COMMIT' ? 1.32 : 1.14 + tele.chargeNorm * 0.14;
+    mesh.scale.setScalar(scaleBoost);
+  }
+
+  private getAttackVisualAxis(name: string): THREE.Vector3 | null {
+    if (name.startsWith('shoulder')) return this.attackTempVec2.set(0, 0, 1);
+    if (
+      name.startsWith('elbow') ||
+      name.startsWith('hip_') ||
+      name.startsWith('knee_') ||
+      name.startsWith('ankle_')
+    ) {
+      return this.attackTempVec2.set(1, 0, 0);
+    }
+    return null;
+  }
+
+  private lerp(a: number, b: number, t: number): number {
+    return a + (b - a) * Math.max(0, Math.min(1, t));
   }
 }

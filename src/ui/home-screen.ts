@@ -22,6 +22,10 @@ export interface BeastListing {
   id: string;
   name: string;
   archetype: string;
+  attackProfile: string;
+  weightClass: string;
+  playstyleSummary: string;
+  iconEmoji?: string;
 }
 
 export interface HomeScreenOptions {
@@ -297,6 +301,19 @@ const STYLES = `
   letter-spacing: 2px;
   text-transform: uppercase;
 }
+.mb-beast-card .mb-beast-profile {
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255, 210, 140, 0.9);
+  text-transform: uppercase;
+}
+.mb-beast-card .mb-beast-summary {
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.25;
+  color: rgba(255, 190, 190, 0.72);
+}
 .mb-empty {
   font-size: 11px;
   color: rgba(255, 160, 160, 0.4);
@@ -522,6 +539,7 @@ export class HomeScreen implements ScreenHandle {
 
     const icon = document.createElement('div');
     icon.className = 'mb-beast-icon';
+    if (b.iconEmoji) icon.textContent = b.iconEmoji;
     card.appendChild(icon);
 
     const meta = document.createElement('div');
@@ -531,9 +549,17 @@ export class HomeScreen implements ScreenHandle {
     name.textContent = b.name;
     const arche = document.createElement('div');
     arche.className = 'mb-beast-arche';
-    arche.textContent = b.archetype;
+    arche.textContent = `${b.archetype} · ${b.weightClass}`;
+    const profile = document.createElement('div');
+    profile.className = 'mb-beast-profile';
+    profile.textContent = `Primary: ${b.attackProfile}`;
+    const summary = document.createElement('div');
+    summary.className = 'mb-beast-summary';
+    summary.textContent = b.playstyleSummary;
     meta.appendChild(name);
     meta.appendChild(arche);
+    meta.appendChild(profile);
+    meta.appendChild(summary);
     card.appendChild(meta);
 
     card.addEventListener('click', () => this.selectBeast(b.id));

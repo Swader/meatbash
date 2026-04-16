@@ -37,6 +37,8 @@ export interface MatchState {
   p1Name?: string;
   /** Display name for player 2 — defaults to "BOT". */
   p2Name?: string;
+  p1AttackState?: string;
+  p2AttackState?: string;
 }
 
 const STYLE_ID = 'meatbash-match-hud-style';
@@ -112,6 +114,13 @@ const STYLES = `
   color: #ff9090;
   margin-bottom: 8px;
   text-shadow: 0 0 6px rgba(255, 80, 80, 0.4);
+}
+.mb-player-card .mb-attack-state {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 210, 140, 0.9);
 }
 
 .mb-meat-bar {
@@ -234,6 +243,29 @@ const STYLES = `
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.45);
 }
+.mb-combat-text-layer {
+  position: absolute;
+  left: 50%;
+  bottom: 24%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.mb-combat-text {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffe0c0;
+  text-shadow: 0 0 10px rgba(255, 80, 80, 0.75);
+  animation: mb-combat-text-pop 0.4s ease-out forwards;
+}
+@keyframes mb-combat-text-pop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  20% { opacity: 1; transform: translateY(0) scale(1.08); }
+  100% { opacity: 0; transform: translateY(-18px) scale(1); }
+}
 `;
 
 function injectStyles() {
@@ -262,12 +294,17 @@ export class MatchHud implements ScreenHandle {
   private p2MassFill!: HTMLDivElement;
   private p1StamFill!: HTMLDivElement;
   private p2StamFill!: HTMLDivElement;
+  private p1AttackStateEl!: HTMLDivElement;
+  private p2AttackStateEl!: HTMLDivElement;
 
   private centerEl!: HTMLDivElement;
   private countdownEl!: HTMLDivElement;
   private resultEl!: HTMLDivElement;
 
   private restartHint!: HTMLDivElement;
+  private combatTextLayer!: HTMLDivElement;
+  private lastCombatTextKey: string | null = null;
+  private lastCombatTextAt = 0;
 
   private lastCountdownDisplay: string | null = null;
 
@@ -306,12 +343,14 @@ export class MatchHud implements ScreenHandle {
     this.p1NameEl = p1.name;
     this.p1MassFill = p1.massFill;
     this.p1StamFill = p1.stamFill;
+    this.p1AttackStateEl = p1.attackState;
 
     const p2 = this.buildPlayerCard('p2');
     topRow.appendChild(p2.card);
     this.p2NameEl = p2.name;
     this.p2MassFill = p2.massFill;
     this.p2StamFill = p2.stamFill;
+    this.p2AttackStateEl = p2.attackState;
 
     this.root.appendChild(topRow);
 
@@ -338,6 +377,11 @@ export class MatchHud implements ScreenHandle {
     hint.style.display = 'none';
     this.root.appendChild(hint);
     this.restartHint = hint;
+
+    const combatTextLayer = document.createElement('div');
+    combatTextLayer.className = 'mb-combat-text-layer';
+    this.root.appendChild(combatTextLayer);
+    this.combatTextLayer = combatTextLayer;
 
     overlay.appendChild(this.root);
   }
@@ -376,7 +420,12 @@ export class MatchHud implements ScreenHandle {
     stamBar.appendChild(stamFill);
     card.appendChild(stamBar);
 
-    return { card, name, massFill, stamFill, massLabel: label };
+    const attackState = document.createElement('div');
+    attackState.className = 'mb-attack-state';
+    attackState.textContent = 'PRIMARY: IDLE';
+    card.appendChild(attackState);
+
+    return { card, name, massFill, stamFill, massLabel: label, attackState };
   }
 
   // ---------- Public API ----------
@@ -396,6 +445,8 @@ export class MatchHud implements ScreenHandle {
     this.p2MassFill.style.width = `${p2m * 100}%`;
     this.p1StamFill.style.width = `${Math.max(0, Math.min(1, state.p1Stamina)) * 100}%`;
     this.p2StamFill.style.width = `${Math.max(0, Math.min(1, state.p2Stamina)) * 100}%`;
+    this.p1AttackStateEl.textContent = `PRIMARY: ${state.p1AttackState ?? 'IDLE'}`;
+    this.p2AttackStateEl.textContent = `PRIMARY: ${state.p2AttackState ?? 'IDLE'}`;
 
     // Update percent labels on the cards.
     const p1Card = this.p1NameEl.parentElement;
@@ -494,7 +545,26 @@ export class MatchHud implements ScreenHandle {
     this.countdownEl.style.display = 'none';
     this.resultEl.style.display = 'none';
     this.restartHint.style.display = 'none';
+    this.p1AttackStateEl.textContent = 'PRIMARY: IDLE';
+    this.p2AttackStateEl.textContent = 'PRIMARY: IDLE';
+    this.combatTextLayer.innerHTML = '';
+    this.lastCombatTextKey = null;
+    this.lastCombatTextAt = 0;
     this.lastCountdownDisplay = null;
+  }
+
+  pushCombatText(text: string): void {
+    const now = performance.now();
+    if (this.lastCombatTextKey === text && now - this.lastCombatTextAt < 260) {
+      return;
+    }
+    this.lastCombatTextKey = text;
+    this.lastCombatTextAt = now;
+    const node = document.createElement('div');
+    node.className = 'mb-combat-text';
+    node.textContent = text;
+    this.combatTextLayer.appendChild(node);
+    setTimeout(() => node.remove(), 420);
   }
 
   // ---------- ScreenHandle ----------

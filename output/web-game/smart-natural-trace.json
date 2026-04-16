@@ -1,0 +1,5034 @@
+{
+  "hit": false,
+  "trace": [
+    {
+      "step": 0,
+      "timer": 2.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9583234786987305,
+          "y": 0.9353210926055908,
+          "z": 0.006939427461475134
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.978184700012207,
+          "y": 0.7374184131622314,
+          "z": -0.2743692100048065
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 1,
+      "timer": 2.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9583234786987305,
+          "y": 0.9353210926055908,
+          "z": 0.006939427461475134
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.978184700012207,
+          "y": 0.7374184131622314,
+          "z": -0.2743692100048065
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 2,
+      "timer": 2.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9583234786987305,
+          "y": 0.9353210926055908,
+          "z": 0.006939427461475134
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.978184700012207,
+          "y": 0.7374184131622314,
+          "z": -0.2743692100048065
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 3,
+      "timer": 2.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9529166221618652,
+          "y": 0.8264917731285095,
+          "z": 0.009104259312152863
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.976207733154297,
+          "y": 0.6949953436851501,
+          "z": -0.2706319987773895
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 4,
+      "timer": 2.5,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9502944946289062,
+          "y": 0.660731852054596,
+          "z": 0.008143085055053234
+        },
+        "yaw": -0.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9761738777160645,
+          "y": 0.5990329384803772,
+          "z": -0.2686200439929962
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 5,
+      "timer": 2.35,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9462809562683105,
+          "y": 0.4230925440788269,
+          "z": 0.0017111009219661355
+        },
+        "yaw": -0.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9838321208953857,
+          "y": 0.30032387375831604,
+          "z": -0.27688074111938477
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 6,
+      "timer": 2.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.935396194458008,
+          "y": 0.4048835337162018,
+          "z": 0.03084874525666237
+        },
+        "yaw": -0.1,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9841837882995605,
+          "y": 0.3199819326400757,
+          "z": -0.277229368686676
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 7,
+      "timer": 2.2,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9321749210357666,
+          "y": 0.36485424637794495,
+          "z": 0.0685802698135376
+        },
+        "yaw": -0.12,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.986206531524658,
+          "y": 0.32471323013305664,
+          "z": -0.2752619683742523
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 8,
+      "timer": 2.13,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9282636642456055,
+          "y": 0.32687145471572876,
+          "z": 0.12672638893127441
+        },
+        "yaw": -0.14,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.98840069770813,
+          "y": 0.326590895652771,
+          "z": -0.27450335025787354
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 9,
+      "timer": 2.03,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9254353046417236,
+          "y": 0.28893229365348816,
+          "z": 0.1860479861497879
+        },
+        "yaw": -0.24,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.98956561088562,
+          "y": 0.32711946964263916,
+          "z": -0.274305135011673
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 10,
+      "timer": 1.87,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9269654750823975,
+          "y": 0.1452018767595291,
+          "z": 0.29769760370254517
+        },
+        "yaw": -2.25,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989872694015503,
+          "y": 0.32731321454048157,
+          "z": -0.27426108717918396
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 11,
+      "timer": 1.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9162983894348145,
+          "y": 0.16730879247188568,
+          "z": 0.3056042194366455
+        },
+        "yaw": -2.25,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989856719970703,
+          "y": 0.32732346653938293,
+          "z": -0.27425822615623474
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 12,
+      "timer": 1.72,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.904456377029419,
+          "y": 0.1708536595106125,
+          "z": 0.3029514253139496
+        },
+        "yaw": -2.14,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989880084991455,
+          "y": 0.32732826471328735,
+          "z": -0.27425462007522583
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 13,
+      "timer": 1.57,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8816213607788086,
+          "y": 0.15409345924854279,
+          "z": 0.27035221457481384
+        },
+        "yaw": -1.61,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989922046661377,
+          "y": 0.3273305296897888,
+          "z": -0.27426406741142273
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 14,
+      "timer": 1.49,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8695640563964844,
+          "y": 0.16109061241149902,
+          "z": 0.25356796383857727
+        },
+        "yaw": -1.43,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899046421051025,
+          "y": 0.3273305296897888,
+          "z": -0.27426522970199585
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 15,
+      "timer": 1.42,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8650195598602295,
+          "y": 0.16358594596385956,
+          "z": 0.24984508752822876
+        },
+        "yaw": -1.4,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899022579193115,
+          "y": 0.3273310959339142,
+          "z": -0.27426478266716003
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 16,
+      "timer": 1.27,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865171432495117,
+          "y": 0.16102707386016846,
+          "z": 0.2545722424983978
+        },
+        "yaw": -1.43,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9898931980133057,
+          "y": 0.3273316025733948,
+          "z": -0.274265855550766
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 17,
+      "timer": 1.2,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8654396533966064,
+          "y": 0.16084730625152588,
+          "z": 0.2548801898956299
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989900588989258,
+          "y": 0.32733097672462463,
+          "z": -0.27426666021347046
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 18,
+      "timer": 1.05,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655595779418945,
+          "y": 0.16076883673667908,
+          "z": 0.25500351190567017
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989901304244995,
+          "y": 0.3273293972015381,
+          "z": -0.27426818013191223
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 19,
+      "timer": 0.98,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655803203582764,
+          "y": 0.16075295209884644,
+          "z": 0.2550337314605713
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9898946285247803,
+          "y": 0.327329158782959,
+          "z": -0.2742680609226227
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 20,
+      "timer": 0.89,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655896186828613,
+          "y": 0.16074086725711823,
+          "z": 0.25505319237709045
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989903688430786,
+          "y": 0.3273298442363739,
+          "z": -0.27426743507385254
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 21,
+      "timer": 0.75,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656017780303955,
+          "y": 0.16073405742645264,
+          "z": 0.2550634741783142
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989907741546631,
+          "y": 0.3273300528526306,
+          "z": -0.2742675840854645
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 22,
+      "timer": 0.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865598201751709,
+          "y": 0.1607319563627243,
+          "z": 0.2550669014453888
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.989907741546631,
+          "y": 0.327331006526947,
+          "z": -0.27426546812057495
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 23,
+      "timer": 0.59,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655948638916016,
+          "y": 0.16073288023471832,
+          "z": 0.2550645172595978
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899020195007324,
+          "y": 0.3273312449455261,
+          "z": -0.27426570653915405
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 24,
+      "timer": 0.43,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656036853790283,
+          "y": 0.16073057055473328,
+          "z": 0.25506794452667236
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899024963378906,
+          "y": 0.3273308575153351,
+          "z": -0.27426600456237793
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 25,
+      "timer": 0.36,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655967712402344,
+          "y": 0.16073183715343475,
+          "z": 0.2550642490386963
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899070262908936,
+          "y": 0.3273312449455261,
+          "z": -0.2742655277252197
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 26,
+      "timer": 0.29,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655929565429688,
+          "y": 0.16073358058929443,
+          "z": 0.2550600469112396
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899048805236816,
+          "y": 0.3273313045501709,
+          "z": -0.2742654085159302
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 27,
+      "timer": 0.14,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865612030029297,
+          "y": 0.1607348471879959,
+          "z": 0.25506076216697693
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899051189422607,
+          "y": 0.3273312747478485,
+          "z": -0.2742654085159302
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 28,
+      "timer": 0.07,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656086921691895,
+          "y": 0.16073136031627655,
+          "z": 0.2550632655620575
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.9899051189422607,
+          "y": 0.3273312747478485,
+          "z": -0.2742654085159302
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 29,
+      "timer": 179.92,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865624189376831,
+          "y": 0.16071289777755737,
+          "z": 0.25508442521095276
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.990292549133301,
+          "y": 0.32735440135002136,
+          "z": -0.2743017375469208
+        },
+        "yaw": 0,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 30,
+      "timer": 179.77,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.852766513824463,
+          "y": 0.156096950173378,
+          "z": 0.2618062198162079
+        },
+        "yaw": -1.33,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.012910842895508,
+          "y": 0.3277333378791809,
+          "z": -0.26951712369918823
+        },
+        "yaw": -0.17,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "hip_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        }
+      ]
+    },
+    {
+      "step": 31,
+      "timer": 179.6,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8450849056243896,
+          "y": 0.2323911190032959,
+          "z": 0.2752685844898224
+        },
+        "yaw": -1.2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.053879737854004,
+          "y": 0.4379986822605133,
+          "z": -0.24062027037143707
+        },
+        "yaw": -0.47,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "hip_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.168700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.168700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "hip_fl",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 1.168700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.168700000047684
+        }
+      ]
+    },
+    {
+      "step": 32,
+      "timer": 179.37,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9175174236297607,
+          "y": 0.5931784510612488,
+          "z": 0.25881409645080566
+        },
+        "yaw": -2.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.131657600402832,
+          "y": 0.7010924220085144,
+          "z": -0.08232586830854416
+        },
+        "yaw": -1.19,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1749000000953682
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1749000000953682
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1749000000953682
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0982999999523173
+        }
+      ]
+    },
+    {
+      "step": 33,
+      "timer": 179.23,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.0013909339904785,
+          "y": 0.6688981056213379,
+          "z": 0.31245294213294983
+        },
+        "yaw": -2.42,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.178845167160034,
+          "y": 0.5645245313644409,
+          "z": 0.06840399652719498
+        },
+        "yaw": -1.61,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1765999999046333
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1765999999046333
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1032999999523163
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1032999999523163
+        }
+      ]
+    },
+    {
+      "step": 34,
+      "timer": 179,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.0962493419647217,
+          "y": 0.5910081267356873,
+          "z": 0.3556388020515442
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.2255852222442627,
+          "y": 0.42440831661224365,
+          "z": 0.15282660722732544
+        },
+        "yaw": -1.4,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1004000000953678
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0254999999999992
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.9520999999046325
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.9520999999046325
+        }
+      ]
+    },
+    {
+      "step": 35,
+      "timer": 178.85,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.1878013610839844,
+          "y": 0.4116905927658081,
+          "z": 0.3604121804237366
+        },
+        "yaw": 2.83,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.25759220123291,
+          "y": 0.4448234736919403,
+          "z": 0.13667385280132294
+        },
+        "yaw": -1.33,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1742000000476835
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.9458000001907347
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.8709000000953662
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.7974999999999994
+        }
+      ]
+    },
+    {
+      "step": 36,
+      "timer": 178.63,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.306530475616455,
+          "y": 0.5216475129127502,
+          "z": 0.32438924908638
+        },
+        "yaw": 2.58,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.2799339294433594,
+          "y": 0.5394731163978577,
+          "z": 0.07739617675542831
+        },
+        "yaw": -1.52,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.176700000047683
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.176700000047683
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1029999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1029999999999998
+        }
+      ]
+    },
+    {
+      "step": 37,
+      "timer": 178.47,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.3878414630889893,
+          "y": 0.5690569281578064,
+          "z": 0.2722625732421875
+        },
+        "yaw": 2.49,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.324068784713745,
+          "y": 0.600084125995636,
+          "z": -0.05097060650587082
+        },
+        "yaw": -1.51,
+        "stamina": 0.95,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1748000001907357
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0243000001907347
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0243000001907347
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.9506000001430515
+        }
+      ]
+    },
+    {
+      "step": 38,
+      "timer": 178.25,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.6102559566497803,
+          "y": 0.6501691341400146,
+          "z": 0.1297948956489563
+        },
+        "yaw": 2.45,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.4140398502349854,
+          "y": 0.5879834294319153,
+          "z": -0.3190150856971741
+        },
+        "yaw": -1.49,
+        "stamina": 0.94,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1013000001907347
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.951800000190735
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.801300000190734
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.801300000190734
+        }
+      ]
+    },
+    {
+      "step": 39,
+      "timer": 178.1,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.7718329429626465,
+          "y": 0.717531144618988,
+          "z": 0.030707301571965218
+        },
+        "yaw": 2.3,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.4625656604766846,
+          "y": 0.5323252081871033,
+          "z": -0.5522226095199585
+        },
+        "yaw": -1.41,
+        "stamina": 0.92,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1758999998569486
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1758999998569486
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1758999998569486
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0996999998092658
+        }
+      ]
+    },
+    {
+      "step": 40,
+      "timer": 177.87,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.960620641708374,
+          "y": 0.7770671248435974,
+          "z": -0.11511029303073883
+        },
+        "yaw": 1.85,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.432271718978882,
+          "y": 0.5261145830154419,
+          "z": -0.8200755715370178
+        },
+        "yaw": -1.39,
+        "stamina": 0.91,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.174699999809265
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.094899999856949
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.094899999856949
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0165000000000006
+        }
+      ]
+    },
+    {
+      "step": 41,
+      "timer": 177.64,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.023139476776123,
+          "y": 0.7440247535705566,
+          "z": -0.31327447295188904
+        },
+        "yaw": 1.8,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.362473487854004,
+          "y": 0.612819492816925,
+          "z": -0.8997060060501099
+        },
+        "yaw": -1.27,
+        "stamina": 0.9,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1729000000953675
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1729000000953675
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0957999999523178
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0957999999523178
+        }
+      ]
+    },
+    {
+      "step": 42,
+      "timer": 177.4,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.9905669689178467,
+          "y": 0.6577574610710144,
+          "z": -0.44420841336250305
+        },
+        "yaw": 1.69,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.2067153453826904,
+          "y": 0.6467748880386353,
+          "z": -0.8182477355003357
+        },
+        "yaw": -1.38,
+        "stamina": 0.89,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0962000000476841
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0169999999999995
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.939900000095367
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.939900000095367
+        }
+      ]
+    },
+    {
+      "step": 43,
+      "timer": 177.07,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.7680869102478027,
+          "y": 0.7361534833908081,
+          "z": -0.39035844802856445
+        },
+        "yaw": 1.41,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.880221366882324,
+          "y": 0.7088852524757385,
+          "z": -0.6042686700820923
+        },
+        "yaw": -1.88,
+        "stamina": 0.86,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1739999999999995
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1739999999999995
+        },
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0986000001430511
+        },
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0194000000953665
+        }
+      ]
+    },
+    {
+      "step": 44,
+      "timer": 176.84,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.627871513366699,
+          "y": 0.7471403479576111,
+          "z": -0.2711406946182251
+        },
+        "yaw": 1.75,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.6542775630950928,
+          "y": 0.6612051725387573,
+          "z": -0.43263471126556396
+        },
+        "yaw": -2.13,
+        "stamina": 0.85,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.173
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.173
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.173
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.173
+        }
+      ]
+    },
+    {
+      "step": 45,
+      "timer": 176.53,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.465151309967041,
+          "y": 0.6501093506813049,
+          "z": -0.10648149251937866
+        },
+        "yaw": 1.56,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.439347267150879,
+          "y": 0.5177160501480103,
+          "z": -0.2521551847457886
+        },
+        "yaw": -1.97,
+        "stamina": 0.82,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.172800000190735
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.172800000190735
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.172800000190735
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.172800000190735
+        }
+      ]
+    },
+    {
+      "step": 46,
+      "timer": 176.23,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.367588520050049,
+          "y": 0.5438790321350098,
+          "z": -0.09936878085136414
+        },
+        "yaw": 0.9,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.3083510398864746,
+          "y": 0.49697256088256836,
+          "z": -0.3104528784751892
+        },
+        "yaw": -2.02,
+        "stamina": 0.8,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1742999999523178
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1742999999523178
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0975000000000001
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0975000000000001
+        }
+      ]
+    },
+    {
+      "step": 47,
+      "timer": 176.08,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.3640236854553223,
+          "y": 0.5420582890510559,
+          "z": -0.1349300742149353
+        },
+        "yaw": 0.96,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.2447404861450195,
+          "y": 0.517646849155426,
+          "z": -0.44246217608451843
+        },
+        "yaw": -2.04,
+        "stamina": 0.8,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1751000001430523
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0999999999999996
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0242999999523175
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0242999999523175
+        }
+      ]
+    },
+    {
+      "step": 48,
+      "timer": 175.84,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.4600884914398193,
+          "y": 0.5884866118431091,
+          "z": -0.19135044515132904
+        },
+        "yaw": 1.32,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 2.1080732345581055,
+          "y": 0.49077948927879333,
+          "z": -0.6955381631851196
+        },
+        "yaw": -2,
+        "stamina": 0.78,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1714000000953675
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1714000000953675
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1714000000953675
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1714000000953675
+        }
+      ]
+    },
+    {
+      "step": 49,
+      "timer": 175.69,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.5714633464813232,
+          "y": 0.6213158369064331,
+          "z": -0.23253358900547028
+        },
+        "yaw": 1.64,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.9652483463287354,
+          "y": 0.4750158190727234,
+          "z": -0.8491680026054382
+        },
+        "yaw": -1.89,
+        "stamina": 0.77,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1736000001430522
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1736000001430522
+        },
+        {
+          "source": "passive",
+          "segment": "knee_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1736000001430522
+        },
+        {
+          "source": "passive",
+          "segment": "hip_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1736000001430522
+        }
+      ]
+    },
+    {
+      "step": 50,
+      "timer": 175.45,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.789811134338379,
+          "y": 0.6010310649871826,
+          "z": -0.2844599783420563
+        },
+        "yaw": 2.38,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.6673823595046997,
+          "y": 0.5100170373916626,
+          "z": -0.986144483089447
+        },
+        "yaw": -1.88,
+        "stamina": 0.76,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.171700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.171700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.171700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.171700000047684
+        }
+      ]
+    },
+    {
+      "step": 51,
+      "timer": 175.23,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.967118978500366,
+          "y": 0.6731586456298828,
+          "z": -0.33047953248023987
+        },
+        "yaw": 2.51,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.3932527303695679,
+          "y": 0.5133560299873352,
+          "z": -1.0256571769714355
+        },
+        "yaw": -1.61,
+        "stamina": 0.74,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.173900000095367
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.173900000095367
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.173900000095367
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.173900000095367
+        }
+      ]
+    },
+    {
+      "step": 52,
+      "timer": 175.07,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.064283847808838,
+          "y": 0.7663854956626892,
+          "z": -0.38407644629478455
+        },
+        "yaw": 2.36,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.2494865655899048,
+          "y": 0.5012488961219788,
+          "z": -1.0142213106155396
+        },
+        "yaw": -1.29,
+        "stamina": 0.73,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.171899999856949
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.171899999856949
+        },
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.171899999856949
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.171899999856949
+        }
+      ]
+    },
+    {
+      "step": 53,
+      "timer": 174.83,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.215258598327637,
+          "y": 0.7718524932861328,
+          "z": -0.51349937915802
+        },
+        "yaw": 1.93,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.0998870134353638,
+          "y": 0.4965493977069855,
+          "z": -0.9570919275283813
+        },
+        "yaw": -1.12,
+        "stamina": 0.71,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1710000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "torso_rear",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1710000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1710000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1710000000000012
+        }
+      ]
+    },
+    {
+      "step": 54,
+      "timer": 174.6,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.256918430328369,
+          "y": 0.7385515570640564,
+          "z": -0.6516674160957336
+        },
+        "yaw": 1.85,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.0341005325317383,
+          "y": 0.4382704794406891,
+          "z": -0.8912346363067627
+        },
+        "yaw": -1.24,
+        "stamina": 0.7,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1748999998569492
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1748999998569492
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1748999998569492
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1748999998569492
+        }
+      ]
+    },
+    {
+      "step": 55,
+      "timer": 174.29,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.078246116638184,
+          "y": 0.7303509712219238,
+          "z": -0.8408999443054199
+        },
+        "yaw": 1.66,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.9801327586174011,
+          "y": 0.4059397280216217,
+          "z": -0.87087082862854
+        },
+        "yaw": -1.21,
+        "stamina": 0.68,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1741999998092663
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0987999999523161
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0229999999999997
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0229999999999997
+        }
+      ]
+    },
+    {
+      "step": 56,
+      "timer": 174.07,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.8995237350463867,
+          "y": 0.7327718734741211,
+          "z": -0.8579476475715637
+        },
+        "yaw": 1.39,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.950054407119751,
+          "y": 0.4116945266723633,
+          "z": -0.9617493748664856
+        },
+        "yaw": -1.2,
+        "stamina": 0.67,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1752999999523173
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0990000000000002
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0990000000000002
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0241000001430507
+        }
+      ]
+    },
+    {
+      "step": 57,
+      "timer": 173.75,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.708927869796753,
+          "y": 0.747288703918457,
+          "z": -0.7036583423614502
+        },
+        "yaw": 1.6,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.9505027532577515,
+          "y": 0.38204848766326904,
+          "z": -1.1928987503051758
+        },
+        "yaw": -1.12,
+        "stamina": 0.65,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1725000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1725000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1725000000000012
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0946999998092668
+        }
+      ]
+    },
+    {
+      "step": 58,
+      "timer": 173.45,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.572175979614258,
+          "y": 0.5988836288452148,
+          "z": -0.5166047215461731
+        },
+        "yaw": 1.88,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.9990137219429016,
+          "y": 0.48646309971809387,
+          "z": -1.4466081857681274
+        },
+        "yaw": -1.39,
+        "stamina": 0.63,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1754999999999995
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.098200000047683
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.098200000047683
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9498000001907343
+        }
+      ]
+    },
+    {
+      "step": 59,
+      "timer": 173.23,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.543826103210449,
+          "y": 0.6597592830657959,
+          "z": -0.3251018822193146
+        },
+        "yaw": 1.55,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 1.0260487794876099,
+          "y": 0.4928387701511383,
+          "z": -1.7918821573257446
+        },
+        "yaw": -1.41,
+        "stamina": 0.61,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1752999999523155
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1752999999523155
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1752999999523155
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1752999999523155
+        }
+      ]
+    },
+    {
+      "step": 60,
+      "timer": 173,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.5485987663269043,
+          "y": 0.6757408380508423,
+          "z": -0.21587932109832764
+        },
+        "yaw": 1.69,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.9738601446151733,
+          "y": 0.4467793405056,
+          "z": -2.161046266555786
+        },
+        "yaw": -1.2,
+        "stamina": 0.59,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1733999998569473
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1733999998569473
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0987999999523161
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0987999999523161
+        }
+      ]
+    },
+    {
+      "step": 61,
+      "timer": 172.82,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.572758436203003,
+          "y": 0.6418854594230652,
+          "z": -0.20257633924484253
+        },
+        "yaw": 1.85,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.9040260314941406,
+          "y": 0.3982428014278412,
+          "z": -2.366731882095337
+        },
+        "yaw": -1.01,
+        "stamina": 0.58,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0652000000476831
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9885999999046305
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9885999999046305
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9139999999999994
+        }
+      ]
+    },
+    {
+      "step": 62,
+      "timer": 172.57,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.695700168609619,
+          "y": 0.5692641139030457,
+          "z": -0.23242148756980896
+        },
+        "yaw": 2.13,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.8351874947547913,
+          "y": 0.2214571088552475,
+          "z": -2.568193197250366
+        },
+        "yaw": -0.85,
+        "stamina": 0.57,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0035999999046332
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.8187999999523163
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7421999998092638
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7421999998092638
+        }
+      ]
+    },
+    {
+      "step": 63,
+      "timer": 172.27,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.966500759124756,
+          "y": 0.5985051989555359,
+          "z": -0.24568836390972137
+        },
+        "yaw": 2.79,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.7471428513526917,
+          "y": 0.44951027631759644,
+          "z": -2.581176996231079
+        },
+        "yaw": -0.75,
+        "stamina": 0.58,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1762999999523167
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1762999999523167
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1008999998569493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1008999998569493
+        }
+      ]
+    },
+    {
+      "step": 64,
+      "timer": 172.11,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.035240173339844,
+          "y": 0.6842141151428223,
+          "z": -0.2676973342895508
+        },
+        "yaw": 2.67,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.7388851642608643,
+          "y": 0.5861542224884033,
+          "z": -2.5773158073425293
+        },
+        "yaw": -0.68,
+        "stamina": 0.59,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.1737999999523154
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0212000000476849
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0212000000476849
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9457999999523174
+        }
+      ]
+    },
+    {
+      "step": 65,
+      "timer": 171.88,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.098025798797607,
+          "y": 0.7508366107940674,
+          "z": -0.3296286165714264
+        },
+        "yaw": 2.18,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.6049437522888184,
+          "y": 0.6748924851417542,
+          "z": -2.511749267578125
+        },
+        "yaw": -0.99,
+        "stamina": 0.59,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1740999999046338
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1740999999046338
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1740999999046338
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.093599999904633
+        }
+      ]
+    },
+    {
+      "step": 66,
+      "timer": 171.65,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.087954521179199,
+          "y": 0.7490458488464355,
+          "z": -0.44278281927108765
+        },
+        "yaw": 2.07,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.3530693054199219,
+          "y": 0.7075872421264648,
+          "z": -2.275174856185913
+        },
+        "yaw": -2.57,
+        "stamina": 0.6,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0955000000000013
+        }
+      ]
+    },
+    {
+      "step": 67,
+      "timer": 171.34,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.878004789352417,
+          "y": 0.7588522434234619,
+          "z": -0.6039547920227051
+        },
+        "yaw": 1.98,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.19268789887428284,
+          "y": 0.5969558358192444,
+          "z": -1.9897758960723877
+        },
+        "yaw": -2.54,
+        "stamina": 0.6,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1700999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0930999999046307
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0930999999046307
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0154000000953687
+        }
+      ]
+    },
+    {
+      "step": 68,
+      "timer": 171.11,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.669081926345825,
+          "y": 0.7304020524024963,
+          "z": -0.7128908038139343
+        },
+        "yaw": 1.78,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.3611409664154053,
+          "y": 0.5590738654136658,
+          "z": -1.9250061511993408
+        },
+        "yaw": -2.05,
+        "stamina": 0.59,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.173599999904635
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.173599999904635
+        },
+        {
+          "source": "passive",
+          "segment": "knee_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.173599999904635
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.173599999904635
+        }
+      ]
+    },
+    {
+      "step": 69,
+      "timer": 170.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.2661306858062744,
+          "y": 0.7504068613052368,
+          "z": -0.7116736769676208
+        },
+        "yaw": 1.75,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.6173133850097656,
+          "y": 0.504231333732605,
+          "z": -2.078822374343872
+        },
+        "yaw": -1.41,
+        "stamina": 0.57,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1746999998092669
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1746999998092669
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1746999998092669
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1746999998092669
+        }
+      ]
+    },
+    {
+      "step": 70,
+      "timer": 170.49,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.849304676055908,
+          "y": 0.7178840637207031,
+          "z": -0.6366426944732666
+        },
+        "yaw": 2.03,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.3276357650756836,
+          "y": 2.0855767726898193,
+          "z": -2.194766044616699
+        },
+        "yaw": -0.68,
+        "stamina": 0.39,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.092099999904633
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.092099999904633
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.033,
+          "splashText": "GLANCE!",
+          "age": 1.092099999904633
+        },
+        {
+          "source": "passive",
+          "segment": "knee_bl",
+          "amount": 0.016,
+          "splashText": "GLANCE!",
+          "age": 1.092099999904633
+        }
+      ]
+    },
+    {
+      "step": 71,
+      "timer": 170.25,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.610921859741211,
+          "y": 0.6559438705444336,
+          "z": -0.6414794325828552
+        },
+        "yaw": 1.94,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 0.25904443860054016,
+          "y": 3.7197821140289307,
+          "z": -2.2244741916656494
+        },
+        "yaw": 0.09,
+        "stamina": 0.36,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.17490000009537
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0979000000953683
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0979000000953683
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0979000000953683
+        }
+      ]
+    },
+    {
+      "step": 72,
+      "timer": 169.95,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.284980297088623,
+          "y": 0.6816235184669495,
+          "z": -0.7285560369491577
+        },
+        "yaw": 1.84,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.019967686384916306,
+          "y": 4.923114776611328,
+          "z": -2.1358156204223633
+        },
+        "yaw": 1.71,
+        "stamina": 0.34,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1675000000000004
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1675000000000004
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1675000000000004
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0924000000953669
+        }
+      ]
+    },
+    {
+      "step": 73,
+      "timer": 169.79,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.1770944595336914,
+          "y": 0.6942707896232605,
+          "z": -0.7644578814506531
+        },
+        "yaw": 1.96,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.005111607722938061,
+          "y": 5.049266338348389,
+          "z": -2.1178524494171143
+        },
+        "yaw": 1.78,
+        "stamina": 0.35,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1697999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1697999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1697999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.091199999809266
+        }
+      ]
+    },
+    {
+      "step": 74,
+      "timer": 169.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.8915420770645142,
+          "y": 0.685787558555603,
+          "z": -0.857944905757904
+        },
+        "yaw": 2.05,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.08786456286907196,
+          "y": 4.6985859870910645,
+          "z": -2.090602159500122
+        },
+        "yaw": 1.81,
+        "stamina": 0.36,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.172500000000003
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.172500000000003
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0975999999046344
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0975999999046344
+        }
+      ]
+    },
+    {
+      "step": 75,
+      "timer": 169.33,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.7674630880355835,
+          "y": 0.6790289282798767,
+          "z": -0.9025645852088928
+        },
+        "yaw": 2.08,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.14821121096611023,
+          "y": 4.194865703582764,
+          "z": -2.0928335189819336
+        },
+        "yaw": 1.81,
+        "stamina": 0.36,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1745999999046326
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1745999999046326
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1745999999046326
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1745999999046326
+        }
+      ]
+    },
+    {
+      "step": 76,
+      "timer": 169.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.6567732095718384,
+          "y": 0.6765466928482056,
+          "z": -0.9556628465652466
+        },
+        "yaw": 2.14,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.17575502395629883,
+          "y": 3.5215811729431152,
+          "z": -2.1082329750061035
+        },
+        "yaw": 1.81,
+        "stamina": 0.37,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1750000000000007
+        }
+      ]
+    },
+    {
+      "step": 77,
+      "timer": 168.95,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.4506465196609497,
+          "y": 0.6751670837402344,
+          "z": -1.0876199007034302
+        },
+        "yaw": 2.25,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.1714211106300354,
+          "y": 2.1977896690368652,
+          "z": -2.1217849254608154
+        },
+        "yaw": 1.75,
+        "stamina": 0.37,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1717999999523165
+        }
+      ]
+    },
+    {
+      "step": 78,
+      "timer": 168.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.3392081260681152,
+          "y": 0.6777524352073669,
+          "z": -1.1668612957000732
+        },
+        "yaw": 2.28,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.15163375437259674,
+          "y": 1.1842557191848755,
+          "z": -2.120931386947632
+        },
+        "yaw": 1.69,
+        "stamina": 0.38,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.174399999856952
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.174399999856952
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.174399999856952
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.174399999856952
+        }
+      ]
+    },
+    {
+      "step": 79,
+      "timer": 168.65,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -1.2340878248214722,
+          "y": 0.6811137795448303,
+          "z": -1.2392765283584595
+        },
+        "yaw": 2.28,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -0.1211216002702713,
+          "y": 0.21230553090572357,
+          "z": -2.101682662963867
+        },
+        "yaw": 1.51,
+        "stamina": 0.38,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.046,
+          "splashText": "GLANCE!",
+          "age": 1.1757999999523143
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1757999999523143
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1757999999523143
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1757999999523143
+        }
+      ]
+    }
+  ],
+  "finalState": {
+    "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+    "screen": "ARENA",
+    "selectedBeastId": "chonkus",
+    "match": {
+      "phase": "FIGHTING",
+      "timer": 168.49
+    },
+    "player": {
+      "name": "Chonkus",
+      "position": {
+        "x": -1.1108964681625366,
+        "y": 0.683661937713623,
+        "z": -1.3155609369277954
+      },
+      "yaw": 2.25,
+      "stamina": 0.99,
+      "mass": 1,
+      "attack": {
+        "state": "IDLE",
+        "profile": "blunt",
+        "chargeNorm": 0.022222222222222223,
+        "chargeTier": "quick",
+        "holdSeconds": 0.02,
+        "isBlocking": false
+      }
+    },
+    "opponent": {
+      "name": "Butterchonk",
+      "position": {
+        "x": -0.026253197342157364,
+        "y": 0.20863541960716248,
+        "z": -1.915497899055481
+      },
+      "yaw": 1.25,
+      "stamina": 0.38,
+      "mass": 1,
+      "attack": {
+        "state": "IDLE",
+        "profile": "shield",
+        "chargeNorm": 0.044444444444444446,
+        "chargeTier": "quick",
+        "holdSeconds": 0.04,
+        "isBlocking": false
+      }
+    },
+    "controls": {
+      "movement": "WASD",
+      "raisePrimary": "J",
+      "commitPrimary": "K",
+      "jump": "SPACE"
+    },
+    "recentDamageEvents": [
+      {
+        "source": "passive",
+        "segment": "knee_l",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.1682000000476833
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_l",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.1682000000476833
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_br",
+        "amount": 0.003,
+        "splashText": "GLANCE!",
+        "age": 1.1682000000476833
+      },
+      {
+        "source": "passive",
+        "segment": "knee_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.1682000000476833
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.1682000000476833
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_br",
+        "amount": 0,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "knee_l",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_l",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "knee_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_fl",
+        "amount": 0.028,
+        "splashText": "GLANCE!",
+        "age": 1.088400000095369
+      },
+      {
+        "source": "passive",
+        "segment": "torso",
+        "amount": 0.046,
+        "splashText": "GLANCE!",
+        "age": 1.0142000000476834
+      }
+    ]
+  }
+}

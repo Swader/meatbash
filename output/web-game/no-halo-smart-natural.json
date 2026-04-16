@@ -1,0 +1,6096 @@
+{
+  "hit": true,
+  "finalState": {
+    "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+    "screen": "ARENA",
+    "selectedBeastId": "chonkus",
+    "match": {
+      "phase": "FIGHTING",
+      "timer": 171.58
+    },
+    "player": {
+      "name": "Chonkus",
+      "position": {
+        "x": -4.244808673858643,
+        "y": 0.8118311762809753,
+        "z": 0.4960549771785736
+      },
+      "yaw": 2.38,
+      "stamina": 0.97,
+      "mass": 1,
+      "attack": {
+        "state": "RECOVER",
+        "profile": "blunt",
+        "chargeNorm": 0.4666666666666666,
+        "chargeTier": "ready",
+        "holdSeconds": 0.42,
+        "isBlocking": false,
+        "stateProgress": 0.5377695077894673
+      }
+    },
+    "opponent": {
+      "name": "Noodlesnake",
+      "position": {
+        "x": -3.0910086631774902,
+        "y": 0.5376673936843872,
+        "z": 0.6812832355499268
+      },
+      "yaw": 2.75,
+      "stamina": 0.56,
+      "mass": 0.98,
+      "attack": {
+        "state": "IDLE",
+        "profile": "spike",
+        "chargeNorm": 0.013333333333333334,
+        "chargeTier": "quick",
+        "holdSeconds": 0.01,
+        "isBlocking": false,
+        "stateProgress": 0
+      }
+    },
+    "controls": {
+      "movement": "WASD",
+      "raisePrimary": "J",
+      "commitPrimary": "K",
+      "jump": "SPACE"
+    },
+    "recentDamageEvents": [
+      {
+        "source": "passive",
+        "segment": "ankle_r",
+        "amount": 0.005,
+        "splashText": "GLANCE!",
+        "age": 0.8453000001907327
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_r",
+        "amount": 0.004,
+        "splashText": "GLANCE!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "passive",
+        "segment": "shoulder_r",
+        "amount": 0.002,
+        "splashText": "GLANCE!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "passive",
+        "segment": "elbow_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_l",
+        "amount": 0.003,
+        "splashText": "GLANCE!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "passive",
+        "segment": "knee_l",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "active",
+        "segment": "shoulder_l",
+        "amount": 24,
+        "profile": "blunt",
+        "splashText": "BONK!",
+        "age": 0.7667000000476811
+      },
+      {
+        "source": "passive",
+        "segment": "elbow_l",
+        "amount": 0.009,
+        "splashText": "GLANCE!",
+        "age": 0.6868000001907326
+      },
+      {
+        "source": "passive",
+        "segment": "ankle_r",
+        "amount": 0.003,
+        "splashText": "GLANCE!",
+        "age": 0.6868000001907326
+      },
+      {
+        "source": "passive",
+        "segment": "shoulder_r",
+        "amount": 0.001,
+        "splashText": "GLANCE!",
+        "age": 0.6868000001907326
+      },
+      {
+        "source": "passive",
+        "segment": "knee_r",
+        "amount": 0.003,
+        "splashText": "GLANCE!",
+        "age": 0.6868000001907326
+      },
+      {
+        "source": "passive",
+        "segment": "shoulder_r",
+        "amount": 0.005,
+        "splashText": "GLANCE!",
+        "age": 0.6066000001430467
+      }
+    ],
+    "recentAudio": [
+      "land",
+      "hit_blunt"
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "timer": 1.78,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9266490936279297,
+          "y": 0.20282505452632904,
+          "z": 0.26823899149894714
+        },
+        "yaw": -1.17,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.971451759338379,
+          "y": 0.3153691589832306,
+          "z": 0.16154849529266357
+        },
+        "yaw": 2.92,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 1,
+      "timer": 1.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.921661138534546,
+          "y": 0.15926265716552734,
+          "z": 0.3022901713848114
+        },
+        "yaw": -2.26,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9723167419433594,
+          "y": 0.2791852653026581,
+          "z": 0.19158616662025452
+        },
+        "yaw": 3.03,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 2,
+      "timer": 1.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.921661138534546,
+          "y": 0.15926265716552734,
+          "z": 0.3022901713848114
+        },
+        "yaw": -2.26,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9723167419433594,
+          "y": 0.2791852653026581,
+          "z": 0.19158616662025452
+        },
+        "yaw": 3.03,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 3,
+      "timer": 1.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9087939262390137,
+          "y": 0.1714317351579666,
+          "z": 0.3058924674987793
+        },
+        "yaw": -2.2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9716427326202393,
+          "y": 0.27886641025543213,
+          "z": 0.23502688109874725
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 4,
+      "timer": 1.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9087939262390137,
+          "y": 0.1714317351579666,
+          "z": 0.3058924674987793
+        },
+        "yaw": -2.2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9716427326202393,
+          "y": 0.27886641025543213,
+          "z": 0.23502688109874725
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 5,
+      "timer": 1.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.9087939262390137,
+          "y": 0.1714317351579666,
+          "z": 0.3058924674987793
+        },
+        "yaw": -2.2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9716427326202393,
+          "y": 0.27886641025543213,
+          "z": 0.23502688109874725
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 6,
+      "timer": 1.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.898183584213257,
+          "y": 0.16661012172698975,
+          "z": 0.2947549521923065
+        },
+        "yaw": -2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9695940017700195,
+          "y": 0.29121142625808716,
+          "z": 0.2694481313228607
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 7,
+      "timer": 1.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.898183584213257,
+          "y": 0.16661012172698975,
+          "z": 0.2947549521923065
+        },
+        "yaw": -2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9695940017700195,
+          "y": 0.29121142625808716,
+          "z": 0.2694481313228607
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 8,
+      "timer": 1.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.898183584213257,
+          "y": 0.16661012172698975,
+          "z": 0.2947549521923065
+        },
+        "yaw": -2,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9695940017700195,
+          "y": 0.29121142625808716,
+          "z": 0.2694481313228607
+        },
+        "yaw": 3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 9,
+      "timer": 1.38,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.883781909942627,
+          "y": 0.15522998571395874,
+          "z": 0.2746541500091553
+        },
+        "yaw": -1.69,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.962782859802246,
+          "y": 0.298475980758667,
+          "z": 0.29543623328208923
+        },
+        "yaw": 3.03,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 10,
+      "timer": 1.38,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.883781909942627,
+          "y": 0.15522998571395874,
+          "z": 0.2746541500091553
+        },
+        "yaw": -1.69,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.962782859802246,
+          "y": 0.298475980758667,
+          "z": 0.29543623328208923
+        },
+        "yaw": 3.03,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 11,
+      "timer": 1.38,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.883781909942627,
+          "y": 0.15522998571395874,
+          "z": 0.2746541500091553
+        },
+        "yaw": -1.69,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.962782859802246,
+          "y": 0.298475980758667,
+          "z": 0.29543623328208923
+        },
+        "yaw": 3.03,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 12,
+      "timer": 1.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8715062141418457,
+          "y": 0.15961699187755585,
+          "z": 0.2557869851589203
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.953235387802124,
+          "y": 0.3027498126029968,
+          "z": 0.31349775195121765
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 13,
+      "timer": 1.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8715062141418457,
+          "y": 0.15961699187755585,
+          "z": 0.2557869851589203
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.953235387802124,
+          "y": 0.3027498126029968,
+          "z": 0.31349775195121765
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 14,
+      "timer": 1.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8650195598602295,
+          "y": 0.16358594596385956,
+          "z": 0.24984508752822876
+        },
+        "yaw": -1.4,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9467813968658447,
+          "y": 0.3052431643009186,
+          "z": 0.3253687024116516
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 15,
+      "timer": 1.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8650195598602295,
+          "y": 0.16358594596385956,
+          "z": 0.24984508752822876
+        },
+        "yaw": -1.4,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9467813968658447,
+          "y": 0.3052431643009186,
+          "z": 0.3253687024116516
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 16,
+      "timer": 1.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8650195598602295,
+          "y": 0.16358594596385956,
+          "z": 0.24984508752822876
+        },
+        "yaw": -1.4,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9467813968658447,
+          "y": 0.3052431643009186,
+          "z": 0.3253687024116516
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 17,
+      "timer": 1.08,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8643949031829834,
+          "y": 0.16156253218650818,
+          "z": 0.2535933256149292
+        },
+        "yaw": -1.43,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.943013906478882,
+          "y": 0.30648377537727356,
+          "z": 0.33174586296081543
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 18,
+      "timer": 1.08,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8643949031829834,
+          "y": 0.16156253218650818,
+          "z": 0.2535933256149292
+        },
+        "yaw": -1.43,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.943013906478882,
+          "y": 0.30648377537727356,
+          "z": 0.33174586296081543
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 19,
+      "timer": 0.98,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8652758598327637,
+          "y": 0.16096419095993042,
+          "z": 0.2546888589859009
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9418673515319824,
+          "y": 0.3068064749240875,
+          "z": 0.3335340619087219
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 20,
+      "timer": 0.98,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8652758598327637,
+          "y": 0.16096419095993042,
+          "z": 0.2546888589859009
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9418673515319824,
+          "y": 0.3068064749240875,
+          "z": 0.3335340619087219
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 21,
+      "timer": 0.98,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8652758598327637,
+          "y": 0.16096419095993042,
+          "z": 0.2546888589859009
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9418673515319824,
+          "y": 0.3068064749240875,
+          "z": 0.3335340619087219
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 22,
+      "timer": 0.88,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865492105484009,
+          "y": 0.16081081330776215,
+          "z": 0.25493714213371277
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9426512718200684,
+          "y": 0.3065696060657501,
+          "z": 0.33225560188293457
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 23,
+      "timer": 0.88,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865492105484009,
+          "y": 0.16081081330776215,
+          "z": 0.25493714213371277
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9426512718200684,
+          "y": 0.3065696060657501,
+          "z": 0.33225560188293457
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 24,
+      "timer": 0.78,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865546226501465,
+          "y": 0.16077636182308197,
+          "z": 0.25499075651168823
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9432828426361084,
+          "y": 0.30631205439567566,
+          "z": 0.33089497685432434
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 25,
+      "timer": 0.78,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865546226501465,
+          "y": 0.16077636182308197,
+          "z": 0.25499075651168823
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9432828426361084,
+          "y": 0.30631205439567566,
+          "z": 0.33089497685432434
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 26,
+      "timer": 0.78,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865546226501465,
+          "y": 0.16077636182308197,
+          "z": 0.25499075651168823
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9432828426361084,
+          "y": 0.30631205439567566,
+          "z": 0.33089497685432434
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 27,
+      "timer": 0.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865572452545166,
+          "y": 0.1607561558485031,
+          "z": 0.25502708554267883
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.943819522857666,
+          "y": 0.30615463852882385,
+          "z": 0.33006638288497925
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 28,
+      "timer": 0.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865572452545166,
+          "y": 0.1607561558485031,
+          "z": 0.25502708554267883
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.943819522857666,
+          "y": 0.30615463852882385,
+          "z": 0.33006638288497925
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 29,
+      "timer": 0.68,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865572452545166,
+          "y": 0.1607561558485031,
+          "z": 0.25502708554267883
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.943819522857666,
+          "y": 0.30615463852882385,
+          "z": 0.33006638288497925
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 30,
+      "timer": 0.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655900955200195,
+          "y": 0.16074396669864655,
+          "z": 0.25504910945892334
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.944082498550415,
+          "y": 0.3060452938079834,
+          "z": 0.3295026421546936
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 31,
+      "timer": 0.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655900955200195,
+          "y": 0.16074396669864655,
+          "z": 0.25504910945892334
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.944082498550415,
+          "y": 0.3060452938079834,
+          "z": 0.3295026421546936
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 32,
+      "timer": 0.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655900955200195,
+          "y": 0.16074396669864655,
+          "z": 0.25504910945892334
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.944082498550415,
+          "y": 0.3060452938079834,
+          "z": 0.3295026421546936
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 33,
+      "timer": 0.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656044006347656,
+          "y": 0.1607334166765213,
+          "z": 0.25506532192230225
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9442694187164307,
+          "y": 0.30599039793014526,
+          "z": 0.32921841740608215
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 34,
+      "timer": 0.48,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656044006347656,
+          "y": 0.1607334166765213,
+          "z": 0.25506532192230225
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9442694187164307,
+          "y": 0.30599039793014526,
+          "z": 0.32921841740608215
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 35,
+      "timer": 0.38,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656017780303955,
+          "y": 0.16073405742645264,
+          "z": 0.2550634741783142
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443163871765137,
+          "y": 0.30596962571144104,
+          "z": 0.32911235094070435
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 36,
+      "timer": 0.38,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656017780303955,
+          "y": 0.16073405742645264,
+          "z": 0.2550634741783142
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443163871765137,
+          "y": 0.30596962571144104,
+          "z": 0.32911235094070435
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 37,
+      "timer": 0.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865598201751709,
+          "y": 0.1607319563627243,
+          "z": 0.2550669014453888
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.944329023361206,
+          "y": 0.30596402287483215,
+          "z": 0.3290868401527405
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 38,
+      "timer": 0.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865598201751709,
+          "y": 0.1607319563627243,
+          "z": 0.2550669014453888
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.944329023361206,
+          "y": 0.30596402287483215,
+          "z": 0.3290868401527405
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 39,
+      "timer": 0.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655948638916016,
+          "y": 0.16073288023471832,
+          "z": 0.2550645172595978
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443492889404297,
+          "y": 0.30596083402633667,
+          "z": 0.329069048166275
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 40,
+      "timer": 0.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655948638916016,
+          "y": 0.16073288023471832,
+          "z": 0.2550645172595978
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443492889404297,
+          "y": 0.30596083402633667,
+          "z": 0.329069048166275
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 41,
+      "timer": 0.18,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8655948638916016,
+          "y": 0.16073288023471832,
+          "z": 0.2550645172595978
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443492889404297,
+          "y": 0.30596083402633667,
+          "z": 0.329069048166275
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 42,
+      "timer": 0.08,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865607261657715,
+          "y": 0.16073273122310638,
+          "z": 0.2550674378871918
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443373680114746,
+          "y": 0.30596017837524414,
+          "z": 0.3290650546550751
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 43,
+      "timer": 0.08,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865607261657715,
+          "y": 0.16073273122310638,
+          "z": 0.2550674378871918
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443373680114746,
+          "y": 0.30596017837524414,
+          "z": 0.3290650546550751
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 44,
+      "timer": 180,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8656015396118164,
+          "y": 0.16073042154312134,
+          "z": 0.2550680935382843
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9443464279174805,
+          "y": 0.30596113204956055,
+          "z": 0.3290685713291168
+        },
+        "yaw": 3.01,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 45,
+      "timer": 179.9,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865609884262085,
+          "y": 0.16072021424770355,
+          "z": 0.2550796568393707
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9419474601745605,
+          "y": 0.3056867718696594,
+          "z": 0.3279265761375427
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 46,
+      "timer": 179.9,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.865609884262085,
+          "y": 0.16072021424770355,
+          "z": 0.2550796568393707
+        },
+        "yaw": -1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9419474601745605,
+          "y": 0.3056867718696594,
+          "z": 0.3279265761375427
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": []
+    },
+    {
+      "step": 47,
+      "timer": 179.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.863027572631836,
+          "y": 0.160063698887825,
+          "z": 0.2560743987560272
+        },
+        "yaw": -1.42,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9321725368499756,
+          "y": 0.30455076694488525,
+          "z": 0.32355764508247375
+        },
+        "yaw": 3.1,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        }
+      ]
+    },
+    {
+      "step": 48,
+      "timer": 179.7,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.852749824523926,
+          "y": 0.15607479214668274,
+          "z": 0.2618517279624939
+        },
+        "yaw": -1.33,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.9143118858337402,
+          "y": 0.3019757568836212,
+          "z": 0.3159216642379761
+        },
+        "yaw": -3.04,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "hip_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        }
+      ]
+    },
+    {
+      "step": 49,
+      "timer": 179.6,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8405861854553223,
+          "y": 0.14876148104667664,
+          "z": 0.27244389057159424
+        },
+        "yaw": -1.28,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.888608694076538,
+          "y": 0.2967938482761383,
+          "z": 0.30376136302948
+        },
+        "yaw": -2.86,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "hip_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        }
+      ]
+    },
+    {
+      "step": 50,
+      "timer": 179.5,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8445346355438232,
+          "y": 0.3095400929450989,
+          "z": 0.26861315965652466
+        },
+        "yaw": -1.35,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.845757246017456,
+          "y": 0.46653956174850464,
+          "z": 0.26921138167381287
+        },
+        "yaw": -2.72,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.138,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.167,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        }
+      ]
+    },
+    {
+      "step": 51,
+      "timer": 179.4,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.8591368198394775,
+          "y": 0.4619899094104767,
+          "z": 0.25308671593666077
+        },
+        "yaw": -1.84,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.7841672897338867,
+          "y": 0.6218389868736267,
+          "z": 0.2464449107646942
+        },
+        "yaw": -2.56,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        }
+      ]
+    },
+    {
+      "step": 52,
+      "timer": 179.3,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.891617774963379,
+          "y": 0.5696478486061096,
+          "z": 0.25378406047821045
+        },
+        "yaw": -2.07,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.724564790725708,
+          "y": 0.7075962424278259,
+          "z": 0.24741996824741364
+        },
+        "yaw": -2.41,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        }
+      ]
+    },
+    {
+      "step": 53,
+      "timer": 179.2,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.940847873687744,
+          "y": 0.6442692875862122,
+          "z": 0.27180016040802
+        },
+        "yaw": -2.29,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.6699612140655518,
+          "y": 0.7338007688522339,
+          "z": 0.264164000749588
+        },
+        "yaw": -2.29,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        }
+      ]
+    },
+    {
+      "step": 54,
+      "timer": 179,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.03936767578125,
+          "y": 0.70150226354599,
+          "z": 0.3071388602256775
+        },
+        "yaw": -2.89,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.5865817070007324,
+          "y": 0.6800912618637085,
+          "z": 0.3203829228878021
+        },
+        "yaw": -2.36,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        }
+      ]
+    },
+    {
+      "step": 55,
+      "timer": 178.9,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.0688724517822266,
+          "y": 0.6890546083450317,
+          "z": 0.326671838760376
+        },
+        "yaw": -3.1,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.562431812286377,
+          "y": 0.6413866281509399,
+          "z": 0.34761837124824524
+        },
+        "yaw": -2.53,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        }
+      ]
+    },
+    {
+      "step": 56,
+      "timer": 178.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.0999486446380615,
+          "y": 0.6317712068557739,
+          "z": 0.34446054697036743
+        },
+        "yaw": 3.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.5490128993988037,
+          "y": 0.5770061016082764,
+          "z": 0.3656576871871948
+        },
+        "yaw": -2.76,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.0499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 0.9499999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 0.8499999999999999
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.8499999999999999
+        }
+      ]
+    },
+    {
+      "step": 57,
+      "timer": 178.61,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.1504364013671875,
+          "y": 0.5171779990196228,
+          "z": 0.35875630378723145
+        },
+        "yaw": 2.78,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.51134991645813,
+          "y": 0.505652129650116,
+          "z": 0.42228904366493225
+        },
+        "yaw": -2.82,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.159799999952316
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.159799999952316
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.059799999952316
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.059799999952316
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.059799999952316
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 0.9597999999523159
+        }
+      ]
+    },
+    {
+      "step": 58,
+      "timer": 178.45,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.138187885284424,
+          "y": 0.7063663601875305,
+          "z": 0.28948092460632324
+        },
+        "yaw": 2.64,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.394761085510254,
+          "y": 1.0935484170913696,
+          "z": 0.4922950267791748
+        },
+        "yaw": -3.04,
+        "stamina": 0.85,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.064,
+          "splashText": "GLANCE!",
+          "age": 1.1677999999523152
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.275,
+          "splashText": "GLANCE!",
+          "age": 1.1677999999523152
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1677999999523152
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.086500000000001
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.086500000000001
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.086500000000001
+        }
+      ]
+    },
+    {
+      "step": 59,
+      "timer": 178.28,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.165788412094116,
+          "y": 0.6842692494392395,
+          "z": 0.24830785393714905
+        },
+        "yaw": 2.5,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.2472317218780518,
+          "y": 2.4685921669006348,
+          "z": 0.4473557472229004
+        },
+        "yaw": -2.99,
+        "stamina": 0.84,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.064,
+          "splashText": "GLANCE!",
+          "age": 1.0030000000000001
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.275,
+          "splashText": "GLANCE!",
+          "age": 1.0030000000000001
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0030000000000001
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9217000000476858
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9217000000476858
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9217000000476858
+        }
+      ]
+    },
+    {
+      "step": 60,
+      "timer": 178.12,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.2509326934814453,
+          "y": 0.5009094476699829,
+          "z": 0.17264844477176666
+        },
+        "yaw": 2.51,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.123291254043579,
+          "y": 3.517474412918091,
+          "z": 0.6493069529533386
+        },
+        "yaw": 2.99,
+        "stamina": 0.8,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1679999999999993
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1679999999999993
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.0842000000476837
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.064,
+          "splashText": "GLANCE!",
+          "age": 0.8372000000476838
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.275,
+          "splashText": "GLANCE!",
+          "age": 0.8372000000476838
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8372000000476838
+        }
+      ]
+    },
+    {
+      "step": 61,
+      "timer": 177.87,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.5341479778289795,
+          "y": 0.24465703964233398,
+          "z": 0.04154897481203079
+        },
+        "yaw": 2.56,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.981789469718933,
+          "y": 4.671573638916016,
+          "z": 0.7802889943122864
+        },
+        "yaw": 0.5,
+        "stamina": 0.8,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.165899999856947
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 1.165899999856947
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.165899999856947
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9268999998569463
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9268999998569463
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 0.8430999999046307
+        }
+      ]
+    },
+    {
+      "step": 62,
+      "timer": 177.79,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.596026659011841,
+          "y": 0.27532410621643066,
+          "z": 0.045679494738578796
+        },
+        "yaw": 2.6,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.9419702291488647,
+          "y": 4.858621120452881,
+          "z": 0.7724580764770508
+        },
+        "yaw": 0.51,
+        "stamina": 0.8,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 1.1652000000476832
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0810999999046302
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 1.0810999999046302
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0810999999046302
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.8420999999046295
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.8420999999046295
+        }
+      ]
+    },
+    {
+      "step": 63,
+      "timer": 177.62,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.7282629013061523,
+          "y": 0.30783697962760925,
+          "z": 0.00005451004835776985
+        },
+        "yaw": 2.75,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.8636000156402588,
+          "y": 4.99560022354126,
+          "z": 0.7909416556358337
+        },
+        "yaw": -2.86,
+        "stamina": 0.81,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.017,
+          "splashText": "GLANCE!",
+          "age": 1.1622999999523174
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1622999999523174
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.016,
+          "splashText": "GLANCE!",
+          "age": 1.076500000000003
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.076500000000003
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 0.9917000000476861
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9075999999046331
+        }
+      ]
+    },
+    {
+      "step": 64,
+      "timer": 177.45,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.8318355083465576,
+          "y": 0.32317256927490234,
+          "z": -0.09002887457609177
+        },
+        "yaw": 2.86,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.8026807308197021,
+          "y": 4.869487285614014,
+          "z": 0.8522377610206604
+        },
+        "yaw": -2.85,
+        "stamina": 0.81,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 1.1717000000476823
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1717000000476823
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 1.0882000000476815
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0882000000476815
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.017,
+          "splashText": "GLANCE!",
+          "age": 1.0004999999999988
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0004999999999988
+        }
+      ]
+    },
+    {
+      "step": 65,
+      "timer": 177.29,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.895185947418213,
+          "y": 0.3243028521537781,
+          "z": -0.15813635289669037
+        },
+        "yaw": 2.76,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.7378610372543335,
+          "y": 4.5485944747924805,
+          "z": 0.9267585277557373
+        },
+        "yaw": -2.84,
+        "stamina": 0.82,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1641000001430513
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0812000000476836
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 1.0029000000953658
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.0029000000953658
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.015,
+          "splashText": "GLANCE!",
+          "age": 0.919400000095365
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.919400000095365
+        }
+      ]
+    },
+    {
+      "step": 66,
+      "timer": 177.12,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.9461724758148193,
+          "y": 0.31855788826942444,
+          "z": -0.20093272626399994
+        },
+        "yaw": 2.41,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.6429625749588013,
+          "y": 4.0226922035217285,
+          "z": 0.9504382014274597
+        },
+        "yaw": -2.79,
+        "stamina": 0.82,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1712999999523177
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1712999999523177
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1712999999523177
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0808999998569497
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0808999998569497
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.995000000000001
+        }
+      ]
+    },
+    {
+      "step": 67,
+      "timer": 176.96,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.9804232120513916,
+          "y": 0.5638037919998169,
+          "z": -0.2625548839569092
+        },
+        "yaw": 2.02,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.5517678260803223,
+          "y": 3.2338802814483643,
+          "z": 0.9371004104614258
+        },
+        "yaw": -2.79,
+        "stamina": 0.82,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1712000000476834
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.114,
+          "splashText": "GLANCE!",
+          "age": 1.091300000190735
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0126000001430526
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0126000001430526
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0126000001430526
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9222000000476847
+        }
+      ]
+    },
+    {
+      "step": 68,
+      "timer": 176.72,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.015227794647217,
+          "y": 0.7897695302963257,
+          "z": -0.33510449528694153
+        },
+        "yaw": 1.53,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.4456403255462646,
+          "y": 1.6244280338287354,
+          "z": 0.916144609451294
+        },
+        "yaw": -2.74,
+        "stamina": 0.83,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1727000000476835
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.092600000143051
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0107999999523152
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9319999999999986
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.114,
+          "splashText": "GLANCE!",
+          "age": 0.8521000001430501
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7734000000953678
+        }
+      ]
+    },
+    {
+      "step": 69,
+      "timer": 176.56,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.9947900772094727,
+          "y": 0.8170742392539978,
+          "z": -0.3290639817714691
+        },
+        "yaw": 1.46,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.3904277086257935,
+          "y": 0.36245882511138916,
+          "z": 0.9172371625900269
+        },
+        "yaw": -2.51,
+        "stamina": 0.83,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1697999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1697999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0900999999046341
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0127999999523176
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.932700000047685
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8508999998569493
+        }
+      ]
+    },
+    {
+      "step": 70,
+      "timer": 176.32,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.9343414306640625,
+          "y": 0.7215600609779358,
+          "z": -0.15758001804351807
+        },
+        "yaw": 1.82,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.4644747972488403,
+          "y": 0.27460649609565735,
+          "z": 0.7628713250160217
+        },
+        "yaw": -2.79,
+        "stamina": 0.84,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1734000000953664
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1734000000953664
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1734000000953664
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1734000000953664
+        },
+        {
+          "source": "passive",
+          "segment": "hip_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.093400000095368
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.093400000095368
+        }
+      ]
+    },
+    {
+      "step": 71,
+      "timer": 176.15,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.90763258934021,
+          "y": 0.6127001047134399,
+          "z": 0.0018981967587023973
+        },
+        "yaw": 1.9,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.4726226329803467,
+          "y": 0.48856717348098755,
+          "z": 0.7207834720611572
+        },
+        "yaw": -2.7,
+        "stamina": 0.85,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1649999999999991
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1649999999999991
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1649999999999991
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.0852999999523156
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0852999999523156
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0852999999523156
+        }
+      ]
+    },
+    {
+      "step": 72,
+      "timer": 175.97,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.880119562149048,
+          "y": 0.6088114380836487,
+          "z": 0.16847801208496094
+        },
+        "yaw": 1.73,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.4557918310165405,
+          "y": 0.6728340983390808,
+          "z": 0.7296552658081055
+        },
+        "yaw": -2.33,
+        "stamina": 0.84,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.16460000014305
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.16460000014305
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.16460000014305
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.16460000014305
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.06460000014305
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.06460000014305
+        }
+      ]
+    },
+    {
+      "step": 73,
+      "timer": 175.72,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.8601107597351074,
+          "y": 0.7585817575454712,
+          "z": 0.4518621563911438
+        },
+        "yaw": 1.86,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.3930147886276245,
+          "y": 0.7639749050140381,
+          "z": 0.6316580772399902
+        },
+        "yaw": -2.33,
+        "stamina": 0.82,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1637000000476831
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1637000000476831
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1637000000476831
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0842000000476837
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0842000000476837
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0842000000476837
+        }
+      ]
+    },
+    {
+      "step": 74,
+      "timer": 175.53,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.8860740661621094,
+          "y": 0.7491549849510193,
+          "z": 0.5942792296409607
+        },
+        "yaw": 1.83,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.2995550632476807,
+          "y": 0.7193542122840881,
+          "z": 0.5355401635169983
+        },
+        "yaw": -2.25,
+        "stamina": 0.81,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1587999999523149
+        }
+      ]
+    },
+    {
+      "step": 75,
+      "timer": 175.25,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -3.965500831604004,
+          "y": 0.6392410397529602,
+          "z": 0.716623842716217
+        },
+        "yaw": 1.4,
+        "stamina": 0.98,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 1.0250319242477417,
+          "y": 0.6668389439582825,
+          "z": 0.39938563108444214
+        },
+        "yaw": -1.7,
+        "stamina": 0.79,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1632000000476843
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.071400000095366
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.071400000095366
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.071400000095366
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.975799999952315
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.975799999952315
+        }
+      ]
+    },
+    {
+      "step": 76,
+      "timer": 175.07,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.031101703643799,
+          "y": 0.6181616187095642,
+          "z": 0.7465489506721497
+        },
+        "yaw": 0.96,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 0.7872706651687622,
+          "y": 0.6444769501686096,
+          "z": 0.3220181465148926
+        },
+        "yaw": -1.29,
+        "stamina": 0.78,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.1667000000476833
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.1667000000476833
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.01,
+          "splashText": "GLANCE!",
+          "age": 1.1667000000476833
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.0667000000476832
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.0667000000476832
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.0667000000476832
+        }
+      ]
+    },
+    {
+      "step": 77,
+      "timer": 174.88,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.126863479614258,
+          "y": 0.6083284616470337,
+          "z": 0.7583430409431458
+        },
+        "yaw": 0.97,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 0.5237768888473511,
+          "y": 0.6459180116653442,
+          "z": 0.2914413511753082
+        },
+        "yaw": -0.93,
+        "stamina": 0.76,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.01,
+          "splashText": "GLANCE!",
+          "age": 1.1633999998569493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.1633999998569493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.013,
+          "splashText": "GLANCE!",
+          "age": 1.1633999998569493
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.0633999998569492
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.0633999998569492
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.012,
+          "splashText": "GLANCE!",
+          "age": 1.0633999998569492
+        }
+      ]
+    },
+    {
+      "step": 78,
+      "timer": 174.69,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.2402424812316895,
+          "y": 0.6070677042007446,
+          "z": 0.755070149898529
+        },
+        "yaw": 1.09,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 0.2376641184091568,
+          "y": 0.6656793355941772,
+          "z": 0.2810616195201874
+        },
+        "yaw": -1,
+        "stamina": 0.75,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.1553999998569502
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1553999998569502
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1553999998569502
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.05539999985695
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.05539999985695
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.05539999985695
+        }
+      ]
+    },
+    {
+      "step": 79,
+      "timer": 174.6,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.300329208374023,
+          "y": 0.6030698418617249,
+          "z": 0.7475160360336304
+        },
+        "yaw": 1.18,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 0.08632753789424896,
+          "y": 0.6647282242774963,
+          "z": 0.28386232256889343
+        },
+        "yaw": -1.12,
+        "stamina": 0.75,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1574000000953646
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.1574000000953646
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.0627999999523148
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0627999999523148
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0627999999523148
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 0.9627999999523147
+        }
+      ]
+    },
+    {
+      "step": 80,
+      "timer": 174.41,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.409289836883545,
+          "y": 0.5621736645698547,
+          "z": 0.7264437079429626
+        },
+        "yaw": 1.61,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -0.24208372831344604,
+          "y": 0.6489890813827515,
+          "z": 0.3332391083240509
+        },
+        "yaw": -1.08,
+        "stamina": 0.73,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.01,
+          "splashText": "GLANCE!",
+          "age": 1.1630999999046345
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1630999999046345
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 1.1630999999046345
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.1630999999046345
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.0687999999523186
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.0687999999523186
+        }
+      ]
+    },
+    {
+      "step": 81,
+      "timer": 174.16,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.565042018890381,
+          "y": 0.5325424671173096,
+          "z": 0.690658450126648
+        },
+        "yaw": 2.67,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -0.6335605382919312,
+          "y": 1.833571195602417,
+          "z": 0.35749420523643494
+        },
+        "yaw": -1.02,
+        "stamina": 0.57,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.165499999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0822000000476812
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.159,
+          "splashText": "GLANCE!",
+          "age": 1.0822000000476812
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.007,
+          "splashText": "GLANCE!",
+          "age": 1.0822000000476812
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0822000000476812
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 1.0822000000476812
+        }
+      ]
+    },
+    {
+      "step": 82,
+      "timer": 173.99,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.652032852172852,
+          "y": 0.6595095992088318,
+          "z": 0.6625810265541077
+        },
+        "yaw": 2.62,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -0.9666683077812195,
+          "y": 2.9619109630584717,
+          "z": 0.40227288007736206
+        },
+        "yaw": -1.03,
+        "stamina": 0.54,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.163499999999999
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.163499999999999
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0802999999523166
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9957999999523146
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.9124999999999979
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.159,
+          "splashText": "GLANCE!",
+          "age": 0.9124999999999979
+        }
+      ]
+    },
+    {
+      "step": 83,
+      "timer": 173.8,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.731755256652832,
+          "y": 0.7758263349533081,
+          "z": 0.6142128109931946
+        },
+        "yaw": 2.33,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -1.3477017879486084,
+          "y": 4.047228813171387,
+          "z": 0.5435981154441833
+        },
+        "yaw": -0.71,
+        "stamina": 0.52,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.154599999904633
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.154599999904633
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 1.0657000000476842
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9792000000476833
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9792000000476833
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.8960000000000008
+        }
+      ]
+    },
+    {
+      "step": 84,
+      "timer": 173.63,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.795966148376465,
+          "y": 0.8154792189598083,
+          "z": 0.5597928762435913
+        },
+        "yaw": 2.13,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -1.7055565118789673,
+          "y": 4.736006259918213,
+          "z": 0.6245689392089844
+        },
+        "yaw": 1.72,
+        "stamina": 0.5,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1661000001430502
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0811000001430493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.0811000001430493
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0811000001430493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.9857000000476823
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9857000000476823
+        }
+      ]
+    },
+    {
+      "step": 85,
+      "timer": 173.45,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.848609924316406,
+          "y": 0.798372209072113,
+          "z": 0.5024653077125549
+        },
+        "yaw": 1.91,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -1.8957701921463013,
+          "y": 5.156962871551514,
+          "z": 0.7285230159759521
+        },
+        "yaw": 1.53,
+        "stamina": 0.51,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.0623999998569515
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9785000000000018
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.893500000000001
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.893500000000001
+        },
+        {
+          "source": "passive",
+          "segment": "knee_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.893500000000001
+        }
+      ]
+    },
+    {
+      "step": 86,
+      "timer": 173.35,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.870227813720703,
+          "y": 0.7825289368629456,
+          "z": 0.47262147068977356
+        },
+        "yaw": 1.81,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -1.9917206764221191,
+          "y": 5.193636417388916,
+          "z": 0.7804188132286072
+        },
+        "yaw": 0.97,
+        "stamina": 0.51,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1576000001430522
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.1576000001430522
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.057600000143052
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9700000000000037
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.886100000143054
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.8011000001430532
+        }
+      ]
+    },
+    {
+      "step": 87,
+      "timer": 173.1,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.8245463371276855,
+          "y": 0.7392082810401917,
+          "z": 0.36131593585014343
+        },
+        "yaw": 1.59,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -2.411970853805542,
+          "y": 4.9457244873046875,
+          "z": 0.8574608564376831
+        },
+        "yaw": -0.49,
+        "stamina": 0.52,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9954999999999998
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.903100000143052
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.903100000143052
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8031000001430519
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.7155000000000036
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.6316000001430538
+        }
+      ]
+    },
+    {
+      "step": 88,
+      "timer": 172.83,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.6107258796691895,
+          "y": 0.7482736706733704,
+          "z": 0.33913424611091614
+        },
+        "yaw": 1.52,
+        "stamina": 0.99,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -2.800973415374756,
+          "y": 4.232625961303711,
+          "z": 0.936087429523468
+        },
+        "yaw": -0.45,
+        "stamina": 0.52,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7207999999523139
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.6284000000953661
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.6284000000953661
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.528400000095366
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.44079999995231767
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.35690000009536793
+        }
+      ]
+    },
+    {
+      "step": 89,
+      "timer": 172.65,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.471730709075928,
+          "y": 0.7672871947288513,
+          "z": 0.40150073170661926
+        },
+        "yaw": 1.44,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "blunt",
+          "chargeNorm": 0.022222222222222223,
+          "chargeTier": "quick",
+          "holdSeconds": 0.02,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -2.990880250930786,
+          "y": 3.469813346862793,
+          "z": 0.9985997080802917
+        },
+        "yaw": -0.4,
+        "stamina": 0.53,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.5444999999999972
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.4521000001430494
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.4521000001430494
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.3521000001430493
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.26450000000000096
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.18060000014305122
+        }
+      ]
+    },
+    {
+      "step": 90,
+      "timer": 171.58,
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -4.244808673858643,
+          "y": 0.8118311762809753,
+          "z": 0.4960549771785736
+        },
+        "yaw": 2.38,
+        "stamina": 0.97,
+        "mass": 1,
+        "attack": {
+          "state": "RECOVER",
+          "profile": "blunt",
+          "chargeNorm": 0.4666666666666666,
+          "chargeTier": "ready",
+          "holdSeconds": 0.42,
+          "isBlocking": false,
+          "stateProgress": 0.5377695077894673
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -3.0910086631774902,
+          "y": 0.5376673936843872,
+          "z": 0.6812832355499268
+        },
+        "yaw": 2.75,
+        "stamina": 0.56,
+        "mass": 0.98,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0
+        }
+      },
+      "events": [
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.005,
+          "splashText": "GLANCE!",
+          "age": 0.8453000001907327
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.7667000000476811
+        },
+        {
+          "source": "passive",
+          "segment": "shoulder_r",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.7667000000476811
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7667000000476811
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.7667000000476811
+        },
+        {
+          "source": "passive",
+          "segment": "knee_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7667000000476811
+        }
+      ]
+    }
+  ]
+}

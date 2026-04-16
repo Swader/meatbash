@@ -1,0 +1,32 @@
+{
+  "state": {
+    "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+    "screen": "HOME",
+    "selectedBeastId": "chonkus",
+    "match": null,
+    "player": null,
+    "opponent": null,
+    "controls": {
+      "movement": "WASD",
+      "raisePrimary": "J",
+      "commitPrimary": "K",
+      "jump": "SPACE"
+    },
+    "recentDamageEvents": [],
+    "recentAudio": [],
+    "music": {
+      "context": "menu",
+      "file": "/sound/menu_theme_2.mp3",
+      "title": "Grimey",
+      "artist": "Tragikomik",
+      "url": "https://youtube.com/@tragikomik",
+      "volume": 0.28
+    }
+  },
+  "widget": {
+    "visible": true,
+    "text": null,
+    "href": null,
+    "waveHref": null
+  }
+}

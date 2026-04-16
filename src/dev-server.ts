@@ -83,6 +83,13 @@ const server = Bun.serve({
       return new Response(publicFile);
     }
 
+    if (path.startsWith('/sound/')) {
+      const soundFile = Bun.file(`.${path}`);
+      if (await soundFile.exists()) {
+        return new Response(soundFile);
+      }
+    }
+
     // Serve WASM files from node_modules (Rapier needs this)
     if (path.endsWith('.wasm')) {
       // Try dist first, then node_modules

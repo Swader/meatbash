@@ -11,6 +11,9 @@
  */
 
 export type Archetype = 'bipedal' | 'quadruped';
+export type WeightClassHint = 'light' | 'middle' | 'heavy' | 'superheavy';
+
+import type { AttackSlotDefinition, AttackProfile } from '../combat/attack-types';
 
 export interface BeastVisuals {
   /** Primary meat color (CSS hex, e.g. 0xdd4444). */
@@ -45,6 +48,9 @@ export interface BeastDefinition {
    * Defaults to false so existing beasts keep the no-arms silhouette.
    */
   hasArms?: boolean;
+  attackSlots?: AttackSlotDefinition[];
+  weightClassHint?: WeightClassHint;
+  playstyleSummary?: string;
 }
 
 /**
@@ -58,6 +64,9 @@ export interface BeastListing {
   archetype: Archetype;
   isDefault: boolean;
   iconEmoji: string;
+  weightClass: WeightClassHint;
+  attackProfile: AttackProfile | 'none';
+  playstyleSummary: string;
 }
 
 /** Convert a full definition down to the listing format. */
@@ -69,5 +78,8 @@ export function toBeastListing(def: BeastDefinition): BeastListing {
     archetype: def.archetype,
     isDefault: def.isDefault,
     iconEmoji: def.visuals.iconEmoji || (def.archetype === 'quadruped' ? '🐕' : '🚶'),
+    weightClass: def.weightClassHint ?? 'middle',
+    attackProfile: def.attackSlots?.[0]?.profile ?? 'none',
+    playstyleSummary: def.playstyleSummary ?? def.description,
   };
 }

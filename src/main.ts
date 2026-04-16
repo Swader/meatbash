@@ -11,6 +11,7 @@ import { initTuningPanel } from './physics/tuning';
 import { GameShell } from './ui/game-shell';
 import { HomeScreen } from './ui/home-screen';
 import { MatchHud } from './ui/match-hud';
+import { MusicCreditWidget } from './ui/music-credit';
 import { PREMADE_BEASTS, DEFAULT_BEAST_ID, getPremade } from './beast/premades';
 import { toBeastListing } from './beast/beast-data';
 import { spawnBeast } from './beast/beast-factory';
@@ -20,6 +21,7 @@ import { BeastInstance } from './beast/beast-instance';
 import { DamageResolver } from './physics/damage';
 import { processSeverance } from './physics/severance';
 import { MeatChunks } from './particles/meat-chunks';
+import { applyHitFeedback } from './combat/hit-feedback';
 
 async function main() {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
@@ -34,7 +36,6 @@ async function main() {
   const camera = createCamera(canvas);
   const input = new InputManager();
   const audio = new AudioManager();
-  void audio;
 
   createPhysicsArena(physics, arena.rockData);
 
@@ -42,16 +43,16 @@ async function main() {
   const shell = new GameShell();
   const home = new HomeScreen({
     shell,
-    defaultBeasts: PREMADE_BEASTS.map(toBeastListing).map((l) => ({
-      id: l.id,
-      name: l.name,
-      archetype: l.archetype,
-    })),
+    defaultBeasts: PREMADE_BEASTS.map(toBeastListing),
     userBeasts: [],
   });
   void home;
   const matchHud = new MatchHud();
   const debugHud = new DebugHud();
+  const musicCredit = new MusicCreditWidget();
+  const hasInjectedAdvanceTime = typeof (window as any).advanceTime === 'function';
+
+  audio.setMusicContext('menu');
 
   initTuningPanel();
   loadingMsg.style.display = 'none';
@@ -66,6 +67,14 @@ async function main() {
   let botAI: BotAI | null = null;
   let match: MatchController | null = null;
   let opponentDef = getPremade('stomper')!;
+  let lastDamageEvents: Array<{
+    source: string;
+    segment: string;
+    amount: number;
+    profile?: string;
+    splashText: string;
+    age: number;
+  }> = [];
 
   /**
    * Tear down the currently-running match, if any. Removes both beasts
@@ -93,7 +102,12 @@ async function main() {
    * Spawn player + opponent + bot AI + fresh match controller.
    * Called when the player clicks "Make a match" on the home screen.
    */
-  const startBotMatch = (playerBeastId: string) => {
+  const startBotMatch = async (playerBeastId: string) => {
+    try {
+      await audio.init();
+    } catch (err) {
+      console.warn('Audio init failed:', err);
+    }
     teardownMatch();
 
     const playerDef = getPremade(playerBeastId) || getPremade(DEFAULT_BEAST_ID)!;
@@ -167,7 +181,7 @@ async function main() {
   // ---- Wire shell callbacks ----
   shell.setCallbacks({
     onStartMatch: (beastId, mode) => {
-      if (mode === 'bot') startBotMatch(beastId);
+      if (mode === 'bot') void startBotMatch(beastId);
       // 'join'/'host' deferred to networking block
     },
     onOpenLab: () => {
@@ -175,6 +189,13 @@ async function main() {
     },
     onOpenCertification: () => {
       // Deferred — Certification block
+    },
+    onScreenChanged: (to) => {
+      const musicContext =
+        to === 'ARENA' ? 'battle' :
+        to === 'LAB' ? 'lab' :
+        'menu';
+      audio.setMusicContext(musicContext);
     },
   });
 
@@ -213,12 +234,33 @@ async function main() {
       if (!player || !opponent || !match || !match.isFighting()) return;
 
       damage.processEvents(physics.eventQueue, physics.world, dt);
+      damage.processIntentionalHits(player, opponent);
       const events = damage.drainEvents();
-      for (const ev of events) {
-        // Spawn a few chunks per impact, scaled by damage amount
-        const count = Math.min(6, 1 + Math.floor(ev.amount / 3));
-        meatChunks.spawn(ev.point, count, 2 + ev.impactSpeed * 0.3);
+      if (events.length > 0) {
+        const next = events.map((ev) => ({
+          source: ev.source,
+          segment: ev.segment,
+          amount: Number(ev.amount.toFixed(3)),
+          profile: ev.profile,
+          splashText: ev.splashText,
+          age: 1.25,
+        }));
+        lastDamageEvents = [...next, ...lastDamageEvents].slice(0, 12);
       }
+      for (const ev of events) {
+        // Spawn chunk count + speed based on impact quality.
+        const srcMul = ev.source === 'active' ? 1.45 : 1;
+        const count = Math.min(10, 1 + Math.floor((ev.amount / 3) * srcMul));
+        const speed = 2 + ev.impactSpeed * (ev.source === 'active' ? 0.45 : 0.28);
+        meatChunks.spawn(ev.point, count, speed, undefined, srcMul);
+      }
+      const hitstop = applyHitFeedback(events, {
+        addShake: (intensity, duration, horizontalBias) =>
+          loop.addCameraShake(intensity, duration, horizontalBias ?? 0.5),
+        pushCombatText: (text) => matchHud.pushCombatText(text),
+        playSfx: (name, x, y, z) => audio.playSfx(name, x, y, z),
+      });
+      if (hitstop > 0) loop.addHitstop(hitstop);
 
       // Check for severed limbs
       const severed = processSeverance([player, opponent], damage, physics);
@@ -230,6 +272,18 @@ async function main() {
     onVariableUpdate: (dt) => {
       updateArena(dt);
       meatChunks.update(dt);
+      musicCredit.update(audio.getCurrentMusicInfo(), audio.getMusicWaveformBars());
+      lastDamageEvents = lastDamageEvents
+        .map((ev) => ({ ...ev, age: ev.age - dt }))
+        .filter((ev) => ev.age > 0);
+
+      for (const beast of [player, opponent]) {
+        if (!beast) continue;
+        const pos = beast.getPosition();
+        for (const ev of beast.consumeAudioEvents()) {
+          audio.playSfx(ev.type, pos.x, pos.y, pos.z);
+        }
+      }
 
       if (shell.getCurrentScreen() === 'ARENA' && match && player && opponent) {
         // Advance match timer
@@ -260,6 +314,8 @@ async function main() {
           result: snap.result as any,
           p1Name: player.definition?.name || 'YOU',
           p2Name: opponent.definition?.name || 'BOT',
+          p1AttackState: player.getAttackTelemetry()?.state ?? 'IDLE',
+          p2AttackState: opponent.getAttackTelemetry()?.state ?? 'IDLE',
         });
       }
     },
@@ -276,7 +332,58 @@ async function main() {
     },
   });
 
-  loop.start();
+  (window as any).render_game_to_text = () => {
+    const payload = {
+      coordinateSystem: 'Three.js world; +X right, +Y up, +Z forward.',
+      screen: shell.getCurrentScreen(),
+      selectedBeastId: home.getSelectedBeastId(),
+      match: match
+        ? {
+            phase: match.snapshot().phase,
+            timer: Number(match.snapshot().timer.toFixed(2)),
+          }
+        : null,
+      player: player
+        ? {
+            name: player.definition?.name ?? 'PLAYER',
+            position: player.getPosition(),
+            yaw: Number(player.getYaw().toFixed(2)),
+            stamina: Number(player.getStaminaFraction().toFixed(2)),
+            mass: Number((damage.getState(player)?.getMassFraction() ?? 1).toFixed(2)),
+            attack: player.getAttackTelemetry(),
+          }
+        : null,
+      opponent: opponent
+        ? {
+            name: opponent.definition?.name ?? 'BOT',
+            position: opponent.getPosition(),
+            yaw: Number(opponent.getYaw().toFixed(2)),
+            stamina: Number(opponent.getStaminaFraction().toFixed(2)),
+            mass: Number((damage.getState(opponent)?.getMassFraction() ?? 1).toFixed(2)),
+            attack: opponent.getAttackTelemetry(),
+          }
+        : null,
+      controls: {
+        movement: 'WASD',
+        raisePrimary: 'J',
+        commitPrimary: 'K',
+        jump: 'SPACE',
+      },
+      recentDamageEvents: lastDamageEvents,
+      recentAudio: audio.getRecentPlays(),
+      music: audio.getCurrentMusicInfo(),
+    };
+    return JSON.stringify(payload);
+  };
+
+  if (hasInjectedAdvanceTime) {
+    (window as any).advanceTime = async (ms: number) => {
+      loop.advance(ms / 1000);
+    };
+    loop.advance(0);
+  } else {
+    loop.start();
+  }
 }
 
 main().catch((err) => {

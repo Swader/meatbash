@@ -10,7 +10,7 @@
 
 ## 1. Elevator Pitch
 
-MEATBASH is an organic destruction derby where players sculpt gooey meatbeasts in a Gene Lab, certify them through absurd bureaucratic fitness tests, then bash them together in WASD ragdoll arena combat. Think Robot Wars meets Gang Beasts meets Play-Doh. Multiplayer, spectatable, instantly memeable.
+MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat** and **intentional attack slots** (raise, hold, commit). Players eventually sculpt gooey meatbeasts in a Gene Lab and certify them through absurd fitness tests, but the current milestone is readable, intentional slapstick combat first. Think Robot Wars meets Gang Beasts meets Play-Doh.
 
 ---
 
@@ -133,7 +133,7 @@ Player picks a base skeleton:
 
 Each archetype provides a minimal wireframe skeleton with repositionable joints. The skeleton constrains where physics joints exist but the player sculpts freely around it.
 
-**Optional modifier:** Wings (attachable to any archetype). Wings add flight capability but are constrained by weight.
+**Optional modifier (later):** Wings are explicitly cut from the current combat-intent milestone and only return after core combat readability is proven.
 
 #### 5.2.2 Sculpting System
 
@@ -168,7 +168,7 @@ After sculpting, the player assigns controls:
 
 | Archetype | Default Keys | What They Do |
 |---|---|---|
-| Bipedal | Q = left leg stride, W = right leg stride | Alternating legs for walking |
+| Bipedal | W/S = drive forward/back, A/D = turn | Active-ragdoll locomotion with support-state balancing |
 | Bipedal | A/D = lean left/right | Shifts weight for turning |
 | Quadruped | Q = left pair forward, W = right pair forward | Alternating pairs |
 | Quadruped | A/D = steer | Differential leg force |
@@ -328,15 +328,15 @@ damage = (relative_velocity × impactor_mass × material_multiplier) / defender_
 
 ## 6. Premade Beasts
 
-Ship with 6–8 premade certified beasts for instant play:
+Ship with premades that communicate attack identity immediately:
 
-| Name | Archetype | Personality | Strategy |
+| Name | Archetype | Attack Profile | Strategy |
 |---|---|---|---|
-| **Chonkus** | Bipedal | Fat gorilla blob, slow, heavy arms | Tank. Absorbs damage, devastating punches |
+| **Chonkus** | Bipedal | **Blunt** | Tank punish arm. Obvious windup, heavy knockback. |
 | **Skitter** | Hexapod | Fast insectoid, thin legs, chitin shell | Speed. Dart in, bite, dart out |
 | **Sir Slime** | Slider | Giant snail with bone horn on head | Ram. Slow approach, devastating headbutt |
-| **Noodlesnake** | Wiggler (H) | Long snake, bone fangs | Constrictor. Wrap and bite |
-| **Butterchonk** | Quadruped + Wings | Fat pig with tiny butterfly wings | Comedy. Can barely fly. Belly flop attack |
+| **Noodlesnake** | Bipedal | **Spike** | Fast precision poke. Low certainty, high payoff on clean align. |
+| **Butterchonk** | Quadruped | **Shield** | Heavy shover. Wins by destabilizing and body control. |
 | **Ratking** | Quadruped | Tiny, fast, sharp bone teeth | Glass cannon. Ankle-biter, leg severer |
 | **Crabsworth** | Octoped | Crab-like, full chitin armor, slow | Fortress. Nearly impervious front, soft belly |
 | **Meatball** | Slider (spherical) | Just a ball of meat that rolls | Chaos. Unpredictable, hard to control, funny |
@@ -647,6 +647,12 @@ CREATE TABLE matches (
 ---
 
 ## 13. Development Phases
+
+### Current shipping priority (April 2026 reality)
+
+1. **Combat Intent V1** — intentional attack slots, attack-aware damage, hit feedback, readable beast cards.
+2. **Minimal gene-lab hooks** — profile/appendage/pose authoring compatibility, but no full editor yet.
+3. **Networking + certification** only after combat readability is confirmed in playtests.
 
 ### Phase 1: Core Loop (Days 1–5) — April 13–17
 

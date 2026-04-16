@@ -27,6 +27,8 @@ export interface BotObservation {
   hasStamina: boolean;
 }
 
+type BotState = 'APPROACH' | 'WINDUP' | 'COMMIT' | 'RECOVER' | 'PANIC';
+
 /**
  * Minimal InputManager shape that locomotion consumes.
  * The real `InputManager` class already matches this; BotAI
@@ -51,6 +53,9 @@ export class BotAI implements InputSource {
   private jumpTimer = 0;
   private wobbleAngle = 0;        // drifts so the bot doesn't always charge dead-straight
   private wobbleTimer = 0;
+  private attackState: BotState = 'APPROACH';
+  private attackTimer = 0;
+  private nextCommitDelay = 0.18;
 
   // Tunable AI knobs
   private readonly decisionInterval = 0.25;
@@ -73,6 +78,7 @@ export class BotAI implements InputSource {
     this.decisionTimer -= dt;
     this.jumpTimer -= dt;
     this.wobbleTimer -= dt;
+    this.attackTimer += dt;
 
     const obs = this.observe();
 
@@ -83,6 +89,10 @@ export class BotAI implements InputSource {
       this.setKey('A', false);
       this.setKey('D', false);
       this.setKey(' ', false);
+      this.setKey('J', false);
+      this.setKey('K', false);
+      this.attackState = 'RECOVER';
+      this.attackTimer = 0;
       return;
     }
 
@@ -144,6 +154,9 @@ export class BotAI implements InputSource {
       // Release space after one tick so justPressed works next jump
       if (this.keysDown.has(' ')) this.setKey(' ', false);
     }
+
+    this.setKey('K', false);
+    this.updateAttackIntent(dist, facingDot, obs.selfGrounded);
   }
 
   endFrame(): void {
@@ -193,5 +206,80 @@ export class BotAI implements InputSource {
     }
     this.keysDown.add(' ');
     this.pressedThisStep.add(' ');
+  }
+
+  private pulseCommit() {
+    if (this.keysDown.has('K')) {
+      this.keysDown.delete('K');
+      this.releasedThisStep.add('K');
+    }
+    this.keysDown.add('K');
+    this.pressedThisStep.add('K');
+  }
+
+  private updateAttackIntent(dist: number, facingDot: number, grounded: boolean) {
+    const inFrontArc = facingDot > 0.45;
+    const inAttackRange = dist < 2.8;
+    const closeEnough = dist < 3.3;
+
+    if (!grounded) {
+      this.attackState = 'PANIC';
+      this.setKey('J', false);
+      return;
+    }
+
+    switch (this.attackState) {
+      case 'APPROACH': {
+        if (inFrontArc && inAttackRange) {
+          this.attackState = 'WINDUP';
+          this.attackTimer = 0;
+          this.nextCommitDelay = 0.18 + Math.random() * 0.45;
+          this.setKey('J', true);
+        } else {
+          this.setKey('J', false);
+        }
+        break;
+      }
+      case 'WINDUP': {
+        this.setKey('J', true);
+        if (!closeEnough || !inFrontArc) {
+          this.setKey('J', false);
+          this.attackState = 'RECOVER';
+          this.attackTimer = 0;
+          break;
+        }
+        if (this.attackTimer >= this.nextCommitDelay) {
+          this.pulseCommit();
+          this.attackState = 'COMMIT';
+          this.attackTimer = 0;
+          this.setKey('J', false);
+        }
+        break;
+      }
+      case 'COMMIT': {
+        this.setKey('J', false);
+        if (this.attackTimer > 0.25) {
+          this.attackState = 'RECOVER';
+          this.attackTimer = 0;
+        }
+        break;
+      }
+      case 'RECOVER': {
+        this.setKey('J', false);
+        if (this.attackTimer > 0.3) {
+          this.attackState = 'APPROACH';
+          this.attackTimer = 0;
+        }
+        break;
+      }
+      case 'PANIC': {
+        this.setKey('J', false);
+        if (grounded) {
+          this.attackState = 'APPROACH';
+          this.attackTimer = 0;
+        }
+        break;
+      }
+    }
   }
 }

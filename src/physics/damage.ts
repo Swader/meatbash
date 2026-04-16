@@ -18,11 +18,12 @@
 
 import RAPIER from '@dimforge/rapier3d-compat';
 import type { BeastInstance } from '../beast/beast-instance';
+import type { ActiveAttackContext, AttackProfile, ChargeTier } from '../combat/attack-types';
 
 // ---- Tuneable constants ----
 
 /** Global damage scalar. Raise for squishier beasts, lower for durable. */
-const DAMAGE_SCALE = 0.022;
+const DAMAGE_SCALE = 0.02;
 /** Minimum impact speed (m/s) below which contacts are ignored.
  *  Lowered from 1.0 → 0.6 so arm flailing (which is slow) still registers. */
 const IMPACT_SPEED_THRESHOLD = 0.6;
@@ -36,7 +37,12 @@ const PAIR_COOLDOWN = 0.08;
  * should hurt more than a casual torso bump. The arm itself still takes
  * normal damage on its own segment.
  */
-const ARM_IMPACT_BONUS = 2.5;
+const ARM_IMPACT_BONUS = 1.45;
+const PASSIVE_DAMAGE_MUL = 0.38;
+const PASSIVE_CHARGE_DAMAGE_MUL = 0.14;
+const PASSIVE_CHARGE_SPEED_THRESHOLD = 1.8;
+const ACTIVE_DAMAGE_MIN = 12;
+const ACTIVE_DAMAGE_MUL = 2;
 
 const ARM_SEGMENTS = new Set([
   'shoulder_l',
@@ -58,6 +64,14 @@ export interface DamageEvent {
   point: { x: number; y: number; z: number };
   /** Relative speed at impact, m/s. */
   impactSpeed: number;
+  source: 'passive' | 'active';
+  profile?: AttackProfile;
+  chargeTier?: ChargeTier;
+  blocked: boolean;
+  glancing: boolean;
+  splashText: string;
+  hitstop: number;
+  shake: number;
 }
 
 /**
@@ -128,6 +142,7 @@ export class DamageResolver {
   private states = new Map<BeastInstance, BeastDamageState>();
   private recentEvents: DamageEvent[] = [];
   private readonly MAX_RECENT = 32;
+  private resolvedCommitHits = new WeakMap<BeastInstance, WeakMap<BeastInstance, number>>();
 
   /**
    * Register a beast with the resolver. Walks every body/collider and
@@ -217,7 +232,19 @@ export class DamageResolver {
       const relVz = v1.z - v2.z;
       const impactSpeed = Math.sqrt(relVx * relVx + relVy * relVy + relVz * relVz);
 
-      if (impactSpeed < IMPACT_SPEED_THRESHOLD) return;
+      const hasActiveIntent =
+        (a && b
+          ? this.hasActiveIntentContact(a.beast, a.segment, b.beast) ||
+            this.hasActiveIntentContact(b.beast, b.segment, a.beast)
+          : false);
+      const chargingPassiveContext =
+        !hasActiveIntent &&
+        ((a && this.isChargingAttack(a.beast)) || (b && this.isChargingAttack(b.beast)));
+      const passiveSpeedThreshold = chargingPassiveContext
+        ? PASSIVE_CHARGE_SPEED_THRESHOLD
+        : IMPACT_SPEED_THRESHOLD;
+
+      if (impactSpeed < passiveSpeedThreshold && !hasActiveIntent) return;
 
       // Set cooldown only after we've decided it's a real impact
       this.pairCooldowns.set(pairKey, PAIR_COOLDOWN);
@@ -236,21 +263,33 @@ export class DamageResolver {
         z: (p1.z + p2.z) / 2,
       };
 
-      // Arm-impact bonus: when an arm hits something that ISN'T the same
-      // beast's arm, the receiving side takes 2.5× damage. The arm itself
-      // still takes baseDamage. This lets flailing arms dish out real
-      // punishment without making them invincible weapons.
       const aIsArm = !!a && ARM_SEGMENTS.has(a.segment);
       const bIsArm = !!b && ARM_SEGMENTS.has(b.segment);
 
       // Dispatch damage to whichever side is a beast
       if (a) {
-        const dmg = bIsArm ? baseDamage * ARM_IMPACT_BONUS : baseDamage;
-        this.damageSegment(a.beast, a.segment, dmg, b?.beast || null, point, impactSpeed);
+        this.damageSegment(
+          a.beast,
+          a.segment,
+          b?.beast || null,
+          b?.segment,
+          point,
+          impactSpeed,
+          baseDamage * (bIsArm ? ARM_IMPACT_BONUS : 1),
+          undefined
+        );
       }
       if (b) {
-        const dmg = aIsArm ? baseDamage * ARM_IMPACT_BONUS : baseDamage;
-        this.damageSegment(b.beast, b.segment, dmg, a?.beast || null, point, impactSpeed);
+        this.damageSegment(
+          b.beast,
+          b.segment,
+          a?.beast || null,
+          a?.segment,
+          point,
+          impactSpeed,
+          baseDamage * (aIsArm ? ARM_IMPACT_BONUS : 1),
+          undefined
+        );
       }
     };
 
@@ -267,17 +306,93 @@ export class DamageResolver {
     });
   }
 
+  processIntentionalHits(attacker: BeastInstance, victim: BeastInstance): void {
+    this.tryResolveIntentionalHit(attacker, victim);
+    this.tryResolveIntentionalHit(victim, attacker);
+  }
+
   private damageSegment(
     victim: BeastInstance,
     segment: string,
-    amount: number,
     attacker: BeastInstance | null,
+    attackerSegment: string | undefined,
     point: { x: number; y: number; z: number },
-    impactSpeed: number
+    impactSpeed: number,
+    baseDamage: number,
+    forcedActive: ActiveAttackContext | undefined
   ): void {
     const state = this.states.get(victim);
     if (!state) return;
-    const applied = state.applyDamage(segment, amount);
+    let damageAmount = baseDamage * PASSIVE_DAMAGE_MUL;
+    let source: 'passive' | 'active' = 'passive';
+    let profile: AttackProfile | undefined;
+    let chargeTier: ChargeTier | undefined;
+    let blocked = false;
+    let glancing = false;
+    let splashText = 'GLANCE!';
+    let hitstop = 0.006;
+    let shake = 0.08;
+    const chargingPassiveContext =
+      (attacker && this.isChargingAttack(attacker)) || this.isChargingAttack(victim);
+
+    if (attacker && attackerSegment) {
+      const toVictim = victim.getPosition().sub(attacker.getPosition());
+      const dot = this.forwardDot(attacker.getYaw(), toVictim.x, toVictim.z);
+      const active =
+        forcedActive ??
+        attacker.resolveActiveAttackForSegment(attackerSegment, dot) ??
+        attacker.resolveGenericActiveAttack(dot);
+      if (active) {
+        attacker.registerAttackHit();
+        source = 'active';
+        profile = active.profile;
+        chargeTier = active.chargeTier;
+        damageAmount = Math.max(
+          ACTIVE_DAMAGE_MIN,
+          baseDamage * active.damageMul * active.appendageMassMul * active.hitQualityMul
+        );
+        damageAmount *= ACTIVE_DAMAGE_MUL;
+        const blockReduction = victim.getIncomingBlockReduction(active.profile);
+        if (blockReduction > 0) {
+          blocked = true;
+          damageAmount *= 1 - Math.max(0, Math.min(0.8, blockReduction));
+          shake = 0.1;
+          hitstop = 0.009;
+        }
+        if (active.profile === 'spike') {
+          glancing = active.hitQualityMul < 0.9 || dot < 0.2;
+        } else if (active.profile === 'shield') {
+          glancing = active.hitQualityMul < 0.78 || dot < -0.05;
+        } else {
+          glancing = active.hitQualityMul < 0.8 || dot < -0.1;
+        }
+        if (glancing) damageAmount *= 0.65;
+
+        if (blocked) splashText = 'BLOCK!';
+        else if (glancing) splashText = 'GLANCE!';
+        else if (active.profile === 'blunt') splashText = chargeTier === 'heavy' ? 'CRUNCH!' : 'BONK!';
+        else if (active.profile === 'spike') splashText = chargeTier === 'heavy' ? 'CRUNCH!' : 'STAB!';
+        else splashText = chargeTier === 'heavy' ? 'BASH!' : 'SHOVE!';
+
+        if (chargeTier === 'quick') {
+          shake = Math.max(shake, 0.12);
+          hitstop = Math.max(hitstop, 0.01);
+        } else if (chargeTier === 'ready') {
+          shake = Math.max(shake, 0.2);
+          hitstop = Math.max(hitstop, 0.014);
+        } else {
+          shake = Math.max(shake, 0.3);
+          hitstop = Math.max(hitstop, 0.02);
+        }
+      }
+    }
+
+    if (source === 'passive' && chargingPassiveContext) {
+      damageAmount *= PASSIVE_CHARGE_DAMAGE_MUL;
+      if (damageAmount < 0.015) return;
+    }
+
+    const applied = state.applyDamage(segment, damageAmount);
     if (applied <= 0) return;
     const ev: DamageEvent = {
       victim,
@@ -286,6 +401,14 @@ export class DamageResolver {
       amount: applied,
       point,
       impactSpeed,
+      source,
+      profile,
+      chargeTier,
+      blocked,
+      glancing,
+      splashText,
+      hitstop,
+      shake,
     };
     this.recentEvents.push(ev);
     while (this.recentEvents.length > this.MAX_RECENT) {
@@ -302,4 +425,249 @@ export class DamageResolver {
     this.recentEvents = [];
     return out;
   }
+
+  private forwardDot(yaw: number, dx: number, dz: number): number {
+    const len = Math.sqrt(dx * dx + dz * dz) || 1;
+    const nx = dx / len;
+    const nz = dz / len;
+    const fx = Math.sin(yaw);
+    const fz = Math.cos(yaw);
+    return fx * nx + fz * nz;
+  }
+
+  private hasActiveIntentContact(
+    attacker: BeastInstance,
+    attackerSegment: string,
+    victim: BeastInstance
+  ): boolean {
+    const toVictim = victim.getPosition().sub(attacker.getPosition());
+    const dot = this.forwardDot(attacker.getYaw(), toVictim.x, toVictim.z);
+    return (
+      attacker.resolveActiveAttackForSegment(attackerSegment, dot) !== null ||
+      attacker.resolveGenericActiveAttack(dot) !== null
+    );
+  }
+
+  private isChargingAttack(beast: BeastInstance): boolean {
+    const state = beast.getAttackTelemetry()?.state;
+    return state === 'WINDUP' || state === 'HELD';
+  }
+
+  private tryResolveIntentionalHit(attacker: BeastInstance, victim: BeastInstance): void {
+    const telemetry = attacker.getAttackTelemetry();
+    const slot = attacker.getPrimaryAttackSlot();
+    if (!telemetry || !slot || telemetry.state !== 'COMMIT') return;
+
+    const commitSerial = attacker.getAttackCommitSerial();
+    if (commitSerial <= 0) return;
+
+    let pairMap = this.resolvedCommitHits.get(attacker);
+    if (!pairMap) {
+      pairMap = new WeakMap<BeastInstance, number>();
+      this.resolvedCommitHits.set(attacker, pairMap);
+    }
+    if (pairMap.get(victim) === commitSerial) return;
+
+    const attackerPos = attacker.getPosition();
+    const victimPos = victim.getPosition();
+    const dx = victimPos.x - attackerPos.x;
+    const dz = victimPos.z - attackerPos.z;
+    const dot = this.forwardDot(attacker.getYaw(), dx, dz);
+
+    const active =
+      attacker.resolveGenericActiveAttack(dot) ??
+      slot.hitSegments
+        .map((segment) => attacker.resolveActiveAttackForSegment(segment, dot))
+        .find((ctx): ctx is ActiveAttackContext => ctx !== null);
+    if (!active) return;
+
+    const range =
+      active.profile === 'spike' ? 0.45 :
+      active.profile === 'shield' ? 1.0 :
+      1.15;
+
+    if (active.profile !== 'spike') {
+      const broadHit = this.tryResolveBroadBodyHit(attacker, victim, active, dot, commitSerial);
+      if (broadHit) {
+        pairMap.set(victim, commitSerial);
+        return;
+      }
+    }
+
+    let best:
+      | {
+          attackerSegment: string;
+          victimSegment: string;
+          point: { x: number; y: number; z: number };
+          distance: number;
+          impactSpeed: number;
+          baseDamage: number;
+        }
+      | null = null;
+
+    const victimSegments = Array.from(victim.skeleton.joints.keys());
+    for (const attackerSegment of slot.hitSegments) {
+      const attackBody = attacker.getJointBody(attackerSegment);
+      if (!attackBody) continue;
+      const ap = attackBody.translation();
+      const av = attackBody.linvel();
+
+      for (const victimSegment of victimSegments) {
+        const victimBody = victim.getJointBody(victimSegment);
+        if (!victimBody) continue;
+        const vp = victimBody.translation();
+        const vv = victimBody.linvel();
+        const ddx = ap.x - vp.x;
+        const ddy = ap.y - vp.y;
+        const ddz = ap.z - vp.z;
+        const distance = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+        if (distance > range) continue;
+
+        const rvx = av.x - vv.x;
+        const rvy = av.y - vv.y;
+        const rvz = av.z - vv.z;
+        const impactSpeed = Math.sqrt(rvx * rvx + rvy * rvy + rvz * rvz);
+        const baseDamage =
+          DAMAGE_SCALE * Math.pow(Math.max(impactSpeed, 1.2), 2) * ((attackBody.mass() + victimBody.mass()) / 2) * 4.5;
+
+        if (!best || distance < best.distance) {
+          best = {
+            attackerSegment,
+            victimSegment,
+            point: {
+              x: (ap.x + vp.x) / 2,
+              y: (ap.y + vp.y) / 2,
+              z: (ap.z + vp.z) / 2,
+            },
+            distance,
+            impactSpeed,
+            baseDamage,
+          };
+        }
+      }
+    }
+
+    if (!best) return;
+
+    this.damageSegment(
+      victim,
+      best.victimSegment,
+      attacker,
+      best.attackerSegment,
+      best.point,
+      best.impactSpeed,
+      best.baseDamage,
+      active
+    );
+    pairMap.set(victim, commitSerial);
+
+    const knock = 1.3 * active.knockbackMul;
+    const fx = Math.sin(attacker.getYaw());
+    const fz = Math.cos(attacker.getYaw());
+    const victimPelvis = victim.skeleton.pelvis;
+    const impulseMass = victimPelvis.mass();
+    victimPelvis.applyImpulse(
+      {
+        x: fx * knock * impulseMass,
+        y: 0.18 * knock * impulseMass,
+        z: fz * knock * impulseMass,
+      },
+      true
+    );
+  }
+
+  private tryResolveBroadBodyHit(
+    attacker: BeastInstance,
+    victim: BeastInstance,
+    active: ActiveAttackContext,
+    dot: number,
+    commitSerial: number
+  ): boolean {
+    if (dot < 0.15) return false;
+
+    const attackerAnchor =
+      attacker.getJointBody(attacker.getPrimaryAttackSlot()?.appendageRoot ?? 'torso') ??
+      attacker.getJointBody('torso');
+    if (!attackerAnchor) return false;
+
+    const torsoCandidates = ['torso', 'torso_rear']
+      .map((name) => ({ name, body: victim.getJointBody(name) }))
+      .filter((entry): entry is { name: string; body: RAPIER.RigidBody } => !!entry.body);
+    if (torsoCandidates.length === 0) return false;
+
+    const ap = attackerAnchor.translation();
+    const av = attackerAnchor.linvel();
+    let bestTorso:
+      | {
+          name: string;
+          body: RAPIER.RigidBody;
+          distance: number;
+        }
+      | null = null;
+
+    for (const torso of torsoCandidates) {
+      const vp = torso.body.translation();
+      const dx = ap.x - vp.x;
+      const dy = ap.y - vp.y;
+      const dz = ap.z - vp.z;
+      const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (
+        !bestTorso ||
+        distance < bestTorso.distance
+      ) {
+        bestTorso = { ...torso, distance };
+      }
+    }
+
+    if (!bestTorso) return false;
+    const bodyRange = active.profile === 'shield' ? 1.05 : 1.2;
+    if (bestTorso.distance > bodyRange) return false;
+
+    const vv = bestTorso.body.linvel();
+    const rvx = av.x - vv.x;
+    const rvy = av.y - vv.y;
+    const rvz = av.z - vv.z;
+    const impactSpeed = Math.sqrt(rvx * rvx + rvy * rvy + rvz * rvz);
+    const baseDamage =
+      DAMAGE_SCALE *
+      Math.pow(Math.max(impactSpeed, active.profile === 'shield' ? 1.4 : 1.6), 2) *
+      ((attackerAnchor.mass() + bestTorso.body.mass()) / 2) *
+      (active.profile === 'shield' ? 4.2 : 5.0);
+
+    this.damageSegment(
+      victim,
+      bestTorso.name,
+      attacker,
+      slotToPrimarySegment(attacker.getPrimaryAttackSlot()),
+      {
+        x: (ap.x + bestTorso.body.translation().x) / 2,
+        y: (ap.y + bestTorso.body.translation().y) / 2,
+        z: (ap.z + bestTorso.body.translation().z) / 2,
+      },
+      impactSpeed,
+      baseDamage,
+      active
+    );
+
+    const victimPelvis = victim.skeleton.pelvis;
+    const impulseMass = victimPelvis.mass();
+    const fx = Math.sin(attacker.getYaw());
+    const fz = Math.cos(attacker.getYaw());
+    const shove = active.profile === 'shield' ? 1.5 : 1.2;
+    victimPelvis.applyImpulse(
+      {
+        x: fx * shove * impulseMass,
+        y: 0.14 * shove * impulseMass,
+        z: fz * shove * impulseMass,
+      },
+      true
+    );
+
+    return true;
+  }
+}
+
+function slotToPrimarySegment(slot: BeastInstance['definition'] extends never ? never : any): string | undefined {
+  if (!slot || !Array.isArray(slot.hitSegments)) return undefined;
+  return slot.hitSegments[0];
 }

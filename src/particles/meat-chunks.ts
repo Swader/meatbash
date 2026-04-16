@@ -72,14 +72,15 @@ export class MeatChunks {
     point: { x: number; y: number; z: number },
     count: number,
     speed: number = 3.0,
-    color?: number
+    color?: number,
+    intensity: number = 1
   ): void {
     let spawned = 0;
     for (const c of this.chunks) {
       if (spawned >= count) break;
       if (c.active) continue;
       c.active = true;
-      c.life = 0.8 + Math.random() * 0.6;
+      c.life = (0.8 + Math.random() * 0.6) * Math.max(0.6, intensity);
       c.maxLife = c.life;
       c.pos.set(point.x, point.y + 0.1, point.z);
       const ang = Math.random() * Math.PI * 2;
@@ -95,7 +96,7 @@ export class MeatChunks {
         (Math.random() * 2 - 1) * 8
       );
       c.rot.set(0, 0, 0);
-      c.scale = 0.6 + Math.random() * 0.6;
+      c.scale = (0.6 + Math.random() * 0.6) * Math.max(0.7, intensity * 0.95);
       spawned++;
     }
     void color; // Phase 2 extra: per-beast tinting via setColorAt

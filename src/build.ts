@@ -45,6 +45,9 @@ async function build() {
   if (existsSync('./public')) {
     await cp('./public', './dist', { recursive: true, force: true });
   }
+  if (existsSync('./sound')) {
+    await cp('./sound', './dist/sound', { recursive: true, force: true });
+  }
 
   console.log('✅ Build complete! Output in ./dist/');
   console.log('   Deploy dist/ to any static hosting.');

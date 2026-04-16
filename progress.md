@@ -1,0 +1,65 @@
+Original prompt: Study this project, read its @code/docs , and then implement @code/docs/MEATBASH_NEXT_STEPS_COMBAT_INTENT_V1.md and make sure you test evertyhing as you do it. As you do this, make sure the zip command will still be zipping up everything relevant (no new files we create should be skipped during zip).
+
+2026-04-15
+- Fresh recovery pass after a previous broken implementation attempt.
+- Immediate goal: make the minimal combat-intent loop actually work in runtime before broader tuning or doc churn.
+- First checks: no existing `render_game_to_text`, no `advanceTime`, no prior `progress.md`.
+- Findings from runtime probes:
+  - arena controls legend was stale (`SPACE` only, no `J/K`)
+  - `J` raise/hold worked, but `K` commit was too unreliable in live tests
+  - no deterministic test hook existed, making browser tests timing-luck based
+- Fixes in progress:
+  - added `render_game_to_text`
+  - added deterministic `window.advanceTime(ms)` using `GameLoop.advance(...)`
+  - updated visible controls legend to show `J` / release `J` / `K`
+  - added input aliases for automated tests (`arrows`, `B`, `Enter`) while keeping player-facing controls as `WASD` + `J/K`
+  - strengthened attack motor stiffness and commit detection
+  - strengthened commit impulse on active weapon segments
+- Debug findings after exposing recent damage events:
+  - close-range forced tests were only producing tiny passive contacts on victim ankles
+  - active strike classification was not firing for Chonkus often enough
+  - widened Chonkus's blunt hit set to include `torso` during commit so the lunge can count as the intended active strike
+  - relaxed active classification for broad profiles: `blunt` and `shield` can now count meaningful body contact during `COMMIT`; `spike` still requires marked segments
+  - damage resolver no longer discards slow contacts before checking active-attack intent, and active hits now have a visible minimum damage floor
+  - added a direct intentional-hit resolver during `COMMIT` so active strikes are not hostage to noisy Rapier contact timing
+  - verified in browser that forced close-range blunt strikes now create `active` damage events and visibly lower opponent mass (down to ~97-99% in probes)
+  - deduped HUD combat text so a single strike shows one readable confirm instead of stacked spam
+  - verified with a smarter non-forced Playwright steering probe that Chonkus can now land a natural `active` blunt hit in regular play (`BONK!`, ~6 damage, opponent mass down to ~97%)
+  - made the existing charge telegraph much more obvious (bigger ring/core/beam, brighter glow, stronger visual pose exaggeration)
+  - tightened commit timing so `K` only commits once the attack reaches `HELD`
+  - Playwright verification after the gate change:
+    - upright `J` hold now clearly shows `HELD` plus a large visible charge indicator
+    - rapid `J` then `K` in `FIGHTING` stays in `WINDUP` and shows no `active` damage events
+    - smarter natural Playwright probe still lands a real `active` `BONK!` after the `HELD` gate
+  - audio verification via `recentAudio` in `render_game_to_text()`:
+    - `miss` fires on a missed attack
+    - `jump` and `land` both fire during jump/landing probes
+    - `hit_blunt` fires on confirmed active hits
+  - `startBotMatch()` now awaits audio initialization so early sounds are not silently dropped
+  - removed the hit halo/ring/ball entirely from `beast-instance.ts`; the telegraph is now pose-only
+  - reduced passive collision noise during charge by increasing the passive-speed threshold and heavily scaling passive damage while either beast is in `WINDUP` or `HELD`
+  - Playwright verification after halo removal / passive-noise reduction:
+    - `J` hold shows no halo at all
+    - rapid `JK` in `FIGHTING` remains `WINDUP` and produces no `active` damage events
+    - forced close-range `HELD` state now shows tiny passive scrape values (~0.001–0.005) instead of the larger 0.05–0.2+ noise from before
+    - smarter natural Playwright probe still lands a real `active` `BONK!` with opponent mass dropping to ~98%
+  - music system added:
+    - random menu / battle / lab themes by screen context
+    - clickable music credit widget with waveform bars and `Tragikomik: <track>`
+    - widget links to `https://youtube.com/@tragikomik`
+    - current music is exposed in `render_game_to_text()`
+  - theme MP3 metadata rewritten on disk:
+    - artist = `Tragikomik`
+    - titles updated to the requested names
+    - album = `MEATBASH`
+  - Playwright verification for music:
+    - HOME shows menu track + visible widget
+    - ARENA shows battle track + visible widget
+    - widget text and both click targets resolve to the Tragikomik URL
+  - `bun run zip` now excludes all sound assets from both `code/sound/` and `code/dist/sound/`
+  - visual readability pass: added stronger appendage pose exaggeration, a charge marker, and a ghost-limb telegraph so held `J` is visible from the gameplay camera
+  - decoupled attack mass scaling from broad `hitSegments`, which fixed Chonkus windup becoming too slow after torso-based broad-hit tuning
+  - post-visual-change Playwright checks:
+    - held `J` now shows a visible telegraph marker while in `HELD`
+    - `J` then `K` stays visually in `COMMIT` longer
+    - smarter natural Playwright probe still lands active hits after the visual changes

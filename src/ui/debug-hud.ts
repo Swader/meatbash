@@ -50,6 +50,9 @@ export class DebugHud {
       <div><span style="color:#ffaa66">W</span> = Walk forward</div>
       <div><span style="color:#ffaa66">S</span> = Walk backward</div>
       <div><span style="color:#ffaa66">A/D</span> = Turn left/right</div>
+      <div><span style="color:#ffaa66">J</span> = Raise / hold primary attack</div>
+      <div><span style="color:#ffaa66">release J</span> = Cancel attack</div>
+      <div><span style="color:#ffaa66">K</span> = Commit strike</div>
       <div><span style="color:#ffaa66">SPACE</span> = Jump / air flail</div>
       <div style="margin-top: 8px; color: #aaa; font-size: 11px;">Mouse drag = orbit camera</div>
       <div style="margin-top: 8px;">

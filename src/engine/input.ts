@@ -22,6 +22,16 @@ export class InputManager {
   private fixedPressed = new Set<string>();
   private fixedReleased = new Set<string>();
 
+  private readonly aliases = new Map<string, string[]>([
+    ['W', ['W', 'ARROWUP']],
+    ['S', ['S', 'ARROWDOWN']],
+    ['A', ['A', 'ARROWLEFT']],
+    ['D', ['D', 'ARROWRIGHT']],
+    ['J', ['J', 'B']],
+    ['K', ['K', 'ENTER']],
+    [' ', [' ', 'SPACE']],
+  ]);
+
   constructor() {
     window.addEventListener('keydown', (e) => {
       const key = e.key.toUpperCase();
@@ -61,17 +71,17 @@ export class InputManager {
 
   /** Is the key currently held down? */
   isDown(key: string): boolean {
-    return this.keysDown.has(key.toUpperCase());
+    return this.matches(this.keysDown, key);
   }
 
   /** Was the key pressed during this fixed step? */
   justPressed(key: string): boolean {
-    return this.fixedPressed.has(key.toUpperCase());
+    return this.matches(this.fixedPressed, key);
   }
 
   /** Was the key released during this fixed step? */
   justReleased(key: string): boolean {
-    return this.fixedReleased.has(key.toUpperCase());
+    return this.matches(this.fixedReleased, key);
   }
 
   /** No-op kept for API compatibility — edges are now managed by beginFixedStep */
@@ -80,5 +90,14 @@ export class InputManager {
   /** Get all currently held keys (for network serialization) */
   getHeldKeys(): string[] {
     return Array.from(this.keysDown);
+  }
+
+  private matches(source: Set<string>, key: string): boolean {
+    const canonical = key.toUpperCase();
+    const options = this.aliases.get(canonical) ?? [canonical];
+    for (const option of options) {
+      if (source.has(option)) return true;
+    }
+    return false;
   }
 }

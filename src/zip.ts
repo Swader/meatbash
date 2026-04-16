@@ -21,25 +21,26 @@ console.log(`📦 Packaging as ${filename}...`);
 // Remove old zip if exists
 await $`rm -f ${outPath}`.quiet();
 
-// Create zip from repo root so paths include docs/ and code/
+// Create zip from repo root so paths include code/docs and source.
 await $`cd ${repoRoot} && zip -r ${outPath} \
-  docs/ \
+  code/docs/ \
   code/src/ \
   code/dist/ \
+  code/progress.md \
   code/package.json \
   code/tsconfig.json \
   -x "*.DS_Store" \
   -x "*__MACOSX*" \
   -x "*.map"`.quiet();
 
+// Sound assets are intentionally excluded from the review archive to keep it lean.
+try {
+  await $`cd ${repoRoot} && zip -d ${outPath} "code/sound/*" "code/dist/sound/*" "code/sound/" "code/dist/sound/"`.quiet();
+} catch {}
+
 // Also add server/ if it exists with content
 try {
   await $`cd ${repoRoot} && zip -r ${outPath} code/server/ -x "*.DS_Store" 2>/dev/null`.quiet();
-} catch {}
-
-// Add any markdown docs in code root
-try {
-  await $`cd ${repoRoot} && zip ${outPath} code/CLAUDE.md code/TASKS.md 2>/dev/null`.quiet();
 } catch {}
 
 const file = Bun.file(outPath);
@@ -47,5 +48,5 @@ const sizeMB = ((await file.size) / 1024 / 1024).toFixed(1);
 
 console.log(`✅ Created ${filename} (${sizeMB} MB)`);
 console.log(`   Path: ${outPath}`);
-console.log(`   Includes: docs/, code/src/, code/dist/, code/server/, configs`);
+console.log(`   Includes: code/docs/, code/src/, code/dist/ (without sound), code/server/, configs`);
 console.log(`   Excludes: node_modules, .DS_Store, .git, sourcemaps`);

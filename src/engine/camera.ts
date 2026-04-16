@@ -32,6 +32,7 @@ interface ShakeEntry {
   intensity: number;
   duration: number;
   elapsed: number;
+  horizontalBias: number;
 }
 
 /**
@@ -122,8 +123,13 @@ export class CameraController {
    * @param intensity - max pixel-offset magnitude
    * @param duration  - seconds until fully decayed
    */
-  addShake(intensity: number, duration: number) {
-    this.shakes.push({ intensity, duration, elapsed: 0 });
+  addShake(intensity: number, duration: number, horizontalBias: number = 0.5) {
+    this.shakes.push({
+      intensity,
+      duration,
+      elapsed: 0,
+      horizontalBias: Math.max(0, Math.min(1, horizontalBias)),
+    });
   }
 
   private updateShakes(dt: number) {
@@ -148,8 +154,10 @@ export class CameraController {
       const t = 1 - s.elapsed / s.duration;
       const mag = s.intensity * t;
       // Random perpendicular offset (side-to-side + up-down)
-      const rx = (Math.random() * 2 - 1) * mag;
-      const ry = (Math.random() * 2 - 1) * mag;
+      const horiz = 0.4 + s.horizontalBias * 0.8;
+      const vert = 1.2 - horiz;
+      const rx = (Math.random() * 2 - 1) * mag * horiz;
+      const ry = (Math.random() * 2 - 1) * mag * vert;
       this.shakeOffset.addScaledVector(right, rx);
       this.shakeOffset.addScaledVector(up, ry);
     }

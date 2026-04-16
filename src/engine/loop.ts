@@ -37,6 +37,7 @@ export class GameLoop {
   private fpsCounter = 0;
   private fpsTime = 0;
   private currentFps = 0;
+  private hitstopLeft = 0;
 
   constructor(config: GameLoopConfig) {
     this.config = config;
@@ -65,33 +66,49 @@ export class GameLoop {
     let dt = now - this.lastTime;
     this.lastTime = now;
 
+    this.processFrame(dt);
+  };
+
+  advance(dt: number) {
+    this.processFrame(dt);
+  }
+
+  private processFrame(dt: number) {
+    let frameDt = dt;
+
     // Clamp dt to prevent huge jumps (e.g., tab was backgrounded)
-    if (dt > 0.1) dt = 0.1;
+    if (frameDt > 0.1) frameDt = 0.1;
+    if (frameDt < 0) frameDt = 0;
 
     // FPS counter
     this.fpsCounter++;
-    this.fpsTime += dt;
+    this.fpsTime += frameDt;
     if (this.fpsTime >= 1) {
       this.currentFps = this.fpsCounter;
       this.fpsCounter = 0;
       this.fpsTime -= 1;
     }
 
-    // Fixed-timestep physics
-    this.accumulator += dt;
-    let steps = 0;
-    while (this.accumulator >= PHYSICS_DT && steps < MAX_SUBSTEPS) {
-      // Drain raw input events into per-step edge sets BEFORE the fixed step.
-      // This makes justPressed/justReleased deterministic across frames with
-      // varying numbers of fixed substeps.
+    if (this.hitstopLeft > 0) {
+      this.hitstopLeft = Math.max(0, this.hitstopLeft - frameDt);
       this.config.input.beginFixedStep();
-      this.fixedUpdate(PHYSICS_DT);
-      this.accumulator -= PHYSICS_DT;
-      steps++;
-    }
+    } else {
+      // Fixed-timestep physics
+      this.accumulator += frameDt;
+      let steps = 0;
+      while (this.accumulator >= PHYSICS_DT && steps < MAX_SUBSTEPS) {
+        // Drain raw input events into per-step edge sets BEFORE the fixed step.
+        // This makes justPressed/justReleased deterministic across frames with
+        // varying numbers of fixed substeps.
+        this.config.input.beginFixedStep();
+        this.fixedUpdate(PHYSICS_DT);
+        this.accumulator -= PHYSICS_DT;
+        steps++;
+      }
 
-    // Variable-rate visual update
-    this.variableUpdate(dt);
+      // Variable-rate visual update
+      this.variableUpdate(frameDt);
+    }
 
     // Render
     this.config.renderer.render(this.config.scene, this.config.camera);
@@ -101,7 +118,7 @@ export class GameLoop {
 
     // Clean up input frame state
     this.config.input.endFrame();
-  };
+  }
 
   /** Fixed-timestep update: physics + input processing.
    *
@@ -173,5 +190,13 @@ export class GameLoop {
 
   getFps(): number {
     return this.currentFps;
+  }
+
+  addCameraShake(intensity: number, duration: number, horizontalBias: number = 0.5): void {
+    this.cameraController.addShake(intensity, duration, horizontalBias);
+  }
+
+  addHitstop(duration: number): void {
+    this.hitstopLeft = Math.max(this.hitstopLeft, duration);
   }
 }

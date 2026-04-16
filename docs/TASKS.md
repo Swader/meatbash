@@ -66,9 +66,14 @@ where files live and how to run the project read
   bully), **Noodlesnake** (biped skirmisher, armed), **Butterchonk** (quad
   tank).
 
-## 🚧 Phase 2 Block 2 — Combat & Damage (PARTIAL)
+## 🚧 Phase 2 Block 2 — Combat & Damage (PARTIAL, Combat Intent V1 added)
 
 **Done:**
+- Intentional primary attack slots for premades (raise `J`, commit `K`, release cancel).
+- Attack state machine (`IDLE → WINDUP → HELD → COMMIT → RECOVER`) with stamina drain/cost and lunge.
+- Attack profiles (`blunt`, `spike`, `shield`) and attack-aware active-hit resolution.
+- Attack-aware HUD feedback: combat text (`BONK`, `STAB`, `BLOCK`, `GLANCE`, `CRUNCH`), hitstop, shake.
+- Beast cards now show weight class + primary attack profile + one-line playstyle.
 - Per-segment HP tracking (`physics/damage.ts::BeastDamageState`).
 - Rapier collision-event + contact-force-event drain into damage events,
   with per-pair cooldowns to prevent double-dipping.
@@ -185,19 +190,21 @@ was too slow for body-on-body collision damage to matter.
 
 In rough order of "biggest jam impact per unit work":
 
-1. **SDF volume system + marching-cubes mesher** — unblocks both the Gene
+1. **Tune Combat Intent V1** — run deliberate playtests and rebalance hold drain,
+   strike costs, charge thresholds, and profile matchup clarity.
+2. **SDF volume system + marching-cubes mesher** — unblocks both the Gene
    Lab and real meat carving on damage. Until this lands, beasts look like
    sphere assemblages and damage is just per-segment HP bars.
-2. **Gene Lab MVP** — at minimum: archetype picker → brush sculpting →
+3. **Gene Lab MVP** — at minimum: archetype picker → brush sculpting →
    key binder → save to localStorage. The vision in PRD §5.2 is large;
    ship the smallest version that lets a player make and use one custom
    beast.
-3. **Multiplayer** — Bun WS server + host-authoritative client + match
+4. **Multiplayer** — Bun WS server + host-authoritative client + match
    codes. Vibejam strongly favors multiplayer. PRD §8 has the protocol.
-4. **Darwin Certification** — three challenges. The walk and food
+5. **Darwin Certification** — three challenges. The walk and food
    challenges are quick wins; the predator challenge needs a second AI
    beast.
-5. **Polish for ship:** vibeverse portal, vibejam widget embed, post-match
+6. **Polish for ship:** vibeverse portal, vibejam widget embed, post-match
    stats, more premades, deploy.
 
 ## Known issues / tech debt
@@ -214,8 +221,5 @@ In rough order of "biggest jam impact per unit work":
   in stress testing because Chonkus took heavy self-damage from
   forced-spin testing — needs a real human playtest to assess balance
   fairly.
-- `code/CLAUDE.md` and `code/TASKS.md` exist as historical mirrors; the
-  authoritative copies are in `docs/`. `code/src/zip.ts` ships
-  `code/CLAUDE.md` + `code/TASKS.md` in the distribution zip — keep those
-  two files in sync with `docs/CLAUDE_CONTEXT.md` and `docs/TASKS.md` if
-  you change anything.
+- The canonical docs are `code/docs/*`. Avoid keeping parallel mirrors in
+  other folders.
