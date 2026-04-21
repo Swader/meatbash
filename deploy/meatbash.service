@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=swader
 Group=swader
-WorkingDirectory=/var/www/meatbash/code
+WorkingDirectory=/var/www/meatbash
 Environment=PATH=/home/swader/.bun/bin:/usr/local/bin:/usr/bin:/bin
 Environment=HOST=127.0.0.1
 Environment=PORT=3010

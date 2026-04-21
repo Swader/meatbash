@@ -44,7 +44,7 @@ ssh -i /Users/swader/.ssh/codex-kvasyr-prod swader@178.62.192.123
 
 1. Verify SSH and sudo access first.
 2. Sync or clone the repo under `/var/www/meatbash`.
-3. Build from `/var/www/meatbash/code`.
+3. Build from `/var/www/meatbash`.
 4. Install or refresh `deploy/meatbash.service`.
 5. Install or refresh the nginx vhost for `meatbash.bitfalls.com`.
 6. Restart `meatbash` and verify with `systemctl`, `journalctl`, and `curl`.
@@ -63,7 +63,7 @@ deploy automation.
 ## Common maintenance commands
 
 ```bash
-cd /var/www/meatbash/code
+cd /var/www/meatbash
 ~/.bun/bin/bun install --frozen-lockfile
 ~/.bun/bin/bun run build
 sudo systemctl restart meatbash

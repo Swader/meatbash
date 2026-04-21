@@ -75,7 +75,7 @@ Recommended checkout path:
 Repo app root:
 
 ```text
-/var/www/meatbash/code
+/var/www/meatbash
 ```
 
 ## First deploy
@@ -85,7 +85,7 @@ sudo mkdir -p /var/www
 sudo chown -R swader:swader /var/www
 cd /var/www
 git clone https://github.com/Swader/meatbash.git meatbash
-cd /var/www/meatbash/code
+cd /var/www/meatbash
 ~/.bun/bin/bun install --frozen-lockfile
 ~/.bun/bin/bun run build
 ```
@@ -93,7 +93,7 @@ cd /var/www/meatbash/code
 Install the systemd unit:
 
 ```bash
-sudo cp /var/www/meatbash/code/deploy/meatbash.service /etc/systemd/system/meatbash.service
+sudo cp /var/www/meatbash/deploy/meatbash.service /etc/systemd/system/meatbash.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now meatbash
 sudo systemctl restart meatbash
@@ -132,7 +132,6 @@ sudo certbot --nginx -d meatbash.bitfalls.com --non-interactive --agree-tos -m s
 cd /var/www/meatbash
 git fetch --all --prune
 git pull --ff-only
-cd /var/www/meatbash/code
 ~/.bun/bin/bun install --frozen-lockfile
 ~/.bun/bin/bun run build
 sudo systemctl restart meatbash
