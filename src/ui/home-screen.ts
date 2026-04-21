@@ -7,9 +7,7 @@
  *
  * Layout:
  *   - Top: big pulsating MEATBASH title
- *   - Left sidebar: Join match (code input + button) + Make a match button
- *   - Center: "Make your beast" preview region (visual framing only —
- *     the real 3D preview happens in the Three.js scene behind us)
+ *   - Center: HOME actions or LAB workshop, depending on shell state
  *   - Right sidebar: beast list with "Your beasts" + "Defaults" sections
  *   - Bottom banner: Darwin Certification (coming soon)
  *
@@ -44,6 +42,8 @@ export interface HomeScreenOptions {
   userBeasts?: BeastListing[];
   onCreateWorkshopBeast?: (draft: WorkshopDraft) => BeastListing | null;
 }
+
+type HomeScreenMode = 'home' | 'lab';
 
 const STYLE_ID = 'meatbash-home-style';
 
@@ -111,7 +111,7 @@ const STYLES = `
 #mb-home-body {
   grid-row: 2;
   display: grid;
-  grid-template-columns: 260px 1fr 280px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
   min-height: 0;
 }
@@ -168,6 +168,12 @@ const STYLES = `
   border-color: rgba(255, 140, 160, 0.8);
   box-shadow: 0 0 0 2px rgba(255, 80, 120, 0.25);
 }
+.mb-input:disabled,
+.mb-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 .mb-input::placeholder {
   color: rgba(255, 160, 160, 0.35);
 }
@@ -222,10 +228,6 @@ const STYLES = `
   box-shadow: none;
 }
 
-#mb-home-left, #mb-home-right {
-  overflow-y: auto;
-}
-
 #mb-home-center {
   position: relative;
   display: flex;
@@ -239,7 +241,7 @@ const STYLES = `
   padding: 20px;
 }
 #mb-home-center .mb-center-inner {
-  width: min(440px, 100%);
+  width: min(540px, 100%);
   text-align: center;
 }
 #mb-home-center .mb-center-label {
@@ -255,11 +257,57 @@ const STYLES = `
   color: rgba(255, 190, 190, 0.62);
   text-transform: uppercase;
 }
+#mb-home-center .mb-center-section {
+  display: none;
+}
+#mb-home-center .mb-center-section.mb-active {
+  display: block;
+}
 #mb-home-center .mb-center-selected {
-  margin-top: 18px;
   font-size: 13px;
   letter-spacing: 2px;
   color: rgba(255, 200, 200, 0.8);
+}
+.mb-center-meta {
+  margin-top: 18px;
+  min-height: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.mb-center-actions {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mb-center-primary {
+  width: min(320px, 100%);
+  margin: 0 auto;
+}
+.mb-join-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  width: min(380px, 100%);
+  margin: 0 auto;
+}
+.mb-join-row .mb-button {
+  width: auto;
+  min-width: 124px;
+}
+.mb-home-status {
+  min-height: 16px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(255, 210, 150, 0.8);
+}
+.mb-lab-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
 }
 .mb-workshop-note {
   margin-top: 10px;
@@ -383,13 +431,44 @@ const STYLES = `
 
 .mb-stack > * + * { margin-top: 10px; }
 
+#mb-home-right {
+  overflow-y: auto;
+}
+
 /* Scrollbar for side panels */
-#mb-home-left::-webkit-scrollbar,
 #mb-home-right::-webkit-scrollbar { width: 6px; }
-#mb-home-left::-webkit-scrollbar-thumb,
 #mb-home-right::-webkit-scrollbar-thumb {
   background: rgba(255, 80, 80, 0.3);
   border-radius: 3px;
+}
+
+@media (max-width: 980px) {
+  #mb-home {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  #mb-home-title {
+    font-size: 52px;
+    letter-spacing: 4px;
+  }
+
+  #mb-home-body {
+    grid-template-columns: 1fr;
+  }
+
+  #mb-home-right {
+    max-height: 34vh;
+  }
+
+  .mb-lab-toolbar,
+  .mb-join-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mb-join-row .mb-button {
+    width: 100%;
+  }
 }
 `;
 
@@ -407,10 +486,15 @@ export class HomeScreen implements ScreenHandle {
   private defaults: BeastListing[];
   private userBeasts: BeastListing[];
   private onCreateWorkshopBeast?: (draft: WorkshopDraft) => BeastListing | null;
+  private screenMode: HomeScreenMode = 'home';
   private selectedBeastId: string | null = null;
   private cardEls = new Map<string, HTMLDivElement>();
+  private centerMetaEl!: HTMLDivElement;
   private centerSelectedLabel: HTMLDivElement;
+  private homeSection!: HTMLDivElement;
+  private labSection!: HTMLDivElement;
   private codeInput!: HTMLInputElement;
+  private homeStatusEl!: HTMLDivElement;
   private workshopNameInput!: HTMLInputElement;
   private workshopArchetypeSelect!: HTMLSelectElement;
   private workshopProfileSelect!: HTMLSelectElement;
@@ -440,11 +524,10 @@ export class HomeScreen implements ScreenHandle {
     title.innerHTML = `MEATBASH<span class="mb-subtitle">ORGANIC DESTRUCTION DERBY</span>`;
     this.root.appendChild(title);
 
-    // ---- Body: left | center | right ----
+    // ---- Body: center | right ----
     const body = document.createElement('div');
     body.id = 'mb-home-body';
 
-    body.appendChild(this.buildLeftPanel());
     body.appendChild(this.buildCenterPanel());
     const { panel: rightPanel, centerSelectedLabel } = this.buildRightAndCenterLabel();
     body.appendChild(rightPanel);
@@ -461,56 +544,10 @@ export class HomeScreen implements ScreenHandle {
     if (this.defaults.length > 0) {
       this.selectBeast(this.defaults[0].id);
     }
-
-    // Register with the shell.
-    this.shell.registerScreen('HOME', this);
+    this.syncModeUi();
   }
 
   // ---------- Builders ----------
-
-  private buildLeftPanel(): HTMLDivElement {
-    const panel = document.createElement('div');
-    panel.id = 'mb-home-left';
-    panel.className = 'mb-panel mb-stack';
-
-    const joinHeader = document.createElement('h2');
-    joinHeader.textContent = 'Join Match';
-    panel.appendChild(joinHeader);
-
-    this.codeInput = document.createElement('input');
-    this.codeInput.type = 'text';
-    this.codeInput.className = 'mb-input';
-    this.codeInput.placeholder = 'MEAT-XXXX';
-    this.codeInput.maxLength = 9;
-    panel.appendChild(this.codeInput);
-
-    const joinBtn = document.createElement('button');
-    joinBtn.className = 'mb-button mb-secondary';
-    joinBtn.textContent = 'Join';
-    joinBtn.addEventListener('click', () => this.handleJoin());
-    panel.appendChild(joinBtn);
-
-    const separator = document.createElement('div');
-    separator.style.cssText = 'height: 1px; background: rgba(255,80,80,0.2); margin: 16px 0;';
-    panel.appendChild(separator);
-
-    const makeHeader = document.createElement('h2');
-    makeHeader.textContent = 'Make a Match';
-    panel.appendChild(makeHeader);
-
-    const makeBtn = document.createElement('button');
-    makeBtn.className = 'mb-button';
-    makeBtn.textContent = 'BASH!';
-    makeBtn.addEventListener('click', () => this.handleMakeMatch());
-    panel.appendChild(makeBtn);
-
-    const hint = document.createElement('div');
-    hint.style.cssText = 'margin-top: 10px; font-size: 10px; letter-spacing: 1px; color: rgba(255,160,160,0.5); text-align: center;';
-    hint.textContent = 'vs bot for now';
-    panel.appendChild(hint);
-
-    return panel;
-  }
 
   private buildCenterPanel(): HTMLDivElement {
     const panel = document.createElement('div');
@@ -519,21 +556,97 @@ export class HomeScreen implements ScreenHandle {
     const inner = document.createElement('div');
     inner.className = 'mb-center-inner';
 
-    const label = document.createElement('div');
-    label.className = 'mb-center-label';
-    label.textContent = 'QUICK WORKSHOP';
-    inner.appendChild(label);
+    this.homeSection = document.createElement('div');
+    this.homeSection.className = 'mb-center-section';
 
-    const soon = document.createElement('div');
-    soon.className = 'mb-center-soon';
-    soon.textContent = 'Fork the selected beast into a playable custom variant';
-    inner.appendChild(soon);
+    const homeLabel = document.createElement('div');
+    homeLabel.className = 'mb-center-label';
+    homeLabel.textContent = 'FIGHT PIT';
+    this.homeSection.appendChild(homeLabel);
+
+    const homeSoon = document.createElement('div');
+    homeSoon.className = 'mb-center-soon';
+    homeSoon.textContent = 'Pick a beast, bash a bot, or head into the lab';
+    this.homeSection.appendChild(homeSoon);
+
+    const homeNote = document.createElement('div');
+    homeNote.className = 'mb-workshop-note';
+    homeNote.textContent =
+      'The selected beast is your live roster anchor. Start a local bot fight now, or step into the Gene Lab to forge a custom variant before the match.';
+    this.homeSection.appendChild(homeNote);
+
+    const homeActions = document.createElement('div');
+    homeActions.className = 'mb-center-actions';
+
+    const makeBtn = document.createElement('button');
+    makeBtn.className = 'mb-button mb-center-primary';
+    makeBtn.textContent = 'MAKE A MATCH';
+    makeBtn.addEventListener('click', () => this.handleMakeMatch());
+    homeActions.appendChild(makeBtn);
+
+    const joinRow = document.createElement('div');
+    joinRow.className = 'mb-join-row';
+    this.codeInput = document.createElement('input');
+    this.codeInput.type = 'text';
+    this.codeInput.className = 'mb-input';
+    this.codeInput.placeholder = 'MATCHMAKING SOON';
+    this.codeInput.maxLength = 9;
+    this.codeInput.disabled = true;
+    joinRow.appendChild(this.codeInput);
+
+    const joinBtn = document.createElement('button');
+    joinBtn.className = 'mb-button mb-secondary mb-disabled';
+    joinBtn.textContent = 'JOIN MATCH (SOON)';
+    joinBtn.disabled = true;
+    joinRow.appendChild(joinBtn);
+    homeActions.appendChild(joinRow);
+
+    const labBtn = document.createElement('button');
+    labBtn.className = 'mb-button mb-secondary mb-center-primary';
+    labBtn.textContent = 'ENTER GENE LAB';
+    labBtn.addEventListener('click', () => this.shell.emitOpenLab());
+    homeActions.appendChild(labBtn);
+
+    this.homeStatusEl = document.createElement('div');
+    this.homeStatusEl.className = 'mb-home-status';
+    this.homeStatusEl.textContent = 'Bot fights are live now. Online match-code join is not live yet.';
+    homeActions.appendChild(this.homeStatusEl);
+    this.homeSection.appendChild(homeActions);
+
+    this.labSection = document.createElement('div');
+    this.labSection.className = 'mb-center-section';
+
+    const labLabel = document.createElement('div');
+    labLabel.className = 'mb-center-label';
+    labLabel.textContent = 'GENE LAB';
+    this.labSection.appendChild(labLabel);
+
+    const labSoon = document.createElement('div');
+    labSoon.className = 'mb-center-soon';
+    labSoon.textContent = 'Quick workshop for immediate fight variants';
+    this.labSection.appendChild(labSoon);
 
     const note = document.createElement('div');
     note.className = 'mb-workshop-note';
     note.textContent =
       'Swap archetype, shift attack profile, bias charge feel, then forge a custom beast and throw it straight into the arena.';
-    inner.appendChild(note);
+    this.labSection.appendChild(note);
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'mb-lab-toolbar';
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'mb-button mb-secondary';
+    backBtn.textContent = 'BACK TO MENU';
+    backBtn.addEventListener('click', () => this.shell.transition('HOME'));
+    toolbar.appendChild(backBtn);
+
+    const forgeShortcutBtn = document.createElement('button');
+    forgeShortcutBtn.className = 'mb-button';
+    forgeShortcutBtn.textContent = 'FORGE & STAY IN LAB';
+    forgeShortcutBtn.addEventListener('click', () => this.handleForgeWorkshop());
+    toolbar.appendChild(forgeShortcutBtn);
+    this.labSection.appendChild(toolbar);
 
     const grid = document.createElement('div');
     grid.className = 'mb-workshop-grid';
@@ -579,7 +692,7 @@ export class HomeScreen implements ScreenHandle {
     }
     grid.appendChild(this.createWorkshopField('Color', this.workshopColorSelect));
 
-    inner.appendChild(grid);
+    this.labSection.appendChild(grid);
 
     const actions = document.createElement('div');
     actions.className = 'mb-workshop-actions';
@@ -594,7 +707,14 @@ export class HomeScreen implements ScreenHandle {
     this.workshopStatusEl.className = 'mb-workshop-status';
     actions.appendChild(this.workshopStatusEl);
 
-    inner.appendChild(actions);
+    this.labSection.appendChild(actions);
+
+    this.centerMetaEl = document.createElement('div');
+    this.centerMetaEl.className = 'mb-center-meta';
+
+    inner.appendChild(this.homeSection);
+    inner.appendChild(this.labSection);
+    inner.appendChild(this.centerMetaEl);
 
     panel.appendChild(inner);
     this.workshopArchetypeSelect.value = 'bipedal';
@@ -647,17 +767,11 @@ export class HomeScreen implements ScreenHandle {
     panel.appendChild(defaultsList);
 
     // The label in the center that reflects the selected beast — we build it
-    // here so we can return it alongside the right panel; it will be appended
-    // to the center panel later. Actually easier: append it into the center
-    // panel directly via DOM traversal at the end.
+    // here so we can return it alongside the right panel.
     const centerSelectedLabel = document.createElement('div');
     centerSelectedLabel.className = 'mb-center-selected';
     centerSelectedLabel.textContent = '';
-    // Defer attachment to center panel until construction finishes.
-    queueMicrotask(() => {
-      const centerInner = document.querySelector('#mb-home-center .mb-center-inner');
-      if (centerInner) centerInner.appendChild(centerSelectedLabel);
-    });
+    this.centerMetaEl.appendChild(centerSelectedLabel);
 
     return { panel, centerSelectedLabel };
   }
@@ -762,6 +876,30 @@ export class HomeScreen implements ScreenHandle {
     this.workshopStatusEl.textContent = `loaded from ${listing.name}`;
   }
 
+  private syncModeUi(): void {
+    const inLab = this.screenMode === 'lab';
+    this.homeSection.classList.toggle('mb-active', !inLab);
+    this.labSection.classList.toggle('mb-active', inLab);
+    this.root.dataset.mode = this.screenMode;
+    this.refreshSelectedLabel();
+  }
+
+  private refreshSelectedLabel(): void {
+    if (!this.centerSelectedLabel) return;
+    const listing =
+      this.defaults.find((b) => b.id === this.selectedBeastId) ??
+      this.userBeasts.find((b) => b.id === this.selectedBeastId);
+    if (!listing) {
+      this.centerSelectedLabel.textContent = '';
+      return;
+    }
+
+    this.centerSelectedLabel.textContent =
+      this.screenMode === 'lab'
+        ? `gene seed: ${listing.name.toUpperCase()}`
+        : `selected beast: ${listing.name.toUpperCase()}`;
+  }
+
   private handleForgeWorkshop(): void {
     if (!this.onCreateWorkshopBeast) {
       this.workshopStatusEl.textContent = 'workshop save unavailable';
@@ -818,11 +956,7 @@ export class HomeScreen implements ScreenHandle {
     const next = this.cardEls.get(id);
     if (next) next.classList.add('mb-selected');
 
-    if (this.centerSelectedLabel) {
-      this.centerSelectedLabel.textContent = listing
-        ? `selected: ${listing.name.toUpperCase()}`
-        : '';
-    }
+    this.refreshSelectedLabel();
     this.syncWorkshopToListing(listing);
   }
 
@@ -831,6 +965,15 @@ export class HomeScreen implements ScreenHandle {
   /** Currently-selected beast id (or null if none). */
   getSelectedBeastId(): string | null {
     return this.selectedBeastId;
+  }
+
+  setMode(mode: HomeScreenMode) {
+    this.screenMode = mode;
+    this.syncModeUi();
+  }
+
+  setHomeStatus(message: string) {
+    this.homeStatusEl.textContent = message;
   }
 
   /** Replace the list of user-created beasts and re-render the right column. */
@@ -850,6 +993,7 @@ export class HomeScreen implements ScreenHandle {
       const listing =
         this.defaults.find((b) => b.id === this.selectedBeastId) ??
         this.userBeasts.find((b) => b.id === this.selectedBeastId);
+      this.refreshSelectedLabel();
       this.syncWorkshopToListing(listing);
     }
   }

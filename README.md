@@ -3,7 +3,7 @@
 MEATBASH is a Bun + Three.js arena prototype for Vibejam 2026. The current
 build ships a playable local 1v1 bot fight, attack-intent combat on `J` / `K`,
 per-segment damage and severance, contextual music by Tragikomik, and a quick
-workshop that forges custom beasts straight from the home screen.
+Gene Lab workshop that forges custom beasts from the `ENTER GENE LAB` flow.
 
 ## Run
 
@@ -35,8 +35,8 @@ bun run zip    # review/archive zip (builds first)
 ## Current scope
 
 - Playable premades: Chonkus, Stomper, Noodlesnake, Butterchonk
-- Quick workshop: biped/quadruped archetype, primary attack profile, charge
-  bias, color preset, localStorage persistence
+- Quick Gene Lab workshop: biped/quadruped archetype, primary attack profile,
+  charge bias, color preset, localStorage persistence
 - Arena-only flow for now: home screen and bot matches are live
 
 Not built yet: multiplayer, full Gene Lab sculpting, Darwin Certification,
@@ -56,6 +56,7 @@ runtime hooks exposed from `src/main.ts`:
 ## Docs
 
 - [docs/MEATBASH_PRD.md](docs/MEATBASH_PRD.md)
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - [docs/TASKS.md](docs/TASKS.md)
 - [docs/NOW_NEXT_LATER.md](docs/NOW_NEXT_LATER.md)
 - [CLAUDE_CONTEXT.md](CLAUDE_CONTEXT.md)

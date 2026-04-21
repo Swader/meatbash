@@ -125,8 +125,8 @@ where files live and how to run the project read
 ## 🚧 Phase 2 Block 4 — Quick Workshop / Gene Lab (PARTIAL)
 
 **Done now:**
-- Quick Workshop lives on the home screen and can fork the selected beast into
-  a playable custom variant.
+- Quick Workshop now lives behind the `ENTER GENE LAB` route and can fork the
+  selected beast into a playable custom variant.
 - Archetype choices: `bipedal` or `quadruped`.
 - Primary attack choices are filtered per archetype (`blunt` / `spike` for
   bipeds, `shield` / `blunt` for quadrupeds).
@@ -241,9 +241,9 @@ In rough order of "biggest jam impact per unit work":
 - Audio exists now: jump/land/miss/hit sprites plus menu/battle music are
   wired, but mixing, volume balancing, and lab-specific music still need
   polish.
-- The home screen still shows join / certification flows that do not yet do
-  anything useful in `main.ts`; keep docs and UI copy honest until those
-  routes are wired.
+- The home screen still exposes join / certification affordances before those
+  loops are fully wired; keep the copy honest until matchmaking and Darwin
+  progression exist.
 - The damage system is symmetric in baseline — both sides take the same
   baseDamage, with the arm bonus on top. Some matchups may feel like the
   player gets punished for landing hits; revisit if playtesting confirms.

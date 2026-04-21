@@ -1,0 +1,73 @@
+---
+name: meatbash-operations
+description: Use when deploying, updating, or operating the MEATBASH app on a server. Covers the real SSH key and host defaults, Bun-based build and serve workflow, systemd service management, and deployment verification for this repo.
+---
+
+# MEATBASH Operations
+
+Use this skill for MEATBASH server work: deploys, updates, service restarts,
+health checks, and ops troubleshooting.
+
+## First read
+
+- Read [`../../docs/DEPLOYMENT.md`](../../docs/DEPLOYMENT.md) before making
+  server changes.
+- Use the committed systemd unit at
+  [`../../deploy/meatbash.service`](../../deploy/meatbash.service).
+- The Bun production entrypoint is
+  [`../../src/prod-server.ts`](../../src/prod-server.ts).
+
+## Access defaults for this repo
+
+- SSH key path on the Codex machine:
+  `/Users/swader/.ssh/codex-kvasyr-prod`
+- Public key label: `codex-kvasyr-prod`
+- Current MEATBASH access commands:
+
+```bash
+ssh -i /Users/swader/.ssh/codex-kvasyr-prod swader@meatbash.bitfalls.com
+ssh -i /Users/swader/.ssh/codex-kvasyr-prod swader@178.62.192.123
+```
+
+- Shared apps root convention: `/var/www`
+- App proxy target: `127.0.0.1:3010`
+
+## Deployment rules
+
+- Use **Bun**, not Node or PM2.
+- Use **systemd** service files, not ad hoc background processes.
+- Build from the repo’s `code/` app root.
+- After updates: `bun install --frozen-lockfile`, `bun run build`, then
+  `systemctl restart meatbash`.
+
+## Standard flow
+
+1. Verify SSH and sudo access first.
+2. Sync or clone the repo under `/var/www/meatbash`.
+3. Build from `/var/www/meatbash/code`.
+4. Install or refresh `deploy/meatbash.service`.
+5. Install or refresh the nginx vhost for `meatbash.bitfalls.com`.
+6. Restart `meatbash` and verify with `systemctl`, `journalctl`, and `curl`.
+
+## Access verification
+
+Use the command from `docs/DEPLOYMENT.md` to confirm:
+
+- host resolves
+- SSH key auth works
+- `sudo -n true` succeeds without prompting
+
+If passwordless sudo fails, stop and fix server bootstrap before attempting
+deploy automation.
+
+## Common maintenance commands
+
+```bash
+cd /var/www/meatbash/code
+~/.bun/bin/bun install --frozen-lockfile
+~/.bun/bin/bun run build
+sudo systemctl restart meatbash
+sudo systemctl status --no-pager meatbash
+sudo journalctl -u meatbash -n 200 --no-pager
+curl -I http://127.0.0.1:3000/
+```

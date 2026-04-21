@@ -27,6 +27,7 @@ export class DebugHud {
   private staminaBar: HTMLDivElement;
   private fpsDisplay: HTMLDivElement;
   private statePanel: HTMLDivElement;
+  private stateVisible = true;
   private modeEl: HTMLSpanElement;
   private feetEl: HTMLSpanElement;
   private tiltEl: HTMLSpanElement;
@@ -105,6 +106,11 @@ export class DebugHud {
     overlay.appendChild(this.fpsDisplay);
   }
 
+  setStateVisible(visible: boolean) {
+    this.stateVisible = visible;
+    this.statePanel.style.display = visible ? 'block' : 'none';
+  }
+
   update(staminaPercent: number, fps: number, state?: DebugStateInfo) {
     if (this.staminaBar) {
       this.staminaBar.style.width = `${staminaPercent}%`;
@@ -118,7 +124,7 @@ export class DebugHud {
     }
     this.fpsDisplay.textContent = `${fps} FPS`;
 
-    if (state) {
+    if (state && this.stateVisible) {
       this.modeEl.textContent = state.mode;
       this.modeEl.style.color = MODE_COLORS[state.mode] || '#ddd';
 

@@ -8,6 +8,8 @@ For details, branch out from here:
 
 - [docs/MEATBASH_PRD.md](docs/MEATBASH_PRD.md) — full game-design source of truth (what
   we're building and why)
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — Bun + systemd deploy/update/runbook,
+  including the repo’s server access defaults
 - [docs/TASKS.md](docs/TASKS.md) — current build status + next priorities (what's done,
   what's in flight, what's blocked)
 - [docs/NOW_NEXT_LATER.md](docs/NOW_NEXT_LATER.md) — milestone ordering and
@@ -41,8 +43,11 @@ code/
 ├── CLAUDE.md                    tiny pointer for agents/tools that auto-load it
 ├── docs/
 │   ├── MEATBASH_PRD.md          game design source of truth
+│   ├── DEPLOYMENT.md            Bun + systemd deployment runbook
 │   ├── TASKS.md                 current status + next steps
 │   └── NOW_NEXT_LATER.md        milestone ordering
+├── skills/
+│   └── meatbash-operations/     repo-local deployment and ops skill
 ├── src/                         client TypeScript
 ├── server/                      planned Bun WS relay
 ├── public/                      static assets
@@ -205,6 +210,7 @@ but it is intentionally much thinner than the planned sculpting lab.
 | home screen layout / styling | `src/ui/home-screen.ts` |
 | in-fight HUD | `src/ui/match-hud.ts` |
 | music / SFX / credit widget | `src/audio/audio-manager.ts`, `src/ui/music-credit.ts` |
+| deployment / service operations | `docs/DEPLOYMENT.md`, `deploy/meatbash.service`, `skills/meatbash-operations/SKILL.md` |
 | game loop ordering, fixed step | `src/engine/loop.ts` |
 | rapier wrappers, collision groups | `src/physics/rapier-world.ts` |
 | dev server / build / hot reload | `src/dev-server.ts`, `src/build.ts` |

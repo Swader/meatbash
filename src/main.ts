@@ -64,6 +64,7 @@ async function main() {
   const hasInjectedAdvanceTime = typeof (window as any).advanceTime === 'function';
 
   audio.setMusicContext('menu');
+  debugHud.setStateVisible(false);
 
   initTuningPanel();
   loadingMsg.style.display = 'none';
@@ -182,26 +183,46 @@ async function main() {
   };
 
   // ---- Register screens with the shell ----
+  shell.registerScreen('LAB', {
+    setVisible: (v) => {
+      home.setMode('lab');
+      home.setVisible(v);
+    },
+  });
   shell.registerScreen('HOME', {
-    setVisible: (v) => home.setVisible(v),
+    setVisible: (v) => {
+      home.setMode('home');
+      home.setVisible(v);
+    },
   });
   shell.registerScreen('ARENA', {
     setVisible: (v) => matchHud.setVisible(v),
   });
 
+  // HOME is the initial shell state. Because HOME and LAB share one DOM root,
+  // explicitly sync the landing screen after registration so the later LAB
+  // registration cannot leave the overlay hidden on first load.
+  home.setMode('home');
+  home.setVisible(true);
+  matchHud.setVisible(false);
+
   // ---- Wire shell callbacks ----
   shell.setCallbacks({
     onStartMatch: (beastId, mode) => {
-      if (mode === 'bot') void startBotMatch(beastId);
-      // 'join'/'host' deferred to networking block
+      if (mode === 'bot') {
+        void startBotMatch(beastId);
+        return;
+      }
+      home.setHomeStatus('Join Match goes live with multiplayer. For now, use Make a Match.');
     },
     onOpenLab: () => {
-      // Deferred — Gene Lab block
+      shell.transition('LAB');
     },
     onOpenCertification: () => {
       // Deferred — Certification block
     },
     onScreenChanged: (to) => {
+      debugHud.setStateVisible(to === 'ARENA');
       const musicContext =
         to === 'ARENA' ? 'battle' :
         to === 'LAB' ? 'lab' :
@@ -212,7 +233,12 @@ async function main() {
 
   // ---- Global keyboard shortcuts: ESC (leave match), R (restart) ----
   window.addEventListener('keydown', (e) => {
-    if (shell.getCurrentScreen() !== 'ARENA') return;
+    const currentScreen = shell.getCurrentScreen();
+    if (currentScreen === 'LAB' && e.key === 'Escape') {
+      shell.transition('HOME');
+      return;
+    }
+    if (currentScreen !== 'ARENA') return;
     if (e.key === 'Escape') {
       returnToHome();
     } else if (e.key === 'r' || e.key === 'R') {
@@ -331,6 +357,7 @@ async function main() {
       }
     },
     onPostRender: () => {
+      debugHud.setStateVisible(shell.getCurrentScreen() === 'ARENA');
       if (player) {
         debugHud.update(
           player.getStaminaPercent(),

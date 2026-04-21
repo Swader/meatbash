@@ -115,17 +115,17 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 
 **Current implementation note (2026-04-21):**
 - `QUICK FIGHT` into a bot match is live.
-- The center panel is already a **Quick Workshop** that can fork the selected
-  beast into a playable custom variant.
-- `JOIN MATCH`, full Gene Lab flow, and Darwin Certification are still planned
-  directions rather than completed game loops.
+- `ENTER GENE LAB` is live and swaps the home screen into a lightweight lab
+  view with the current **Quick Workshop**.
+- `JOIN MATCH` and Darwin Certification are still planned directions rather
+  than completed game loops.
 
 ### 5.2 Gene Lab (Beast Creator)
 
 The core creative experience. Players sculpt organic monstrosities.
 
 **Current implementation note (2026-04-21):** the shipped build only has a
-thin **Quick Workshop** on the home screen. It supports:
+thin **Quick Workshop** behind the `ENTER GENE LAB` route. It supports:
 
 - archetype swap (`bipedal` / `quadruped`)
 - primary attack profile selection (`blunt` / `spike` / `shield`, filtered by archetype)
@@ -745,7 +745,7 @@ CREATE TABLE matches (
 - [ ] Remaining archetypes (slider, wigglers, hexapod, octoped)
 - [ ] Home screen with all flows working
 - [ ] Vibeverse portal integration
-- [ ] Vibejam widget embedded
+- [x] Vibejam widget embedded
 - [ ] Username persistence
 - [ ] Post-match stats (if time)
 - [ ] Hair painting (if time)
@@ -882,7 +882,7 @@ The game is submittable when:
 - [ ] Darwin certification works for at least the walk challenge
 - [ ] 1v1 multiplayer works via match codes
 - [ ] Spectating works
-- [ ] Vibejam widget is embedded
+- [x] Vibejam widget is embedded
 - [ ] Vibeverse portal exists
 - [ ] Game runs at 30+ FPS on decent hardware
 - [ ] It's funny

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "bun run src/dev-server.ts",
     "build": "bun run src/build.ts",
+    "serve": "bun run src/prod-server.ts",
     "zip": "bun run src/zip.ts"
   },
   "devDependencies": {
