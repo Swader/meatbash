@@ -1,9 +1,9 @@
 # MEATBASH — Product Requirements Document
 
-**Version:** 1.1  
-**Date:** April 17, 2026  
-**Author:** Bruno Škvorc + Claude  
-**Target:** Vibejam 2026 (Deadline: May 1, 2026 @ 13:37 UTC)  
+**Version:** 1.2<br>
+**Date:** April 21, 2026<br>
+**Author:** Bruno Škvorc + Claude<br>
+**Target:** Vibejam 2026 (Deadline: May 1, 2026 @ 13:37 UTC)<br>
 **Domain:** meatbash.com (or subdomain TBD)
 
 ---
@@ -24,7 +24,7 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 | No login or signup required | LocalStorage + browser fingerprint for beast garage; login optional (future) |
 | No heavy loading screens | Instant load to menu; assets are procedural SDFs, not downloaded models |
 | Own domain/subdomain | meatbash.com or similar |
-| Three.js recommended | Three.js + WebGPU renderer |
+| Three.js recommended | Three.js client; current build uses `WebGLRenderer`, with WebGPU reserved for later SDF/compute work |
 | Multiplayer preferred | WebSocket-based 1v1 + spectating |
 | Vibejam widget embedded | `<script async src="https://vibejam.cc/2026/widget.js"></script>` |
 | Vibeverse portal | Exit portal redirecting to `portal.pieter.com` with GET params; handle `?portal=true` inbound |
@@ -36,7 +36,7 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 | Layer | Technology | Rationale |
 |---|---|---|
 | Runtime | **Bun** | Only acceptable JS runtime. No Node, no npx. |
-| 3D Engine | **Three.js** with **WebGPURenderer** | Vibejam recommended + WebGPU perf for SDF rendering |
+| 3D Engine | **Three.js** (`WebGLRenderer` now, WebGPU later) | Vibejam recommended; current build stays on WebGL until SDF/compute work makes the WebGPU swap worth it |
 | Shading | **TSL** (Three.js Shading Language) | Node-based materials, GPU compute for meat physics |
 | Physics | **Rapier 3D** (@dimforge/rapier3d WASM) | Rigid body skeleton physics, collision detection, joint constraints |
 | Soft Body | **Custom GPU compute** (TSL/WebGPU) | Meat deformation, chunk detachment, mass loss — Rapier handles skeleton, GPU handles flesh |
@@ -113,9 +113,27 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 
 **No loading screen.** Menu renders immediately; 3D preview of a rotating meatbeast loads async in background.
 
+**Current implementation note (2026-04-21):**
+- `QUICK FIGHT` into a bot match is live.
+- The center panel is already a **Quick Workshop** that can fork the selected
+  beast into a playable custom variant.
+- `JOIN MATCH`, full Gene Lab flow, and Darwin Certification are still planned
+  directions rather than completed game loops.
+
 ### 5.2 Gene Lab (Beast Creator)
 
 The core creative experience. Players sculpt organic monstrosities.
+
+**Current implementation note (2026-04-21):** the shipped build only has a
+thin **Quick Workshop** on the home screen. It supports:
+
+- archetype swap (`bipedal` / `quadruped`)
+- primary attack profile selection (`blunt` / `spike` / `shield`, filtered by archetype)
+- charge bias (`quick` / `balanced` / `heavy`)
+- color preset selection
+- localStorage persistence of forged beasts
+
+The full sculpting lab below remains the intended target, not the current UI.
 
 #### 5.2.1 Archetype Selection
 
@@ -614,6 +632,7 @@ If time permits, show after combat:
 - `meatbash_username`: string
 - `meatbash_client_id`: UUID (generated on first visit, used to identify player)
 - `meatbash_garage_cache`: JSON array of beast summaries (for offline viewing; server is source of truth)
+- `meatbash_workshop_beasts_v1`: JSON array of locally forged quick-workshop beasts
 
 ### 12.2 Server-Side (SQLite on Bun server)
 

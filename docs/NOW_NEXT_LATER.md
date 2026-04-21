@@ -1,14 +1,14 @@
 # MEATBASH — NOW / NEXT / LATER
 
-**Last updated:** 2026-04-17
+**Last updated:** 2026-04-21
 
 ## NOW
 
-- Ship **Combat Intent V1** as the core loop:
-  - intentional raise/hold/commit primary attacks (`J`/`K`)
-  - attack-aware damage (active attacks matter more than passive bumps)
-  - hit feedback stack (hitstop, shake, splash text, meat chunks)
-  - beast card readability (weight class + attack profile + playstyle line)
+- Keep the shipped local loop honest:
+  - home screen quick workshop
+  - premade + custom beast vs-bot fights
+  - `J` / `K` primary attacks with readable feedback
+  - menu / battle music plus the Tragikomik credit widget
 - Finish the **Attack Readability / Attack Contract pass**:
   - readable primary attack for every premade
   - spike tips and shield fronts behave honestly
@@ -17,16 +17,16 @@
 
 ## NEXT
 
-- Build a **thin workshop** that can author combat identity:
-  - choose primary appendage
-  - choose profile (`blunt` / `spike` / `shield`)
-  - tune appendage mass / charge bias
-  - tweak simple color / silhouette identity
+- Expand the **quick workshop** only where it unlocks better playtests:
+  - decide whether appendage selection is the next smallest useful knob
+  - keep archetype/profile/charge/color fast enough to stay on the home screen
+  - avoid pretending this is the full Gene Lab before SDF sculpting exists
 - Start networking only after combat readability is stable locally.
 
 ## LATER
 
+- Full Gene Lab sculpting and certification pipeline.
 - Darwin Certification challenges and progression polish.
-- Additional archetypes and full Gene Lab tooling.
+- Additional archetypes beyond biped/quadruped workshop support.
 - Wings/flight experiments (explicitly cut from current milestone).
 - Visual/audio polish, spectator depth, and post-match extras.

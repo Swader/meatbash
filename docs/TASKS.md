@@ -1,6 +1,6 @@
 # MEATBASH — Status & Tasks
 
-**Last updated:** 2026-04-17
+**Last updated:** 2026-04-21
 
 This is the *current* picture of what's built, what's in flight, and what's
 next. For game-design context read [MEATBASH_PRD.md](MEATBASH_PRD.md). For
@@ -15,10 +15,10 @@ where files live and how to run the project read
 |---|---|---|
 | 1 — Core loop | Bipedal beast walks/jumps/falls on a real arena | ✅ DONE |
 | 2 Block 1 — Playable demo | Pick a beast, fight a bot, end-to-end match | ✅ DONE |
-| 2 Block 2 — Combat & damage | Hits matter, meat flies off, limbs sever | 🚧 PARTIAL |
+| 2 Block 2 — Combat & damage | Hits matter, meat flies off, limbs sever | ✅ PLAYABLE, STILL TUNING |
 | 2 Block 3 — Multiplayer | Two players over WS | ⏳ NOT STARTED |
-| 2 Block 4 — Gene Lab | Sculpt your own beast | ⏳ NOT STARTED |
-| 2 Block 5 — Certification + polish | Darwin challenges, more archetypes | ⏳ NOT STARTED |
+| 2 Block 4 — Quick Workshop / Gene Lab | Forge custom beasts now; full sculpt lab later | 🚧 PARTIAL |
+| 2 Block 5 — Certification + polish | Darwin challenges, ship polish, expanded content | 🚧 PARTIAL |
 
 ---
 
@@ -68,7 +68,7 @@ where files live and how to run the project read
   bully), **Noodlesnake** (biped skirmisher, armed), **Butterchonk** (quad
   tank).
 
-## 🚧 Phase 2 Block 2 — Combat & Damage (PARTIAL, Combat Intent V1 added)
+## 🚧 Phase 2 Block 2 — Combat & Damage (PLAYABLE, tuning ongoing)
 
 **Done:**
 - Intentional primary attack slots for premades (raise `J`, commit `K`, release cancel).
@@ -103,7 +103,6 @@ where files live and how to run the project read
 
 **Not yet:**
 - Standalone `AttackRig` authoring layer that fully separates semantic slot / driven joints / active bodies / block bodies / visual rig.
-- Thin workshop UI for authoring appendage slot, profile, mass bias, and charge bias without the full sculpt lab.
 - SDF volume system (visuals are still placeholder sphere/capsule meshes).
 - SDF marching-cubes mesher.
 - TSL meat / chitin / bone materials.
@@ -123,21 +122,40 @@ where files live and how to run the project read
 - SQLite (`bun:sqlite`) for persisted certified beasts, keyed to a
   localStorage client id.
 
-## ⏳ Phase 2 Block 4 — Gene Lab (NOT STARTED)
+## 🚧 Phase 2 Block 4 — Quick Workshop / Gene Lab (PARTIAL)
 
-- Archetype picker UI (start with bipedal + quadruped; add slider /
-  wigglers / hexapod / octoped later).
-- 3D sculpting viewport with brush tools (add / subtract / change material /
-  resize).
-- SDF blob list as the underlying serializable form.
-- Joint repositioning before sculpting (drag joint nodes; snap to ranges).
-- Real-time stats sidebar: total mass, stamina estimate, armor coverage,
-  flight capability if wings exist.
-- Key binding panel (assign E/R/T/F/G to body parts).
-- Save / load beast as JSON, garage view.
+**Done now:**
+- Quick Workshop lives on the home screen and can fork the selected beast into
+  a playable custom variant.
+- Archetype choices: `bipedal` or `quadruped`.
+- Primary attack choices are filtered per archetype (`blunt` / `spike` for
+  bipeds, `shield` / `blunt` for quadrupeds).
+- Charge bias choices: `quick`, `balanced`, `heavy`.
+- Color preset choices: `crimson`, `peach`, `tallow`, `ember`.
+- Workshop beasts persist in localStorage via
+  `meatbash_workshop_beasts_v1`.
+- Forged beasts appear in `Your Beasts`, can be reselected, and can spawn in
+  live bot matches immediately.
 
-## ⏳ Phase 2 Block 5 — Certification & Polish (NOT STARTED)
+**Not yet:**
+- 3D sculpting viewport with add/subtract/material brushes.
+- SDF blob list as the underlying editable representation.
+- Joint repositioning before sculpting.
+- Real-time stats sidebar beyond the current lightweight beast-card metadata.
+- Key rebinding / multi-slot attack authoring.
+- Save/load/export flows beyond the current localStorage workshop list.
+- Garage management, certification gating, or server-backed storage.
 
+## 🚧 Phase 2 Block 5 — Certification & Polish (PARTIAL)
+
+**Already landed:**
+- Vibejam widget script is embedded in `src/index.html`.
+- Menu / battle / lab music contexts are implemented, with a lower-right
+  Tragikomik credit widget driven by analyser bars.
+- Four premades ship with readable archetype / attack-profile / playstyle
+  metadata on the home screen.
+
+**Not yet:**
 - Three Darwin Certification challenges: Walk A→B with obstacle, Get one
   food source, Survive a clumsy predator AI. PRD §5.3 has the full vibe.
 - Certification stamp animation + server upload of certified beasts.
@@ -147,7 +165,6 @@ where files live and how to run the project read
   Noodlesnake, Butterchonk, Ratking, Crabsworth, Meatball — PRD §6).
 - Vibeverse portal in arena (interactive gateway, GET-param redirect to
   `portal.pieter.com`, inbound `?portal=true` handling).
-- Vibejam widget script embed.
 - Post-match stats screen (stretch).
 - Hair painting (cosmetic, stretch).
 
@@ -201,8 +218,9 @@ In rough order of "biggest jam impact per unit work":
 1. **Finish the Attack Readability / Attack Contract pass** — verify every
    premade from the gameplay camera, tune brace steering and charge timing,
    and keep pushing semantic honesty (especially spike tips and shield fronts).
-2. **Thin workshop** — expose only the combat-identity knobs that matter now:
-   appendage slot, attack profile, mass bias, charge bias, color/silhouette.
+2. **Deepen the workshop intentionally** — keep the quick workshop playable,
+   but decide the next smallest set of combat-identity knobs before jumping to
+   full sculpting.
 3. **SDF volume system + marching-cubes mesher** — unblocks both the Gene
    Lab and real meat carving on damage. Until this lands, beasts look like
    sphere assemblages and damage is just per-segment HP bars.
@@ -211,8 +229,8 @@ In rough order of "biggest jam impact per unit work":
 5. **Darwin Certification** — three challenges. The walk and food
    challenges are quick wins; the predator challenge needs a second AI
    beast.
-6. **Polish for ship:** vibeverse portal, vibejam widget embed, post-match
-   stats, more premades, deploy.
+6. **Polish for ship:** vibeverse portal, post-match stats, more premades,
+   deploy.
 
 ## Known issues / tech debt
 
@@ -223,6 +241,9 @@ In rough order of "biggest jam impact per unit work":
 - Audio exists now: jump/land/miss/hit sprites plus menu/battle music are
   wired, but mixing, volume balancing, and lab-specific music still need
   polish.
+- The home screen still shows join / certification flows that do not yet do
+  anything useful in `main.ts`; keep docs and UI copy honest until those
+  routes are wired.
 - The damage system is symmetric in baseline — both sides take the same
   baseDamage, with the arm bonus on top. Some matchups may feel like the
   player gets punished for landing hits; revisit if playtesting confirms.

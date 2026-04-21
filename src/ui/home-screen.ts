@@ -619,7 +619,7 @@ export class HomeScreen implements ScreenHandle {
     if (this.userBeasts.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'mb-empty';
-      empty.textContent = 'no custom beasts yet — make some in the Gene Lab';
+      empty.textContent = 'no custom beasts yet — forge one in the quick workshop';
       yourList.appendChild(empty);
     } else {
       for (const b of this.userBeasts) {
