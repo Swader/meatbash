@@ -1,11 +1,11 @@
 # MEATBASH — Status & Tasks
 
-**Last updated:** 2026-04-15
+**Last updated:** 2026-04-17
 
 This is the *current* picture of what's built, what's in flight, and what's
 next. For game-design context read [MEATBASH_PRD.md](MEATBASH_PRD.md). For
 where files live and how to run the project read
-[CLAUDE_CONTEXT.md](CLAUDE_CONTEXT.md).
+[../CLAUDE_CONTEXT.md](../CLAUDE_CONTEXT.md).
 
 ---
 
@@ -61,6 +61,8 @@ where files live and how to run the project read
   (VICTORY / DEFEAT / DRAW).
 - Match HUD: timer, P1/P2 mass bars, stamina pips, countdown overlay,
   result text, "press R to restart" hint.
+- Theme music now switches by screen context (menu vs battle), with a
+  clickable Tragikomik credit widget in the lower-right corner.
 - ESC returns to home; R restarts the same matchup.
 - Beasts shipping: **Chonkus** (biped tank, armed), **Stomper** (quad
   bully), **Noodlesnake** (biped skirmisher, armed), **Butterchonk** (quad
@@ -72,6 +74,10 @@ where files live and how to run the project read
 - Intentional primary attack slots for premades (raise `J`, commit `K`, release cancel).
 - Attack state machine (`IDLE → WINDUP → HELD → COMMIT → RECOVER`) with stamina drain/cost and lunge.
 - Attack profiles (`blunt`, `spike`, `shield`) and attack-aware active-hit resolution.
+- Combat brace modifiers now flow through locomotion-owned movement multipliers instead of direct attack-side velocity damping.
+- Premades now author explicit combat-facing metadata such as `activeBodies`, `blockBodies`, `visualRigType`, and optional spike tip markers.
+- Raised shield reduction now keys off the braced front arc / authored block bodies instead of applying as a blanket state-only reduction.
+- Spike slots with authored tip markers now prefer the configured tip point during intentional-hit resolution.
 - Attack-aware HUD feedback: combat text (`BONK`, `STAB`, `BLOCK`, `GLANCE`, `CRUNCH`), hitstop, shake.
 - Beast cards now show weight class + primary attack profile + one-line playstyle.
 - Per-segment HP tracking (`physics/damage.ts::BeastDamageState`).
@@ -96,6 +102,8 @@ where files live and how to run the project read
   a runaway counter for stress tests.
 
 **Not yet:**
+- Standalone `AttackRig` authoring layer that fully separates semantic slot / driven joints / active bodies / block bodies / visual rig.
+- Thin workshop UI for authoring appendage slot, profile, mass bias, and charge bias without the full sculpt lab.
 - SDF volume system (visuals are still placeholder sphere/capsule meshes).
 - SDF marching-cubes mesher.
 - TSL meat / chitin / bone materials.
@@ -190,17 +198,16 @@ was too slow for body-on-body collision damage to matter.
 
 In rough order of "biggest jam impact per unit work":
 
-1. **Tune Combat Intent V1** — run deliberate playtests and rebalance hold drain,
-   strike costs, charge thresholds, and profile matchup clarity.
-2. **SDF volume system + marching-cubes mesher** — unblocks both the Gene
+1. **Finish the Attack Readability / Attack Contract pass** — verify every
+   premade from the gameplay camera, tune brace steering and charge timing,
+   and keep pushing semantic honesty (especially spike tips and shield fronts).
+2. **Thin workshop** — expose only the combat-identity knobs that matter now:
+   appendage slot, attack profile, mass bias, charge bias, color/silhouette.
+3. **SDF volume system + marching-cubes mesher** — unblocks both the Gene
    Lab and real meat carving on damage. Until this lands, beasts look like
    sphere assemblages and damage is just per-segment HP bars.
-3. **Gene Lab MVP** — at minimum: archetype picker → brush sculpting →
-   key binder → save to localStorage. The vision in PRD §5.2 is large;
-   ship the smallest version that lets a player make and use one custom
-   beast.
-4. **Multiplayer** — Bun WS server + host-authoritative client + match
-   codes. Vibejam strongly favors multiplayer. PRD §8 has the protocol.
+4. **Multiplayer** — only after local combat readability is stable. Bun WS
+   server + host-authoritative client + match codes. PRD §8 has the protocol.
 5. **Darwin Certification** — three challenges. The walk and food
    challenges are quick wins; the predator challenge needs a second AI
    beast.
@@ -213,10 +220,16 @@ In rough order of "biggest jam impact per unit work":
   beasts can't be sculpted or carved.
 - `WebGLRenderer` only — WebGPU is planned but not active. TSL node
   materials in PRD §9.2 don't apply yet.
-- No audio: `AudioManager` is a stub class with empty methods.
+- Audio exists now: jump/land/miss/hit sprites plus menu/battle music are
+  wired, but mixing, volume balancing, and lab-specific music still need
+  polish.
 - The damage system is symmetric in baseline — both sides take the same
   baseDamage, with the arm bonus on top. Some matchups may feel like the
   player gets punished for landing hits; revisit if playtesting confirms.
+- Automated runtime verification is still awkward because the gameplay camera
+  is distant and canvas-only captures need extra harnessing to inspect attack
+  readability closely. Keep improving the test loop instead of trusting static
+  code inspection alone.
 - Stomper (quadruped) bot lost a 3-minute fight to Chonkus (biped, armed)
   in stress testing because Chonkus took heavy self-damage from
   forced-spin testing — needs a real human playtest to assess balance

@@ -5,6 +5,7 @@ import type { BipedSkeleton } from './skeleton';
 import { getTotalMass } from './skeleton';
 import { tuning } from './tuning';
 import { sampleTerrainHeight } from '../engine/terrain';
+import type { AttackMovementModifiers } from '../combat/attack-types';
 
 /**
  * Active-ragdoll bipedal locomotion.
@@ -55,6 +56,7 @@ export interface LocomotionState {
   groundDist: number;
   totalMass: number;
   regenPerSec: number;
+  attackModifiers?: AttackMovementModifiers | null;
 }
 
 export function createLocomotionState(): LocomotionState {
@@ -72,6 +74,7 @@ export function createLocomotionState(): LocomotionState {
     groundDist: 0,
     totalMass: 0,
     regenPerSec: 0,
+    attackModifiers: null,
   };
 }
 
@@ -116,6 +119,7 @@ export function applyBipedLocomotion(
 
   const totalMass = getTotalMass(skeleton);
   locoState.totalMass = totalMass;
+  const attackMods = locoState.attackModifiers ?? null;
 
   // ============================================================
   // HARD-FLOOR SAFETY CLAMP + NaN GUARD
@@ -377,6 +381,13 @@ export function applyBipedLocomotion(
     }
   }
 
+  const attackSupportMul = attackMods?.supportMultiplier ?? 1;
+  const attackUprightMul = attackMods?.uprightMultiplier ?? 1;
+  const attackDriveMul = attackMods?.driveMultiplier ?? 1;
+  const attackTurnMul = attackMods?.turnMultiplier ?? 1;
+  const attackBrakeMul = attackMods?.brakeMultiplier ?? 1;
+  const jumpLocked = attackMods?.jumpLocked ?? false;
+
   locoState.isGrounded =
     groundedFeet > 0 &&
     locoState.mode !== 'FALLEN' &&
@@ -467,7 +478,8 @@ export function applyBipedLocomotion(
     if (compression > -0.1) {
       const supportMag =
         (tuning.heightStiffness * compression - tuning.heightDamping * pelvisVel.y) *
-        supportMul;
+        supportMul *
+        attackSupportMul;
       pelvis.addForce({ x: 0, y: supportMag, z: 0 }, true);
     }
   }
@@ -478,7 +490,7 @@ export function applyBipedLocomotion(
   //
   // Error = pelvisUp × reference → axis of rotation needed to align.
   // ============================================================
-  const uprightMul = supportMul * uprightBoost;
+  const uprightMul = supportMul * uprightBoost * attackUprightMul;
   if (uprightMul > 0) {
     // Cross product: pelvisUp × ref (the torque axis to align them)
     const errX = pelvisUpY * refZ - pelvisUpZ * refY;
@@ -511,7 +523,8 @@ export function applyBipedLocomotion(
     locoState.turnAxis *
     tuning.maxYawRate *
     Math.max(groundFootMul, locoState.mode === 'AIRBORNE' ? 0.15 : 0) *
-    speedMul;
+    speedMul *
+    attackTurnMul;
 
   locoState.yawRate = smooth(locoState.yawRate, targetYawRate, tuning.yawRateSharpness, dt);
 
@@ -565,7 +578,7 @@ export function applyBipedLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= driveMul * tiltScale * footScale;
+    accel *= driveMul * tiltScale * footScale * attackDriveMul;
 
     if (accel !== 0) {
       const force = accel * totalMass;
@@ -576,7 +589,7 @@ export function applyBipedLocomotion(
       // The lower normal.y gets, the steeper the slope.
       const slopiness = isFinite(groundDist) ? Math.max(0, 1 - groundNormal.y) : 0;
       const slopeBrake = 1 + slopiness * (tuning.slopeStabilityBoost - 1);
-      const brakeForce = tuning.horizontalBrake * totalMass * slopeBrake;
+      const brakeForce = tuning.horizontalBrake * totalMass * slopeBrake * attackBrakeMul;
       pelvis.addForce(
         {
           x: -pelvisVel.x * brakeForce,
@@ -596,7 +609,8 @@ export function applyBipedLocomotion(
     locoState.mode === 'SUPPORTED' &&
     groundedFeet > 0 &&
     locoState.jumpTimer >= tuning.jumpCooldown &&
-    stamina.current >= JUMP_STAMINA_COST
+    stamina.current >= JUMP_STAMINA_COST &&
+    !jumpLocked
   ) {
     pelvis.applyImpulse(
       { x: 0, y: totalMass * tuning.jumpVelocity, z: 0 },

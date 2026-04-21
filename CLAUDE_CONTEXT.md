@@ -32,25 +32,25 @@ a fixed height.
 
 ## Repo layout
 
+This file lives at the project root for the Bun app:
+
 ```
-meatbash/
-├── docs/                       ← you are here
-│   ├── CLAUDE_CONTEXT.md         this file (orientation)
-│   ├── MEATBASH_PRD.md           game design source of truth
-│   ├── TASKS.md                  current status + next steps
+code/
+├── CLAUDE_CONTEXT.md            this file (canonical orientation)
+├── CLAUDE.md                    tiny pointer for agents/tools that auto-load it
+├── docs/
+│   ├── MEATBASH_PRD.md          game design source of truth
+│   ├── TASKS.md                 current status + next steps
+│   ├── NOW_NEXT_LATER.md        milestone ordering
 │   └── MEATBASH_LOCOMOTION_AUDIT.md   physics architecture deep-dive
-└── code/                       ← the actual Bun project
-    ├── src/                      client TypeScript
-    ├── server/                   (planned) Bun WS relay
-    ├── public/                   static assets
-    ├── dist/                     build output
-    ├── package.json
-    └── CLAUDE.md                 mirror of this file (auto-loaded by Claude
-                                  Code when invoked from inside code/)
+├── src/                         client TypeScript
+├── server/                      planned Bun WS relay
+├── public/                      static assets
+├── dist/                        build output
+└── package.json
 ```
 
-**Heads up:** all `bun` commands run from inside `code/`, never from the repo
-root. The repo root is just a holder for `code/` + `docs/`.
+**Heads up:** all `bun` commands run from this directory.
 
 ---
 

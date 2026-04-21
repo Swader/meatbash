@@ -1,7 +1,7 @@
 # MEATBASH — Product Requirements Document
 
-**Version:** 1.0  
-**Date:** April 13, 2026  
+**Version:** 1.1  
+**Date:** April 17, 2026  
 **Author:** Bruno Škvorc + Claude  
 **Target:** Vibejam 2026 (Deadline: May 1, 2026 @ 13:37 UTC)  
 **Domain:** meatbash.com (or subdomain TBD)
@@ -151,7 +151,7 @@ The sculpting interface uses SDF-based blob brushes:
 - Real-time weight display (kg)
 - Stamina estimate bar (based on weight vs archetype efficiency)
 - Center of mass indicator
-- "Can this fly?" indicator if wings are attached (green/yellow/red based on weight-to-wing ratio)
+- Primary attack preview: appendage slot, profile, and rough charge bias
 
 #### 5.2.3 Joint Repositioning
 
@@ -160,32 +160,26 @@ Before sculpting, player can drag skeleton joints to reshape the base pose:
 - Joint positions determine where Rapier hinge/ball joints are placed
 - Joints snap to reasonable ranges (no inside-out skeletons)
 
-#### 5.2.4 Key Binding
+#### 5.2.4 Controls and Future Binding
 
-After sculpting, the player assigns controls:
+The **current shipping combat milestone** uses one fixed, readable control
+scheme while the attack contract is still settling:
 
-**Locomotion keys** (auto-assigned based on archetype, player can rebind):
-
-| Archetype | Default Keys | What They Do |
+| Control | Current Binding | What It Does |
 |---|---|---|
-| Bipedal | W/S = drive forward/back, A/D = turn | Active-ragdoll locomotion with support-state balancing |
-| Bipedal | A/D = lean left/right | Shifts weight for turning |
-| Quadruped | Q = left pair forward, W = right pair forward | Alternating pairs |
-| Quadruped | A/D = steer | Differential leg force |
-| Slider | Q/W = contract/extend | Muscular wave pulse |
-| Wiggler (V) | Q/W = wave faster/slower | Caterpillar undulation speed |
-| Wiggler (H) | Q/W = wave left/right | Snake S-curves |
-| Hexapod | Q = tripod group A, W = tripod group B | Alternating tripod gait |
-| Octoped | Q = quad group A, W = quad group B | Alternating quad groups |
+| Movement | `WASD` | Drive / turn the active-ragdoll chassis |
+| Jump / panic flail | `SPACE` | Jump; also serves as the existing panic-flail input |
+| Raise primary attack | `J` | Enter windup / held charge for the beast's authored primary attack |
+| Commit primary attack | `K` | Fire the currently raised primary attack |
+| Mouse | orbit camera | Viewing only |
 
-**Attack/special keys** (player-assigned to body parts):
-- E, R, T, F, G — assignable to any appendage or body part
-- Example: E = swing right arm, R = snap jaw, T = flap wings
-- Each key triggers a physics impulse on that body part's joint
+The **thin workshop / later Gene Lab** should author combat identity before it
+reopens broad rebinding:
 
-**Universal keys:**
-- SPACE = panic flail (all limbs spasm randomly, drains stamina fast). If wings exist, SPACE = flap instead. If proboscis/stinger exists, SPACE = stab. If nothing special, SPACE = full body seizure.
-- Mouse = camera orbit (no gameplay effect, just viewing angle)
+- choose primary appendage slot
+- choose attack profile (`blunt` / `spike` / `shield`)
+- tune appendage mass / charge bias
+- optionally add extra attack slots only after the primary attack contract is stable
 
 #### 5.2.5 Beast Stats (Auto-Calculated)
 
@@ -197,11 +191,12 @@ These are derived from the sculpt, not manually set:
 | **Stamina Pool** | Base 100, reduced by mass (heavier = less stamina) |
 | **Stamina Regen** | Inverse of mass; lighter beasts recover faster |
 | **Move Speed** | Force-to-mass ratio per archetype |
-| **Flight Capable** | Wing area vs total mass; threshold determines yes/no/barely |
+| **Primary Attack Profile** | Author-selected combat contract (`blunt`, `spike`, `shield`) |
+| **Charge Bias** | Appendage mass + authored tuning for hold drain / strike cost / payoff |
 | **Armor Coverage** | % of surface area covered by chitin/bone |
 | **Vulnerability Map** | Exposed meat surface area (the "weak spots") |
 | **Damage Output** | Mass × velocity of hard parts on impact |
-| **Bite Force** | If jaw exists, based on jaw bone mass |
+| **Reach / Weapon Mass** | Joint placement + sculpted mass around the primary attack slot |
 
 ### 5.3 Darwin Certification
 
@@ -299,7 +294,7 @@ damage = (relative_velocity × impactor_mass × material_multiplier) / defender_
 - Stamina regenerates passively (faster for lighter beasts)
 - At zero stamina, beast can only twitch weakly (can still take/deal collision damage from momentum)
 - Panic flail costs 3× normal stamina
-- Flying (wing flap) costs 5× normal stamina per second
+- Holding `J` drains stamina while charging; heavier appendages also increase strike cost and recovery burden
 
 #### 5.4.4 Camera
 
@@ -578,14 +573,21 @@ Minimal, non-intrusive:
 - **Typography:** Bold, rounded, slightly melty font for headers. Clean sans-serif for UI text.
 - **Animations:** Everything bounces slightly. Menu buttons jiggle on hover. The logo pulses like a heartbeat.
 
-### 10.3 Sound (Future — Not MVP)
+### 10.3 Sound
 
 Architecture should support:
 - Spatial audio hookpoints for: impact sounds, squelch, splatter, bone crack, crowd reactions
-- Music hookpoint: silly circus/wrestling announcer music
+- Music hookpoint: themed menu/battle/lab tracks, with an on-screen credit widget
 - Announcer voice hookpoint: play-by-play clips
 
-Leave `AudioManager` as a stub class with empty methods that can be wired up post-jam.
+Current implementation:
+- Sound-sprite playback exists for jump, land, hit, and miss cues.
+- Theme music switches by screen context (HOME/menu, ARENA/battle, LAB/lab when present).
+- The lower-right music widget shows waveform bars plus `Tragikomik: <track>` and links out to the artist URL.
+
+Future polish:
+- Better mixing and dynamic ducking.
+- More spatialized impact layering and announcer VO.
 
 ---
 
@@ -651,8 +653,9 @@ CREATE TABLE matches (
 ### Current shipping priority (April 2026 reality)
 
 1. **Combat Intent V1** — intentional attack slots, attack-aware damage, hit feedback, readable beast cards.
-2. **Minimal gene-lab hooks** — profile/appendage/pose authoring compatibility, but no full editor yet.
-3. **Networking + certification** only after combat readability is confirmed in playtests.
+2. **Attack Readability / Attack Contract pass** — every premade gets one readable, honest primary attack with a clear silhouette and hit fantasy.
+3. **Thin workshop** — expose only appendage/profile/mass/charge authoring, not the full sculpt lab yet.
+4. **Networking + certification** only after combat readability is confirmed in playtests.
 
 ### Phase 1: Core Loop (Days 1–5) — April 13–17
 
@@ -814,7 +817,7 @@ meatbash/
 │   │   └── effects.ts              # Dust, sweat, chitin shards
 │   │
 │   └── audio/
-│       └── audio-manager.ts        # Stub class, all methods empty, ready for future
+│       └── audio-manager.ts        # SFX playback + menu/battle/lab music context switching
 │
 ├── server/
 │   ├── index.ts                    # Bun WebSocket server entry
@@ -885,7 +888,7 @@ Not for the jam, but for knowing if the game hits:
 1. **SDF grid resolution:** 32³, 64³, or 128³ for beast volumes? Start with 64³, tune based on perf.
 2. **Marching cubes frequency:** Re-mesh every damage event, or batch and re-mesh every N frames? Start with every event, throttle if slow.
 3. **Predator AI complexity:** How smart? Start dumb (random walk toward player), iterate if too easy.
-4. **Wing flight model:** Simple upward force on flap, or actual aerodynamic lift? Start simple.
+4. **Combat brace assist:** how much extra turn/support authority is healthy during `J` without sanding away the clumsy chassis?
 5. **Arena prop density:** More terrain = more tactical but harder to navigate for clumsy beasts. Playtest and tune.
 6. **Spectator count scaling:** At what point do we need fan-out? Probably never for the jam. Cross that bridge if streaming blows up.
 

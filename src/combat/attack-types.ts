@@ -1,13 +1,32 @@
 export type AttackProfile = 'blunt' | 'spike' | 'shield';
 export type AttackState = 'IDLE' | 'WINDUP' | 'HELD' | 'COMMIT' | 'RECOVER';
 export type ChargeTier = 'quick' | 'ready' | 'heavy';
+export type AttackVisualRigType =
+  | 'generic'
+  | 'overhand_smash'
+  | 'arm_chain_spike'
+  | 'forequarters_shove';
+
+export interface AttackMovementModifiers {
+  driveMultiplier: number;
+  turnMultiplier: number;
+  supportMultiplier: number;
+  uprightMultiplier: number;
+  brakeMultiplier: number;
+  jumpLocked: boolean;
+}
 
 export interface AttackSlotDefinition {
   id: 'primary';
   appendageRoot: string;
   drivenJoints: string[];
   hitSegments: string[];
+  activeBodies?: string[];
+  blockBodies?: string[];
   profile: AttackProfile;
+  visualRigType?: AttackVisualRigType;
+  tipSegment?: string;
+  tipLocalOffset?: { x: number; y: number; z: number };
 
   windupPose: Record<string, number>;
   strikePose: Record<string, number>;
@@ -29,6 +48,11 @@ export interface AttackSlotDefinition {
   rootLungeForward: number;
   rootLungeUp: number;
   rootYawAssist: number;
+  braceDriveMultiplier?: number;
+  braceTurnMultiplier?: number;
+  braceSupportMultiplier?: number;
+  braceUprightMultiplier?: number;
+  braceBrakeMultiplier?: number;
 }
 
 export interface ActiveAttackContext {
@@ -54,4 +78,5 @@ export interface AttackTelemetry {
   holdSeconds: number;
   isBlocking: boolean;
   stateProgress: number;
+  visualRigType: AttackVisualRigType;
 }

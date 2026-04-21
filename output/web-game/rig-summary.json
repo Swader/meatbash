@@ -1,0 +1,634 @@
+[
+  {
+    "pick": "chonkus",
+    "held": {
+      "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+      "screen": "ARENA",
+      "selectedBeastId": "chonkus",
+      "match": {
+        "phase": "FIGHTING",
+        "timer": 179.08
+      },
+      "player": {
+        "name": "Chonkus",
+        "position": {
+          "x": -2.6977946758270264,
+          "y": 0.6979363560676575,
+          "z": 0.20071779191493988
+        },
+        "yaw": -2.73,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "HELD",
+          "profile": "blunt",
+          "chargeNorm": 0.7259259259259263,
+          "chargeTier": "heavy",
+          "holdSeconds": 0.6533333333333337,
+          "isBlocking": false,
+          "stateProgress": 1,
+          "visualRigType": "generic"
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.5846593379974365,
+          "y": 0.679455578327179,
+          "z": 0.3178582489490509
+        },
+        "yaw": -2.35,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0,
+          "visualRigType": "generic"
+        }
+      },
+      "controls": {
+        "movement": "WASD",
+        "raisePrimary": "J",
+        "commitPrimary": "K",
+        "jump": "SPACE"
+      },
+      "recentDamageEvents": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.1574000000953681
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.063400000095367
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 0.9696000001430516
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.7814999999999994
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 0.7814999999999994
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.6843000001907349
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 0.6843000001907349
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.019,
+          "splashText": "GLANCE!",
+          "age": 0.6843000001907349
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.167,
+          "splashText": "GLANCE!",
+          "age": 0.6843000001907349
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.6843000001907349
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.5890000000000004
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.5890000000000004
+        }
+      ],
+      "recentAudio": [
+        "land",
+        "land"
+      ],
+      "music": {
+        "context": "battle",
+        "file": "/sound/battle_theme_2.mp3",
+        "title": "Catch me if you can",
+        "artist": "Tragikomik",
+        "url": "https://youtube.com/@tragikomik",
+        "volume": 0.34
+      }
+    }
+  },
+  {
+    "pick": "noodlesnake",
+    "held": {
+      "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+      "screen": "ARENA",
+      "selectedBeastId": "noodlesnake",
+      "match": {
+        "phase": "FIGHTING",
+        "timer": 179.07
+      },
+      "player": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": -2.7561707496643066,
+          "y": 0.6244049668312073,
+          "z": 0.1792040914297104
+        },
+        "yaw": -2.5,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "HELD",
+          "profile": "spike",
+          "chargeNorm": 0.9244444444444451,
+          "chargeTier": "heavy",
+          "holdSeconds": 0.6933333333333338,
+          "isBlocking": false,
+          "stateProgress": 1,
+          "visualRigType": "generic"
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.209751605987549,
+          "y": 0.5013343095779419,
+          "z": 0.01682780683040619
+        },
+        "yaw": -1.08,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false,
+          "stateProgress": 0,
+          "visualRigType": "generic"
+        }
+      },
+      "controls": {
+        "movement": "WASD",
+        "raisePrimary": "J",
+        "commitPrimary": "K",
+        "jump": "SPACE"
+      },
+      "recentDamageEvents": [
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.154
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.062700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.062700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.062700000047684
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.9674000000953678
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9674000000953678
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.8720999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8720999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8720999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.7720999999046323
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7720999999046323
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7720999999046323
+        }
+      ],
+      "recentAudio": [
+        "land",
+        "land"
+      ],
+      "music": {
+        "context": "battle",
+        "file": "/sound/battle_theme_3.mp3",
+        "title": "Octane Rumble",
+        "artist": "Tragikomik",
+        "url": "https://youtube.com/@tragikomik",
+        "volume": 0.34
+      }
+    }
+  },
+  {
+    "pick": "stomper",
+    "held": {
+      "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+      "screen": "ARENA",
+      "selectedBeastId": "stomper",
+      "match": {
+        "phase": "FIGHTING",
+        "timer": 179.07
+      },
+      "player": {
+        "name": "Stomper",
+        "position": {
+          "x": -2.6043190956115723,
+          "y": 0.5294917225837708,
+          "z": -0.08588053286075592
+        },
+        "yaw": -0.47,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "HELD",
+          "profile": "shield",
+          "chargeNorm": 0.5791666666666665,
+          "chargeTier": "ready",
+          "holdSeconds": 0.46333333333333326,
+          "isBlocking": true,
+          "stateProgress": 1,
+          "visualRigType": "generic"
+        }
+      },
+      "opponent": {
+        "name": "Butterchonk",
+        "position": {
+          "x": 3.2053070068359375,
+          "y": 0.48616066575050354,
+          "z": 0.10100363194942474
+        },
+        "yaw": -1.41,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "shield",
+          "chargeNorm": 0.044444444444444446,
+          "chargeTier": "quick",
+          "holdSeconds": 0.04,
+          "isBlocking": false,
+          "stateProgress": 0,
+          "visualRigType": "generic"
+        }
+      },
+      "controls": {
+        "movement": "WASD",
+        "raisePrimary": "J",
+        "commitPrimary": "K",
+        "jump": "SPACE"
+      },
+      "recentDamageEvents": [
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 1.1518999998569486
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0620000000000003
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 1.0620000000000003
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.9673999998569487
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 0.9673999998569487
+        },
+        {
+          "source": "passive",
+          "segment": "hip_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.9673999998569487
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.003,
+          "splashText": "GLANCE!",
+          "age": 0.8720999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.8720999999046324
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.7748999998569488
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_br",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7748999998569488
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_fr",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7748999998569488
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_bl",
+          "amount": 0.002,
+          "splashText": "GLANCE!",
+          "age": 0.6748999998569487
+        }
+      ],
+      "recentAudio": [
+        "land",
+        "land"
+      ],
+      "music": {
+        "context": "battle",
+        "file": "/sound/battle_theme_3.mp3",
+        "title": "Octane Rumble",
+        "artist": "Tragikomik",
+        "url": "https://youtube.com/@tragikomik",
+        "volume": 0.34
+      }
+    }
+  },
+  {
+    "pick": "butterchonk",
+    "held": {
+      "coordinateSystem": "Three.js world; +X right, +Y up, +Z forward.",
+      "screen": "ARENA",
+      "selectedBeastId": "butterchonk",
+      "match": {
+        "phase": "FIGHTING",
+        "timer": 179.17
+      },
+      "player": {
+        "name": "Butterchonk",
+        "position": {
+          "x": -2.6726648807525635,
+          "y": 0.584318220615387,
+          "z": -0.12940049171447754
+        },
+        "yaw": -0.1,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "HELD",
+          "profile": "shield",
+          "chargeNorm": 0.3592592592592592,
+          "chargeTier": "ready",
+          "holdSeconds": 0.3233333333333333,
+          "isBlocking": true,
+          "stateProgress": 1,
+          "visualRigType": "generic"
+        }
+      },
+      "opponent": {
+        "name": "Noodlesnake",
+        "position": {
+          "x": 2.6230523586273193,
+          "y": 0.7180492877960205,
+          "z": 0.290004163980484
+        },
+        "yaw": -2.28,
+        "stamina": 1,
+        "mass": 1,
+        "attack": {
+          "state": "IDLE",
+          "profile": "spike",
+          "chargeNorm": 0.013333333333333334,
+          "chargeTier": "quick",
+          "holdSeconds": 0.01,
+          "isBlocking": false,
+          "stateProgress": 0,
+          "visualRigType": "generic"
+        }
+      },
+      "controls": {
+        "movement": "WASD",
+        "raisePrimary": "J",
+        "commitPrimary": "K",
+        "jump": "SPACE"
+      },
+      "recentDamageEvents": [
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0,
+          "splashText": "GLANCE!",
+          "age": 1.15
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.006,
+          "splashText": "GLANCE!",
+          "age": 1.0531999998092645
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.008,
+          "splashText": "GLANCE!",
+          "age": 0.8602999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.8602999999523165
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.011,
+          "splashText": "GLANCE!",
+          "age": 0.7721999998092649
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7721999998092649
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.024,
+          "splashText": "GLANCE!",
+          "age": 0.7721999998092649
+        },
+        {
+          "source": "passive",
+          "segment": "torso",
+          "amount": 0.167,
+          "splashText": "GLANCE!",
+          "age": 0.7721999998092649
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_r",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.7721999998092649
+        },
+        {
+          "source": "passive",
+          "segment": "ankle_l",
+          "amount": 0.001,
+          "splashText": "GLANCE!",
+          "age": 0.6846999998092654
+        },
+        {
+          "source": "passive",
+          "segment": "elbow_l",
+          "amount": 0.004,
+          "splashText": "GLANCE!",
+          "age": 0.6846999998092654
+        }
+      ],
+      "recentAudio": [
+        "land",
+        "land"
+      ],
+      "music": {
+        "context": "battle",
+        "file": "/sound/battle_theme_2.mp3",
+        "title": "Catch me if you can",
+        "artist": "Tragikomik",
+        "url": "https://youtube.com/@tragikomik",
+        "volume": 0.34
+      }
+    }
+  }
+]

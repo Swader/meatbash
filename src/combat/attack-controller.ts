@@ -1,6 +1,13 @@
 import type RAPIER from '@dimforge/rapier3d-compat';
 import { ATTACK_PROFILES, getChargeCostLerp, getChargeDamageMul, getChargeKnockbackMul, getChargeTier } from './attack-profiles';
-import type { ActiveAttackContext, AttackSlotDefinition, AttackState, AttackTelemetry, ChargeTier } from './attack-types';
+import type {
+  ActiveAttackContext,
+  AttackMovementModifiers,
+  AttackSlotDefinition,
+  AttackState,
+  AttackTelemetry,
+  ChargeTier,
+} from './attack-types';
 
 interface InputLike {
   isDown(key: string): boolean;
@@ -61,7 +68,6 @@ export class AttackController {
       case 'WINDUP': {
         const windupNorm = Math.min(1, this.stateTimer / Math.max(0.01, this.slot.windupTime * this.massScale));
         this.applyPose(this.slot.windupPose, windupNorm);
-        this.applyLocomotionPenalty(0.92);
         if (raiseReleased) {
           this.enterState('RECOVER');
           break;
@@ -75,7 +81,6 @@ export class AttackController {
         this.holdTimer = Math.min(this.slot.maxChargeTime, this.holdTimer + dt);
         stamina.current = Math.max(0, stamina.current - this.slot.holdDrainPerSec * this.massScale * dt);
         this.applyPose(this.slot.windupPose, 1);
-        this.applyLocomotionPenalty(0.85);
         if (raiseReleased || stamina.current <= 0) {
           this.enterState('RECOVER');
           break;
@@ -89,7 +94,6 @@ export class AttackController {
         this.commitActiveLeft = Math.max(0, this.commitActiveLeft - dt);
         this.commitVisualLeft = Math.max(0, this.commitVisualLeft - dt);
         this.applyPose(this.slot.strikePose, 1);
-        this.applyLocomotionPenalty(0.8);
         if (this.commitVisualLeft <= 0) {
           if (!this.hitRegisteredThisCommit) {
             this.pendingMiss = true;
@@ -100,7 +104,6 @@ export class AttackController {
       }
       case 'RECOVER': {
         this.applyPose(this.slot.recoverPose, 1);
-        this.applyLocomotionPenalty(0.88);
         const recoverTime = this.slot.recoverTime * this.recoverScale;
         if (this.stateTimer >= recoverTime) {
           this.enterState('IDLE');
@@ -131,6 +134,7 @@ export class AttackController {
       holdSeconds,
       isBlocking: this.isBlocking(),
       stateProgress,
+      visualRigType: this.slot.visualRigType ?? 'generic',
     };
   }
 
@@ -140,6 +144,51 @@ export class AttackController {
 
   getCommitSerial(): number {
     return this.commitSerial;
+  }
+
+  getMovementModifiers(input?: InputLike): AttackMovementModifiers | null {
+    const effectiveState =
+      this.state === 'IDLE' && input?.isDown(ATTACK_RAISE_KEY)
+        ? 'WINDUP'
+        : this.state;
+    if (effectiveState === 'IDLE') return null;
+
+    const braceDrive = this.slot.braceDriveMultiplier ?? 0.58;
+    const braceTurn = this.slot.braceTurnMultiplier ?? 1.45;
+    const braceSupport = this.slot.braceSupportMultiplier ?? 1.15;
+    const braceUpright = this.slot.braceUprightMultiplier ?? 1.18;
+    const braceBrake = this.slot.braceBrakeMultiplier ?? 1.45;
+
+    if (effectiveState === 'WINDUP' || effectiveState === 'HELD') {
+      return {
+        driveMultiplier: braceDrive,
+        turnMultiplier: braceTurn,
+        supportMultiplier: braceSupport,
+        uprightMultiplier: braceUpright,
+        brakeMultiplier: braceBrake,
+        jumpLocked: true,
+      };
+    }
+
+    if (effectiveState === 'COMMIT') {
+      return {
+        driveMultiplier: 0.72,
+        turnMultiplier: 0.92,
+        supportMultiplier: 1.08,
+        uprightMultiplier: 1.08,
+        brakeMultiplier: 1.08,
+        jumpLocked: true,
+      };
+    }
+
+    return {
+      driveMultiplier: 0.84,
+      turnMultiplier: 1.0,
+      supportMultiplier: 1.02,
+      uprightMultiplier: 1.02,
+      brakeMultiplier: 1.08,
+      jumpLocked: false,
+    };
   }
 
   registerConfirmedHit(): void {
@@ -194,7 +243,7 @@ export class AttackController {
 
   resolveActiveHit(segment: string, attackerForwardDot: number): ActiveAttackContext | null {
     if (this.state !== 'COMMIT' || this.commitActiveLeft <= 0) return null;
-    if (!this.slot.hitSegments.includes(segment)) return null;
+    if (!this.getActiveBodies().includes(segment)) return null;
     return this.buildActiveContext(attackerForwardDot);
   }
 
@@ -249,6 +298,8 @@ export class AttackController {
       this.commitVisualLeft = 0;
       this.commitVisualDuration = 0;
       this.commitTier = 'quick';
+      this.pendingMiss = false;
+      this.hitRegisteredThisCommit = false;
     }
     if (next === 'RECOVER') {
       this.commitActiveLeft = 0;
@@ -278,8 +329,16 @@ export class AttackController {
     this.commitSerial += 1;
     this.hitRegisteredThisCommit = false;
 
-    const lungeForward = this.lerp(this.slot.rootLungeForward * 0.7, this.slot.rootLungeForward, chargeNorm);
-    const lungeUp = this.lerp(this.slot.rootLungeUp * 0.65, this.slot.rootLungeUp, chargeNorm);
+    const commitImpulseMul =
+      tier === 'heavy' ? 1.28 :
+      tier === 'ready' ? 1.12 :
+      1;
+    const lungeForward =
+      this.lerp(this.slot.rootLungeForward * 0.7, this.slot.rootLungeForward, chargeNorm) *
+      commitImpulseMul;
+    const lungeUp =
+      this.lerp(this.slot.rootLungeUp * 0.65, this.slot.rootLungeUp, chargeNorm) *
+      (this.slot.profile === 'shield' ? 0.96 : 1.04);
     const forward = this.getPelvisForward();
     const pelvis = this.skeleton.pelvis;
     const mass = pelvis.mass();
@@ -287,22 +346,26 @@ export class AttackController {
       { x: forward.x * lungeForward * mass, y: lungeUp * mass, z: forward.z * lungeForward * mass },
       true
     );
+    const yawSide =
+      this.slot.appendageRoot.endsWith('_r') ? 1 :
+      this.slot.appendageRoot.endsWith('_l') ? -1 :
+      0;
     pelvis.applyTorqueImpulse(
-      { x: 0, y: this.slot.rootYawAssist * mass * (forward.x >= 0 ? 1 : -1), z: 0 },
+      { x: 0, y: this.slot.rootYawAssist * mass * yawSide, z: 0 },
       true
     );
 
     // Give the actual weapon bodies a burst too, so commits create a real collision
     // instead of depending entirely on slow motor motion.
-    for (const seg of this.slot.hitSegments) {
+    for (const seg of this.getActiveBodies()) {
       const body = this.skeleton.joints.get(seg)?.body;
       if (!body) continue;
       const segMass = body.mass();
       body.applyImpulse(
         {
-          x: forward.x * lungeForward * segMass * 0.95,
-          y: lungeUp * segMass * 0.35,
-          z: forward.z * lungeForward * segMass * 0.95,
+          x: forward.x * lungeForward * segMass * 1.08,
+          y: lungeUp * segMass * 0.42,
+          z: forward.z * lungeForward * segMass * 1.08,
         },
         true
       );
@@ -323,14 +386,6 @@ export class AttackController {
     }
   }
 
-  private applyLocomotionPenalty(mult: number): void {
-    const pelvis = this.skeleton.pelvis;
-    const lv = pelvis.linvel();
-    const av = pelvis.angvel();
-    pelvis.setLinvel({ x: lv.x * mult, y: lv.y, z: lv.z * mult }, true);
-    pelvis.setAngvel({ x: av.x, y: av.y * mult, z: av.z }, true);
-  }
-
   private recomputeMassScaling(): void {
     let appendageMass = 0;
     const massSegments = new Set<string>([
@@ -338,7 +393,7 @@ export class AttackController {
       ...this.slot.drivenJoints,
     ]);
     if (massSegments.size === 0) {
-      for (const seg of this.slot.hitSegments) massSegments.add(seg);
+      for (const seg of this.getActiveBodies()) massSegments.add(seg);
     }
     for (const seg of massSegments) {
       const body = this.skeleton.joints.get(seg)?.body;
@@ -377,6 +432,10 @@ export class AttackController {
 
   private lerp(a: number, b: number, t: number): number {
     return a + (b - a) * Math.max(0, Math.min(1, t));
+  }
+
+  private getActiveBodies(): string[] {
+    return this.slot.activeBodies ?? this.slot.hitSegments;
   }
 
   private scalePose(pose: Record<string, number>, scale: number): Record<string, number> {

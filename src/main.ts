@@ -13,7 +13,7 @@ import { HomeScreen } from './ui/home-screen';
 import { MatchHud } from './ui/match-hud';
 import { MusicCreditWidget } from './ui/music-credit';
 import { PREMADE_BEASTS, DEFAULT_BEAST_ID, getPremade } from './beast/premades';
-import { toBeastListing } from './beast/beast-data';
+import { toBeastListing, type BeastDefinition } from './beast/beast-data';
 import { spawnBeast } from './beast/beast-factory';
 import { BotAI } from './combat/bot-ai';
 import { MatchController, type MatchResult as CombatResult } from './combat/match';
@@ -22,6 +22,7 @@ import { DamageResolver } from './physics/damage';
 import { processSeverance } from './physics/severance';
 import { MeatChunks } from './particles/meat-chunks';
 import { applyHitFeedback } from './combat/hit-feedback';
+import { createWorkshopBeast, loadWorkshopBeasts, saveWorkshopBeasts } from './beast/workshop';
 
 async function main() {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
@@ -39,12 +40,22 @@ async function main() {
 
   createPhysicsArena(physics, arena.rockData);
 
+  let customBeasts: BeastDefinition[] = loadWorkshopBeasts();
+  const resolveBeastDefinition = (id: string): BeastDefinition | undefined =>
+    customBeasts.find((beast) => beast.id === id) ?? getPremade(id);
+
   // ---- UI: game shell + screens ----
   const shell = new GameShell();
   const home = new HomeScreen({
     shell,
     defaultBeasts: PREMADE_BEASTS.map(toBeastListing),
-    userBeasts: [],
+    userBeasts: customBeasts.map(toBeastListing),
+    onCreateWorkshopBeast: (draft) => {
+      const created = createWorkshopBeast(draft);
+      customBeasts = [created, ...customBeasts].slice(0, 16);
+      saveWorkshopBeasts(customBeasts);
+      return toBeastListing(created);
+    },
   });
   void home;
   const matchHud = new MatchHud();
@@ -110,7 +121,7 @@ async function main() {
     }
     teardownMatch();
 
-    const playerDef = getPremade(playerBeastId) || getPremade(DEFAULT_BEAST_ID)!;
+    const playerDef = resolveBeastDefinition(playerBeastId) || getPremade(DEFAULT_BEAST_ID)!;
 
     // Pick an opponent — a different premade than the player's pick
     const candidates = PREMADE_BEASTS.filter((b) => b.id !== playerBeastId);
@@ -249,9 +260,9 @@ async function main() {
       }
       for (const ev of events) {
         // Spawn chunk count + speed based on impact quality.
-        const srcMul = ev.source === 'active' ? 1.45 : 1;
-        const count = Math.min(10, 1 + Math.floor((ev.amount / 3) * srcMul));
-        const speed = 2 + ev.impactSpeed * (ev.source === 'active' ? 0.45 : 0.28);
+        const srcMul = (ev.source === 'active' ? 1.45 : 1) * ev.feedbackMul;
+        const count = Math.min(14, 1 + Math.floor((ev.amount / 3) * srcMul));
+        const speed = 2 + ev.impactSpeed * (ev.source === 'active' ? 0.5 : 0.32) * Math.max(0.85, ev.feedbackMul);
         meatChunks.spawn(ev.point, count, speed, undefined, srcMul);
       }
       const hitstop = applyHitFeedback(events, {

@@ -57,8 +57,81 @@ Original prompt: Study this project, read its @code/docs , and then implement @c
     - ARENA shows battle track + visible widget
     - widget text and both click targets resolve to the Tragikomik URL
   - `bun run zip` now excludes all sound assets from both `code/sound/` and `code/dist/sound/`
+  - docs updated so audio is no longer described as a stub in `TASKS.md` / `MEATBASH_PRD.md`
   - visual readability pass: added stronger appendage pose exaggeration, a charge marker, and a ghost-limb telegraph so held `J` is visible from the gameplay camera
   - decoupled attack mass scaling from broad `hitSegments`, which fixed Chonkus windup becoming too slow after torso-based broad-hit tuning
+2026-04-17
+- Audit / recovery pass after interrupted feedback-round work.
+- Verified current build state:
+  - `bun run build` passes
+  - `bun run zip` passes and still excludes sound from packaged output
+- Confirmed advisor-driven combat-contract work already landed in code:
+  - combat brace now flows through locomotion-owned attack modifiers instead of direct velocity damping
+  - `rootYawAssist` now keys off appendage side rather than world-facing sign
+  - premades now have custom visual rig tags (`overhand_smash`, `arm_chain_spike`, `forequarters_shove`)
+  - Stomper / Butterchonk are authored as front-body `shield` shoves, not hidden punches
+  - Noodlesnake has arm-chain spike metadata plus tip metadata
+- Important gaps still open:
+  - no explicit standalone `AttackRig` layer; semantics are improved but still partly fused into `AttackSlotDefinition`
+  - Noodlesnake tip data (`tipSegment` / `tipLocalOffset`) is not yet consumed by hit resolution
+  - `blockBodies` is authored in data but not yet used by damage/blocking logic
+  - docs still drift badly: `docs/MEATBASH_PRD.md` still contains old Q/W controls and wing language; `docs/TASKS.md` still points at a missing `CLAUDE_CONTEXT.md`; `CLAUDE.md` points at a non-existent `../docs/CLAUDE_CONTEXT.md`
+  - thin workshop and multiplayer remain unimplemented (UI stubs only)
+- Runtime verification note:
+  - browser probe against localhost was blocked by the current viewport/UI layout, so Stomper/Noodlesnake visual readability is still only statically confirmed in code, not freshly verified from gameplay camera in this pass
+- Recommended next implementation order from here:
+  1. finish the attack-contract pass (tip/block semantics + any remaining visual-honesty gaps)
+  2. do a real readability verification loop on each premade
+  3. update docs to match reality
+  4. only then start the thin workshop
+- Implemented the missing contract semantics from the audit:
+  - `src/physics/damage.ts` now prefers authored spike tip markers during intentional-hit resolution when a slot provides `tipSegment` / `tipLocalOffset`
+  - raised shield reduction now checks authored `blockBodies` plus a frontal arc instead of applying purely from shield state
+  - intentional-hit resolution now consistently uses authored `activeBodies` when present
+- Docs synced to current reality:
+  - `docs/TASKS.md` now links to the real `../CLAUDE_CONTEXT.md`, calls out attack-contract work already landed, and reorders priorities to readability pass -> thin workshop -> multiplayer
+  - `docs/NOW_NEXT_LATER.md` now names the current milestone as the attack readability / attack contract pass and moves the thin workshop ahead of networking
+  - `docs/MEATBASH_PRD.md` now reflects `WASD + J/K`, removes the immediate wings/flying assumptions from the current control/stamina/stats sections, and inserts the explicit readability pass before workshop/networking
+  - `CLAUDE.md` is now just a short pointer to `CLAUDE_CONTEXT.md`; `CLAUDE_CONTEXT.md` repo-layout section now matches the actual `code/` workspace layout
+- Verification after implementation:
+  - `bun run build` passes after the contract + doc changes
+  - `bun run zip` passes after the contract + doc changes
+  - `ReadLints` reports no diagnostics for `src/physics/damage.ts`
+  - browser/runtime probes were run against `localhost:3000`, including deterministic shell-driven canvas captures and forced-close-range experiments
+  - limitation: the runtime probes are still flaky for exact combat-contact assertions because teleporting ragdolls into deterministic close-range setups can explode or drift before the intended strike resolves; visual/state probes are useful, but a cleaner combat-test harness is still needed
+- Remaining highest-value next step:
+  - make the readability probe loop more reliable (camera/canvas/test harness), then retune/confirm each premade visually from the real gameplay camera before moving on to the thin workshop
+2026-04-17 (visible gameplay pass)
+- User pushed back that the prior round was too under-the-hood and didn't change the actual game enough.
+- New visible/game-facing work landed:
+  - `src/ui/home-screen.ts` center panel is now a real **Quick Workshop**, not a placeholder:
+    - choose archetype (`bipedal` / `quadruped`)
+    - choose primary profile (`blunt` / `spike` / `shield`, depending on archetype)
+    - choose charge bias (`quick` / `balanced` / `heavy`)
+    - choose a color preset
+    - forge and select a custom beast immediately
+  - `src/beast/workshop.ts` added:
+    - localStorage-backed workshop beast persistence (`meatbash_workshop_beasts_v1`)
+    - generation of playable custom beasts from archetype/profile/bias presets
+    - immediate card/listing support for `Your Beasts`
+  - `src/main.ts` now loads/saves workshop beasts and can spawn them in matches
+  - `src/physics/damage.ts` got a visible-combat pass:
+    - contact-memory gating for intentional hits so "wave in the general direction and score a hit" is harder
+    - location-based damage / feedback / knockback scaling by impacted segment
+    - launch-window tracking so environment follow-up hits can scale harder after a real launch
+    - stronger chunk / shake data flows out through `DamageEvent`
+  - `src/combat/attack-controller.ts` commit impulse now scales up by charge tier so heavy commits have more body-level follow-through
+  - `src/combat/attack-profiles.ts` active windows widened slightly now that actual contact is required
+- Verification from runtime probes:
+  - workshop UI is visible and usable (`output/runtime-probes/visible-pass/workshop-ui.png`)
+  - forging a beast adds it to `Your Beasts` and selects it (`output/runtime-probes/visible-pass/workshop-ui.json`)
+  - a forged beast can spawn in a real match (separate browser probe confirmed custom id/archetype/profile round-trip)
+  - far miss / no-contact scenario no longer produced obvious bogus active-hit confirms in the deterministic probe
+- Important limitation after this pass:
+  - the scripted "charged hit into a rock" probe still tended toward passive scrapes / misses instead of a clean active launch-confirm, so the shove + obstacle-payoff loop is improved in code but still needs another focused tuning pass to become reliably dramatic in live play
+- Final verification after this pass:
+  - `bun run build` passes
+  - `bun run zip` passes
   - post-visual-change Playwright checks:
     - held `J` now shows a visible telegraph marker while in `HELD`
     - `J` then `K` stays visually in `COMMIT` longer

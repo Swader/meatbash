@@ -1,6 +1,6 @@
 # MEATBASH — NOW / NEXT / LATER
 
-**Last updated:** 2026-04-15
+**Last updated:** 2026-04-17
 
 ## NOW
 
@@ -9,15 +9,20 @@
   - attack-aware damage (active attacks matter more than passive bumps)
   - hit feedback stack (hitstop, shake, splash text, meat chunks)
   - beast card readability (weight class + attack profile + playstyle line)
-- Tune readability and balance through fast playtest loops.
+- Finish the **Attack Readability / Attack Contract pass**:
+  - readable primary attack for every premade
+  - spike tips and shield fronts behave honestly
+  - combat brace / steering feels deliberate without losing the clumsy chassis
+  - verify readability from the real gameplay camera, not just from data
 
 ## NEXT
 
-- Add **minimal Gene Lab hooks** that can author combat identity:
+- Build a **thin workshop** that can author combat identity:
   - choose primary appendage
   - choose profile (`blunt` / `spike` / `shield`)
-  - tune appendage mass/charge bias
-- Start networking only after combat readability is stable.
+  - tune appendage mass / charge bias
+  - tweak simple color / silhouette identity
+- Start networking only after combat readability is stable locally.
 
 ## LATER
 

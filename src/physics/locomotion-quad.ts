@@ -6,6 +6,7 @@ import { getTotalMassQuad } from './skeleton-quad';
 import { tuning } from './tuning';
 import { sampleTerrainHeight } from '../engine/terrain';
 import type { LocomotionMode } from './locomotion';
+import type { AttackMovementModifiers } from '../combat/attack-types';
 
 /**
  * Active-ragdoll quadruped locomotion.
@@ -60,6 +61,7 @@ export interface QuadLocomotionState {
   groundDist: number;
   totalMass: number;
   regenPerSec: number;
+  attackModifiers?: AttackMovementModifiers | null;
 }
 
 export function createQuadLocomotionState(): QuadLocomotionState {
@@ -77,6 +79,7 @@ export function createQuadLocomotionState(): QuadLocomotionState {
     groundDist: 0,
     totalMass: 0,
     regenPerSec: 0,
+    attackModifiers: null,
   };
 }
 
@@ -170,6 +173,7 @@ export function applyQuadLocomotion(
 
   const totalMass = getTotalMassQuad(skeleton);
   locoState.totalMass = totalMass;
+  const attackMods = locoState.attackModifiers ?? null;
 
   // ============================================================
   // GROUNDED DETECTION — per-foot downward raycast against arena.
@@ -367,6 +371,13 @@ export function applyQuadLocomotion(
     }
   }
 
+  const attackSupportMul = attackMods?.supportMultiplier ?? 1;
+  const attackUprightMul = attackMods?.uprightMultiplier ?? 1;
+  const attackDriveMul = attackMods?.driveMultiplier ?? 1;
+  const attackTurnMul = attackMods?.turnMultiplier ?? 1;
+  const attackBrakeMul = attackMods?.brakeMultiplier ?? 1;
+  const jumpLocked = attackMods?.jumpLocked ?? false;
+
   locoState.isGrounded =
     groundedFeet > 0 &&
     locoState.mode !== 'FALLEN' &&
@@ -456,7 +467,8 @@ export function applyQuadLocomotion(
     if (compression > -0.1) {
       const supportMag =
         (tuning.heightStiffness * compression - tuning.heightDamping * pelvisVel.y) *
-        supportMul;
+        supportMul *
+        attackSupportMul;
       pelvis.addForce({ x: 0, y: supportMag, z: 0 }, true);
     }
   }
@@ -468,7 +480,7 @@ export function applyQuadLocomotion(
   // beast noticeably harder to knock over than the biped.
   // ============================================================
   const QUAD_UPRIGHT_BOOST = 1.2;
-  const uprightMul = supportMul * uprightBoost * QUAD_UPRIGHT_BOOST;
+  const uprightMul = supportMul * uprightBoost * QUAD_UPRIGHT_BOOST * attackUprightMul;
   if (uprightMul > 0) {
     const errX = pelvisUpY * refZ - pelvisUpZ * refY;
     const errY = pelvisUpZ * refX - pelvisUpX * refZ;
@@ -498,7 +510,8 @@ export function applyQuadLocomotion(
     locoState.turnAxis *
     tuning.maxYawRate *
     Math.max(groundFootMul, locoState.mode === 'AIRBORNE' ? 0.15 : 0) *
-    speedMul;
+    speedMul *
+    attackTurnMul;
 
   locoState.yawRate = smooth(locoState.yawRate, targetYawRate, tuning.yawRateSharpness, dt);
 
@@ -546,7 +559,7 @@ export function applyQuadLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= driveMul * tiltScale * footScale;
+    accel *= driveMul * tiltScale * footScale * attackDriveMul;
 
     if (accel !== 0) {
       const force = accel * totalMass;
@@ -554,7 +567,7 @@ export function applyQuadLocomotion(
     } else if (locoState.mode === 'SUPPORTED') {
       const slopiness = isFinite(groundDist) ? Math.max(0, 1 - groundNormal.y) : 0;
       const slopeBrake = 1 + slopiness * (tuning.slopeStabilityBoost - 1);
-      const brakeForce = tuning.horizontalBrake * totalMass * slopeBrake;
+      const brakeForce = tuning.horizontalBrake * totalMass * slopeBrake * attackBrakeMul;
       pelvis.addForce(
         {
           x: -pelvisVel.x * brakeForce,
@@ -574,7 +587,8 @@ export function applyQuadLocomotion(
     locoState.mode === 'SUPPORTED' &&
     groundedFeet > 0 &&
     locoState.jumpTimer >= tuning.jumpCooldown &&
-    stamina.current >= JUMP_STAMINA_COST
+    stamina.current >= JUMP_STAMINA_COST &&
+    !jumpLocked
   ) {
     pelvis.applyImpulse(
       { x: 0, y: totalMass * tuning.jumpVelocity, z: 0 },

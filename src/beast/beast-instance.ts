@@ -6,7 +6,7 @@ import { BipedSkeleton } from '../physics/skeleton';
 import { applyBipedLocomotion, createLocomotionState, type LocomotionState } from '../physics/locomotion';
 import type { BeastDefinition } from './beast-data';
 import { AttackController } from '../combat/attack-controller';
-import type { ActiveAttackContext, AttackSlotDefinition, AttackTelemetry } from '../combat/attack-types';
+import type { ActiveAttackContext, AttackSlotDefinition, AttackTelemetry, AttackVisualRigType } from '../combat/attack-types';
 
 /**
  * Generic skeleton shape that any archetype can provide. BipedSkeleton
@@ -350,6 +350,8 @@ gl_FragColor.rgb += rimColor;
     if (this.inputOverride && typeof (this.inputOverride as any).beginFixedStep === 'function') {
       (this.inputOverride as any).beginFixedStep();
     }
+    (this.locoState as any).attackModifiers =
+      this.attackController?.getMovementModifiers(src as any) ?? null;
     this.locomotionUpdate(this.skeleton as any, src, dt, this.stamina, this.physics, this.locoState);
     this.attackController?.update(src as any, dt, this.stamina);
     this.captureAudioEvents();
@@ -359,6 +361,7 @@ gl_FragColor.rgb += rimColor;
   syncFromPhysics() {
     const slot = this.getPrimaryAttackSlot();
     const tele = this.getAttackTelemetry();
+    const useCustomRig = !!slot && !!tele && this.hasCustomAttackRig(slot);
     for (const [name, joint] of this.skeleton.joints) {
       const mesh = this.visuals.get(name);
       if (!mesh) continue;
@@ -369,7 +372,7 @@ gl_FragColor.rgb += rimColor;
       mesh.position.set(pos.x, pos.y, pos.z);
       mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
       mesh.scale.setScalar(1);
-      if (slot && tele) {
+      if (slot && tele && !useCustomRig) {
         this.applyAttackVisualPose(mesh, name, slot, tele);
       }
 
@@ -434,8 +437,8 @@ gl_FragColor.rgb += rimColor;
         prev.set(pos.x, pos.y, pos.z);
       }
     }
-    if (slot && tele) {
-      this.applyConnectedOverhandSmashVisual(slot, tele);
+    if (slot && tele && useCustomRig) {
+      this.applyAttackVisualRig(slot, tele);
     }
     this.updateAttackTelegraph();
   }
@@ -533,6 +536,17 @@ gl_FragColor.rgb += rimColor;
     return this.skeleton.joints.get(name)?.body;
   }
 
+  getSegmentWorldPoint(name: string, localOffset?: { x: number; y: number; z: number }): { x: number; y: number; z: number } | null {
+    const body = this.getJointBody(name);
+    if (!body) return null;
+    const p = body.translation();
+    if (!localOffset) return { x: p.x, y: p.y, z: p.z };
+    const r = body.rotation();
+    this.attackTempQuat.set(r.x, r.y, r.z, r.w);
+    this.attackTempVec.set(localOffset.x, localOffset.y, localOffset.z).applyQuaternion(this.attackTempQuat);
+    return { x: p.x + this.attackTempVec.x, y: p.y + this.attackTempVec.y, z: p.z + this.attackTempVec.z };
+  }
+
   getIncomingBlockReduction(attackerProfile: 'blunt' | 'spike' | 'shield'): number {
     return this.attackController?.getIncomingBlockReduction(attackerProfile) ?? 0;
   }
@@ -575,15 +589,29 @@ gl_FragColor.rgb += rimColor;
     this.prevJumpTimerForAudio = jumpTimer;
   }
 
+  private applyAttackVisualRig(
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ) {
+    const rigType = slot.visualRigType ?? 'generic';
+    if (rigType === 'overhand_smash') {
+      this.applyConnectedOverhandSmashVisual(slot, tele);
+      return;
+    }
+    if (rigType === 'arm_chain_spike') {
+      this.applyConnectedArmChainSpikeVisual(slot, tele);
+      return;
+    }
+    if (rigType === 'forequarters_shove') {
+      this.applyForequartersShoveVisual(slot, tele);
+    }
+  }
+
   private applyConnectedOverhandSmashVisual(
     slot: AttackSlotDefinition,
     tele: AttackTelemetry
   ): void {
-    if (
-      this.definition?.id !== 'chonkus' ||
-      slot.appendageRoot !== 'shoulder_r' ||
-      tele.state === 'IDLE'
-    ) {
+    if (slot.visualRigType !== 'overhand_smash' || tele.state === 'IDLE') {
       return;
     }
 
@@ -658,6 +686,150 @@ gl_FragColor.rgb += rimColor;
     elbowMesh.scale.setScalar(scaleBoost * 1.02);
   }
 
+  private applyConnectedArmChainSpikeVisual(
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ): void {
+    if (slot.visualRigType !== 'arm_chain_spike' || tele.state === 'IDLE') return;
+
+    const torsoBody = this.getJointBody('torso');
+    const shoulderMesh = this.visuals.get('shoulder_l');
+    const elbowMesh = this.visuals.get('elbow_l');
+    if (!torsoBody || !shoulderMesh || !elbowMesh) return;
+
+    const torsoPos = torsoBody.translation();
+    const torsoRot = torsoBody.rotation();
+    this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
+
+    const shoulderAnchorLocal = this.attackTempVec.set(-0.32, 0.18, 0.05);
+    const shoulderAnchorWorld = this.attackTempVec2
+      .copy(shoulderAnchorLocal)
+      .applyQuaternion(this.attackTempQuat)
+      .add(new THREE.Vector3(torsoPos.x, torsoPos.y, torsoPos.z));
+
+    const upperRest = new THREE.Vector3(-0.32, -0.88, 0.06);
+    const upperWindup = new THREE.Vector3(-0.18, 0.94, 0.28);
+    const upperStrike = new THREE.Vector3(-0.08, -0.06, 1.08);
+
+    const lowerRest = new THREE.Vector3(-0.42, -0.88, 0.12);
+    const lowerWindup = new THREE.Vector3(-0.08, 0.98, 0.3);
+    const lowerStrike = new THREE.Vector3(-0.04, -0.02, 1.2);
+
+    let upperDir = new THREE.Vector3();
+    let lowerDir = new THREE.Vector3();
+    if (tele.state === 'WINDUP') {
+      upperDir = upperRest.clone().lerp(upperWindup, tele.stateProgress);
+      lowerDir = lowerRest.clone().lerp(lowerWindup, tele.stateProgress);
+    } else if (tele.state === 'HELD') {
+      upperDir = upperWindup.clone();
+      lowerDir = lowerWindup.clone();
+    } else if (tele.state === 'COMMIT') {
+      const t = Math.max(tele.stateProgress, 0.2);
+      upperDir = upperWindup.clone().lerp(upperStrike, t);
+      lowerDir = lowerWindup.clone().lerp(lowerStrike, t);
+    } else {
+      upperDir = upperStrike.clone().lerp(upperRest, tele.stateProgress);
+      lowerDir = lowerStrike.clone().lerp(lowerRest, tele.stateProgress);
+    }
+
+    upperDir.normalize().applyQuaternion(this.attackTempQuat);
+    lowerDir.normalize().applyQuaternion(this.attackTempQuat);
+
+    const upperLen = 0.36;
+    const lowerLen = 0.34;
+    const elbowAnchorWorld = this.attackTempVec3
+      .copy(upperDir)
+      .multiplyScalar(upperLen * 0.92)
+      .add(shoulderAnchorWorld);
+
+    shoulderMesh.position.copy(
+      this.attackTempVec.copy(upperDir).multiplyScalar(upperLen * 0.46).add(shoulderAnchorWorld)
+    );
+    shoulderMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), upperDir);
+    elbowMesh.position.copy(
+      this.attackTempVec2.copy(lowerDir).multiplyScalar(lowerLen * 0.44).add(elbowAnchorWorld)
+    );
+    elbowMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), lowerDir);
+
+    const scaleBoost = tele.state === 'COMMIT' ? 1.16 : 1.08 + tele.chargeNorm * 0.08;
+    shoulderMesh.scale.setScalar(scaleBoost);
+    elbowMesh.scale.setScalar(scaleBoost * 1.03);
+  }
+
+  private applyForequartersShoveVisual(
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ): void {
+    if (slot.visualRigType !== 'forequarters_shove' || tele.state === 'IDLE') return;
+
+    const torsoBody = this.getJointBody('torso');
+    const torsoMesh = this.visuals.get('torso');
+    const frontHipL = this.visuals.get('hip_fl');
+    const frontHipR = this.visuals.get('hip_fr');
+    const frontKneeL = this.visuals.get('knee_fl');
+    const frontKneeR = this.visuals.get('knee_fr');
+    if (!torsoBody || !torsoMesh || !frontHipL || !frontHipR || !frontKneeL || !frontKneeR) return;
+
+    const torsoPos = torsoBody.translation();
+    const torsoRot = torsoBody.rotation();
+    this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
+
+    let chestLift = 0;
+    let chestBack = 0;
+    let chestPitch = 0;
+    let hipTuck = 0;
+    let kneeTuck = 0;
+
+    if (tele.state === 'WINDUP') {
+      chestLift = 0.18 * tele.stateProgress;
+      chestBack = -0.16 * tele.stateProgress;
+      chestPitch = 0.55 * tele.stateProgress;
+      hipTuck = 0.14 * tele.stateProgress;
+      kneeTuck = 0.18 * tele.stateProgress;
+    } else if (tele.state === 'HELD') {
+      chestLift = 0.18;
+      chestBack = -0.16;
+      chestPitch = 0.55;
+      hipTuck = 0.14;
+      kneeTuck = 0.18;
+    } else if (tele.state === 'COMMIT') {
+      const t = Math.max(tele.stateProgress, 0.2);
+      chestLift = this.lerp(0.18, 0.04, t);
+      chestBack = this.lerp(-0.16, 0.28, t);
+      chestPitch = this.lerp(0.55, -0.42, t);
+      hipTuck = this.lerp(0.14, -0.08, t);
+      kneeTuck = this.lerp(0.18, -0.1, t);
+    } else {
+      chestLift = this.lerp(0.04, 0, tele.stateProgress);
+      chestBack = this.lerp(0.22, 0, tele.stateProgress);
+      chestPitch = this.lerp(-0.3, 0, tele.stateProgress);
+      hipTuck = this.lerp(-0.08, 0, tele.stateProgress);
+      kneeTuck = this.lerp(-0.08, 0, tele.stateProgress);
+    }
+
+    this.attackTempVec.set(0, chestLift, chestBack).applyQuaternion(this.attackTempQuat);
+    torsoMesh.position.add(this.attackTempVec);
+    this.attackTempQuat.setFromAxisAngle(this.attackTempVec2.set(1, 0, 0), chestPitch);
+    torsoMesh.quaternion.multiply(this.attackTempQuat);
+    torsoMesh.scale.setScalar(tele.state === 'COMMIT' ? 1.12 : 1.05);
+
+    const frontOffset = 0.1;
+    const hipLift = 0.08 + Math.max(0, hipTuck);
+    for (const [mesh, side] of [
+      [frontHipL, -1],
+      [frontHipR, 1],
+      [frontKneeL, -1],
+      [frontKneeR, 1],
+    ] as const) {
+      const lateral = side * (mesh === frontHipL || mesh === frontHipR ? 0.04 : 0.02);
+      const forward = mesh === frontHipL || mesh === frontHipR ? frontOffset + hipTuck : frontOffset * 0.6 + kneeTuck;
+      const vertical = mesh === frontHipL || mesh === frontHipR ? hipLift : hipLift * 0.75;
+      this.attackTempVec.set(lateral, vertical, forward).applyQuaternion(mesh.quaternion);
+      mesh.position.add(this.attackTempVec);
+      mesh.scale.setScalar(tele.state === 'COMMIT' ? 1.08 : 1.04);
+    }
+  }
+
   private applyAttackVisualPose(
     mesh: THREE.Mesh,
     name: string,
@@ -719,6 +891,11 @@ gl_FragColor.rgb += rimColor;
       return this.attackTempVec2.set(1, 0, 0);
     }
     return null;
+  }
+
+  private hasCustomAttackRig(slot: AttackSlotDefinition): boolean {
+    const rigType = slot.visualRigType ?? 'generic';
+    return rigType !== 'generic';
   }
 
   private lerp(a: number, b: number, t: number): number {

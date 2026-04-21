@@ -16,6 +16,15 @@
  * All styling is injected once into <head> via a <style> block.
  */
 
+import type { AttackProfile } from '../combat/attack-types';
+import type { Archetype } from '../beast/beast-data';
+import {
+  getWorkshopColorPresets,
+  getWorkshopProfiles,
+  type WorkshopChargeBias,
+  type WorkshopColorPreset,
+  type WorkshopDraft,
+} from '../beast/workshop';
 import type { GameShell, ScreenHandle } from './game-shell';
 
 export interface BeastListing {
@@ -26,12 +35,14 @@ export interface BeastListing {
   weightClass: string;
   playstyleSummary: string;
   iconEmoji?: string;
+  isDefault?: boolean;
 }
 
 export interface HomeScreenOptions {
   shell: GameShell;
   defaultBeasts: BeastListing[];
   userBeasts?: BeastListing[];
+  onCreateWorkshopBeast?: (draft: WorkshopDraft) => BeastListing | null;
 }
 
 const STYLE_ID = 'meatbash-home-style';
@@ -137,7 +148,8 @@ const STYLES = `
   margin: 12px 0 8px 0;
 }
 
-.mb-input {
+.mb-input,
+.mb-select {
   width: 100%;
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255, 80, 80, 0.35);
@@ -151,12 +163,16 @@ const STYLES = `
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.mb-input:focus {
+.mb-input:focus,
+.mb-select:focus {
   border-color: rgba(255, 140, 160, 0.8);
   box-shadow: 0 0 0 2px rgba(255, 80, 120, 0.25);
 }
 .mb-input::placeholder {
   color: rgba(255, 160, 160, 0.35);
+}
+.mb-select option {
+  color: #201010;
 }
 
 .mb-button {
@@ -220,10 +236,11 @@ const STYLES = `
   border-radius: 20px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  padding: 20px;
 }
 #mb-home-center .mb-center-inner {
+  width: min(440px, 100%);
   text-align: center;
-  pointer-events: none;
 }
 #mb-home-center .mb-center-label {
   font-size: 22px;
@@ -235,7 +252,7 @@ const STYLES = `
 #mb-home-center .mb-center-soon {
   font-size: 12px;
   letter-spacing: 3px;
-  color: rgba(255, 160, 160, 0.4);
+  color: rgba(255, 190, 190, 0.62);
   text-transform: uppercase;
 }
 #mb-home-center .mb-center-selected {
@@ -243,6 +260,45 @@ const STYLES = `
   font-size: 13px;
   letter-spacing: 2px;
   color: rgba(255, 200, 200, 0.8);
+}
+.mb-workshop-note {
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(255, 190, 190, 0.72);
+}
+.mb-workshop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  text-align: left;
+}
+.mb-workshop-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mb-workshop-field.mb-span-2 {
+  grid-column: span 2;
+}
+.mb-workshop-field label {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 180, 180, 0.7);
+}
+.mb-workshop-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mb-workshop-status {
+  min-height: 16px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255, 210, 150, 0.8);
 }
 
 .mb-beast-list {
@@ -350,15 +406,23 @@ export class HomeScreen implements ScreenHandle {
   private shell: GameShell;
   private defaults: BeastListing[];
   private userBeasts: BeastListing[];
+  private onCreateWorkshopBeast?: (draft: WorkshopDraft) => BeastListing | null;
   private selectedBeastId: string | null = null;
   private cardEls = new Map<string, HTMLDivElement>();
   private centerSelectedLabel: HTMLDivElement;
   private codeInput!: HTMLInputElement;
+  private workshopNameInput!: HTMLInputElement;
+  private workshopArchetypeSelect!: HTMLSelectElement;
+  private workshopProfileSelect!: HTMLSelectElement;
+  private workshopChargeSelect!: HTMLSelectElement;
+  private workshopColorSelect!: HTMLSelectElement;
+  private workshopStatusEl!: HTMLDivElement;
 
   constructor(opts: HomeScreenOptions) {
     this.shell = opts.shell;
     this.defaults = opts.defaultBeasts;
     this.userBeasts = opts.userBeasts ?? [];
+    this.onCreateWorkshopBeast = opts.onCreateWorkshopBeast;
 
     injectStyles();
 
@@ -457,20 +521,86 @@ export class HomeScreen implements ScreenHandle {
 
     const label = document.createElement('div');
     label.className = 'mb-center-label';
-    label.textContent = 'MAKE YOUR BEAST';
+    label.textContent = 'QUICK WORKSHOP';
     inner.appendChild(label);
 
     const soon = document.createElement('div');
     soon.className = 'mb-center-soon';
-    soon.textContent = 'Gene Lab — coming soon';
+    soon.textContent = 'Fork the selected beast into a playable custom variant';
     inner.appendChild(soon);
 
-    panel.appendChild(inner);
+    const note = document.createElement('div');
+    note.className = 'mb-workshop-note';
+    note.textContent =
+      'Swap archetype, shift attack profile, bias charge feel, then forge a custom beast and throw it straight into the arena.';
+    inner.appendChild(note);
 
-    // Clicking the center panel in the future will open the lab.
-    // For now it just fires the event (the shell will no-op).
-    panel.addEventListener('click', () => this.shell.emitOpenLab());
-    panel.style.cursor = 'pointer';
+    const grid = document.createElement('div');
+    grid.className = 'mb-workshop-grid';
+
+    this.workshopNameInput = document.createElement('input');
+    this.workshopNameInput.type = 'text';
+    this.workshopNameInput.className = 'mb-input';
+    this.workshopNameInput.maxLength = 24;
+    grid.appendChild(this.createWorkshopField('Name', this.workshopNameInput, true));
+
+    this.workshopArchetypeSelect = document.createElement('select');
+    this.workshopArchetypeSelect.className = 'mb-select';
+    for (const archetype of ['bipedal', 'quadruped'] as const) {
+      const option = document.createElement('option');
+      option.value = archetype;
+      option.textContent = archetype;
+      this.workshopArchetypeSelect.appendChild(option);
+    }
+    this.workshopArchetypeSelect.addEventListener('change', () => this.updateWorkshopProfileOptions());
+    grid.appendChild(this.createWorkshopField('Archetype', this.workshopArchetypeSelect));
+
+    this.workshopProfileSelect = document.createElement('select');
+    this.workshopProfileSelect.className = 'mb-select';
+    grid.appendChild(this.createWorkshopField('Primary Attack', this.workshopProfileSelect));
+
+    this.workshopChargeSelect = document.createElement('select');
+    this.workshopChargeSelect.className = 'mb-select';
+    for (const bias of ['quick', 'balanced', 'heavy'] as const) {
+      const option = document.createElement('option');
+      option.value = bias;
+      option.textContent = bias;
+      this.workshopChargeSelect.appendChild(option);
+    }
+    grid.appendChild(this.createWorkshopField('Charge Bias', this.workshopChargeSelect));
+
+    this.workshopColorSelect = document.createElement('select');
+    this.workshopColorSelect.className = 'mb-select';
+    for (const preset of getWorkshopColorPresets()) {
+      const option = document.createElement('option');
+      option.value = preset;
+      option.textContent = preset;
+      this.workshopColorSelect.appendChild(option);
+    }
+    grid.appendChild(this.createWorkshopField('Color', this.workshopColorSelect));
+
+    inner.appendChild(grid);
+
+    const actions = document.createElement('div');
+    actions.className = 'mb-workshop-actions';
+
+    const forgeBtn = document.createElement('button');
+    forgeBtn.className = 'mb-button';
+    forgeBtn.textContent = 'Forge Custom Beast';
+    forgeBtn.addEventListener('click', () => this.handleForgeWorkshop());
+    actions.appendChild(forgeBtn);
+
+    this.workshopStatusEl = document.createElement('div');
+    this.workshopStatusEl.className = 'mb-workshop-status';
+    actions.appendChild(this.workshopStatusEl);
+
+    inner.appendChild(actions);
+
+    panel.appendChild(inner);
+    this.workshopArchetypeSelect.value = 'bipedal';
+    this.workshopChargeSelect.value = 'balanced';
+    this.workshopColorSelect.value = 'crimson';
+    this.updateWorkshopProfileOptions();
 
     return panel;
   }
@@ -588,6 +718,74 @@ export class HomeScreen implements ScreenHandle {
     return banner;
   }
 
+  private createWorkshopField(labelText: string, control: HTMLElement, spanTwo = false): HTMLDivElement {
+    const field = document.createElement('div');
+    field.className = `mb-workshop-field${spanTwo ? ' mb-span-2' : ''}`;
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    field.appendChild(label);
+    field.appendChild(control);
+    return field;
+  }
+
+  private updateWorkshopProfileOptions(): void {
+    if (!this.workshopArchetypeSelect || !this.workshopProfileSelect) return;
+    const archetype = this.workshopArchetypeSelect.value as Archetype;
+    const current = this.workshopProfileSelect.value as AttackProfile;
+    const supported = getWorkshopProfiles(archetype);
+    this.workshopProfileSelect.innerHTML = '';
+    for (const profile of supported) {
+      const option = document.createElement('option');
+      option.value = profile;
+      option.textContent = profile;
+      this.workshopProfileSelect.appendChild(option);
+    }
+    this.workshopProfileSelect.value = supported.includes(current) ? current : supported[0]!;
+  }
+
+  private chooseDefaultColor(archetype: Archetype, attackProfile: string): WorkshopColorPreset {
+    if (attackProfile === 'spike') return 'peach';
+    if (attackProfile === 'shield') return 'tallow';
+    return archetype === 'quadruped' ? 'ember' : 'crimson';
+  }
+
+  private syncWorkshopToListing(listing: BeastListing | undefined): void {
+    if (!listing || !this.workshopNameInput) return;
+    this.workshopNameInput.value = listing.isDefault ? `${listing.name} MkII` : listing.name;
+    this.workshopArchetypeSelect.value = listing.archetype as Archetype;
+    this.updateWorkshopProfileOptions();
+    this.workshopProfileSelect.value = getWorkshopProfiles(listing.archetype as Archetype).includes(listing.attackProfile as AttackProfile)
+      ? listing.attackProfile
+      : getWorkshopProfiles(listing.archetype as Archetype)[0]!;
+    this.workshopChargeSelect.value = 'balanced';
+    this.workshopColorSelect.value = this.chooseDefaultColor(listing.archetype as Archetype, listing.attackProfile);
+    this.workshopStatusEl.textContent = `loaded from ${listing.name}`;
+  }
+
+  private handleForgeWorkshop(): void {
+    if (!this.onCreateWorkshopBeast) {
+      this.workshopStatusEl.textContent = 'workshop save unavailable';
+      return;
+    }
+    const draft: WorkshopDraft = {
+      sourceBeastId: this.selectedBeastId,
+      name: this.workshopNameInput.value,
+      archetype: this.workshopArchetypeSelect.value as Archetype,
+      attackProfile: this.workshopProfileSelect.value as AttackProfile,
+      chargeBias: this.workshopChargeSelect.value as WorkshopChargeBias,
+      colorPreset: this.workshopColorSelect.value as WorkshopColorPreset,
+    };
+    const saved = this.onCreateWorkshopBeast(draft);
+    if (!saved) {
+      this.workshopStatusEl.textContent = 'forge failed';
+      return;
+    }
+    this.userBeasts = [saved, ...this.userBeasts.filter((beast) => beast.id !== saved.id)];
+    this.setUserBeasts(this.userBeasts);
+    this.workshopStatusEl.textContent = `forged ${saved.name}`;
+    this.selectBeast(saved.id);
+  }
+
   // ---------- Behavior ----------
 
   private handleJoin() {
@@ -607,21 +805,25 @@ export class HomeScreen implements ScreenHandle {
   }
 
   private selectBeast(id: string) {
-    if (this.selectedBeastId === id) return;
+    const listing =
+      this.defaults.find((b) => b.id === id) ??
+      this.userBeasts.find((b) => b.id === id);
+    if (this.selectedBeastId === id) {
+      this.syncWorkshopToListing(listing);
+      return;
+    }
     const prev = this.selectedBeastId ? this.cardEls.get(this.selectedBeastId) : undefined;
     if (prev) prev.classList.remove('mb-selected');
     this.selectedBeastId = id;
     const next = this.cardEls.get(id);
     if (next) next.classList.add('mb-selected');
 
-    const listing =
-      this.defaults.find((b) => b.id === id) ??
-      this.userBeasts.find((b) => b.id === id);
     if (this.centerSelectedLabel) {
       this.centerSelectedLabel.textContent = listing
         ? `selected: ${listing.name.toUpperCase()}`
         : '';
     }
+    this.syncWorkshopToListing(listing);
   }
 
   // ---------- Public API ----------
@@ -637,6 +839,7 @@ export class HomeScreen implements ScreenHandle {
     // Simple re-render: wipe the right panel and rebuild it.
     const old = document.getElementById('mb-home-right');
     if (!old) return;
+    this.cardEls.clear();
     const { panel, centerSelectedLabel } = this.buildRightAndCenterLabel();
     old.replaceWith(panel);
     this.centerSelectedLabel = centerSelectedLabel;
@@ -644,6 +847,10 @@ export class HomeScreen implements ScreenHandle {
     if (this.selectedBeastId) {
       const card = this.cardEls.get(this.selectedBeastId);
       if (card) card.classList.add('mb-selected');
+      const listing =
+        this.defaults.find((b) => b.id === this.selectedBeastId) ??
+        this.userBeasts.find((b) => b.id === this.selectedBeastId);
+      this.syncWorkshopToListing(listing);
     }
   }
 
