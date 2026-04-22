@@ -8,6 +8,7 @@ import { existsSync } from 'fs';
 
 async function build() {
   console.log('🥩 Building MEATBASH for production...');
+  const buildId = Bun.env.MEATBASH_BUILD_ID?.trim() || Date.now().toString(36);
 
   // Ensure dist exists
   await mkdir('./dist', { recursive: true });
@@ -37,7 +38,7 @@ async function build() {
   const indexHtml = await Bun.file('./src/index.html').text();
   const prodHtml = indexHtml.replace(
     '<script type="module" src="./main.ts"></script>',
-    '<script type="module" src="/main.js"></script>'
+    `<script type="module" src="/main.js?v=${buildId}"></script>`
   );
   await Bun.write('./dist/index.html', prodHtml);
 
@@ -50,6 +51,7 @@ async function build() {
   }
 
   console.log('✅ Build complete! Output in ./dist/');
+  console.log(`   Build id: ${buildId}`);
   console.log('   Deploy dist/ to any static hosting.');
 }
 
