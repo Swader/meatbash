@@ -31,6 +31,7 @@ import {
 } from './beast/workshop';
 import { NetworkMatch } from './network/network-match';
 import { RemoteInputBuffer } from './network/remote-input';
+import { resolveRelayUrl } from './network/relay-url';
 import { SnapshotInterpolator, interpolateBeastState } from './network/snapshot-interp';
 import type {
   HostSnapshotMessage,
@@ -41,26 +42,10 @@ import type {
 } from './network/protocol';
 
 function getRelayUrl(): string {
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const override = typeof (window as any).__MEATBASH_RELAY_URL === 'string'
-    ? String((window as any).__MEATBASH_RELAY_URL).trim()
+    ? String((window as any).__MEATBASH_RELAY_URL)
     : '';
-  if (override) return override;
-  const host = window.location.hostname || 'localhost';
-  const lowerHost = host.toLowerCase();
-  const isLocalDevHost =
-    lowerHost === 'localhost' ||
-    lowerHost === '127.0.0.1' ||
-    lowerHost === '0.0.0.0' ||
-    lowerHost === '[::1]' ||
-    lowerHost.endsWith('.localhost') ||
-    /^127(?:\.\d{1,3}){3}\.(nip\.io|sslip\.io)$/.test(lowerHost);
-  if (!isLocalDevHost) {
-    return `${window.location.origin.replace(/^http/, protocol)}/ws`;
-  }
-  const rawPort = Number.parseInt(window.location.port, 10);
-  const port = Number.isFinite(rawPort) ? rawPort + 1 : 3001;
-  return `${protocol}://${host}:${port}/ws`;
+  return resolveRelayUrl(window.location, override);
 }
 
 const REMOTE_SNAPSHOT_TIMEOUT_MS = 750;
