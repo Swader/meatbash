@@ -21,13 +21,13 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 | 90%+ AI-generated code | Claude Code is primary dev tool |
 | New game, created after April 1 2026 | Fresh project, no prior code |
 | Web-accessible, free-to-play | Static site, no paywall |
-| No login or signup required | LocalStorage + browser fingerprint for beast garage; login optional (future) |
-| No heavy loading screens | Instant load to menu; assets are procedural SDFs, not downloaded models |
+| No login or signup required | Local quick-workshop beast storage only; no auth or browser-identity layer yet |
+| No heavy loading screens | Current build still shows a short warm-up overlay while renderer + physics init; the target remains near-instant menu load with no heavy asset downloads |
 | Own domain/subdomain | meatbash.com or similar |
 | Three.js recommended | Three.js client; current build uses `WebGLRenderer`, with WebGPU reserved for later SDF/compute work |
-| Multiplayer preferred | WebSocket-based 1v1 + spectating |
+| Multiplayer preferred | WebSocket-based host/guest 1v1 is shipped; spectating is still planned |
 | Vibejam widget embedded | `<script async src="https://vibejam.cc/2026/widget.js"></script>` |
-| Vibeverse portal | Exit portal redirecting to `portal.pieter.com` with GET params; handle `?portal=true` inbound |
+| Vibeverse portal | Planned, not shipped yet |
 
 ---
 
@@ -41,7 +41,7 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 | Physics | **Rapier 3D** (@dimforge/rapier3d WASM) | Rigid body skeleton physics, collision detection, joint constraints |
 | Soft Body | **Custom GPU compute** (TSL/WebGPU) | Meat deformation, chunk detachment, mass loss — Rapier handles skeleton, GPU handles flesh |
 | Sculpting | **SDF** (Signed Distance Fields) | Smooth, gooey, Play-Doh aesthetic; ray-marched in editor, meshed (marching cubes) for runtime |
-| Networking | **Bun WebSocket server** on DO droplet | Host-authoritative physics, input relay, spectator broadcast |
+| Networking | **Bun WebSocket server** on DO droplet | Host-authoritative physics, input relay; spectator broadcast is future work |
 | Build | **Bun** (bundler) | Zero config, fast, no webpack/vite needed |
 | Hosting | **Static files on DO/Cloudflare** | Game client is static; WS server is separate Bun process |
 | 3D Assets | **Procedural** (SDFs) + **Tripo3D** if needed | Arena props, food items, predator beast |
@@ -63,7 +63,7 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 │  ┌───────────────────────────────────────────┐       │
 │  │              ARENA (Combat)                │       │
 │  │                                            │       │
-│  │  Three.js WebGPU Renderer                  │       │
+│  │  Three.js WebGL Renderer                   │       │
 │  │  ├─ TSL Node Materials (meat, chitin, bone)│       │
 │  │  ├─ GPU Compute (soft body deformation)    │       │
 │  │  ├─ Rapier WASM (skeleton, rigid colliders)│       │
@@ -72,7 +72,7 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 │                                                       │
 │  ┌────────────────┐  ┌─────────────────────┐        │
 │  │ Beast Garage    │  │ Spectator View      │        │
-│  │ (localStorage)  │  │ (read-only WS feed) │        │
+│  │ (localStorage)  │  │ (planned)           │        │
 │  └────────────────┘  └─────────────────────┘        │
 └─────────────────────────────────────────────────────┘
                          │
@@ -104,17 +104,18 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 **What the player sees on load:**
 
 - Game title "MEATBASH" with gooey, pulsating meat letters
-- Three big buttons:
-  - **QUICK FIGHT** → pick a premade beast, fight a bot
-  - **JOIN MATCH** → enter a match code (e.g. `MEAT-4729`), pick a beast from garage
-  - **GENE LAB** → go to beast creator
-- Beast Garage preview (carousel of certified beasts, premades included)
-- Username input (persisted in localStorage, no auth)
+- Four primary actions:
+  - **BASH BOT** → pick a premade beast, fight a bot
+  - **HOST MATCH** → create a room code (e.g. `MEAT-4729`) and wait for a guest
+  - **JOIN MATCH** → enter a room code and spawn into the host's match
+  - **ENTER GENE LAB** → go to the quick workshop
+- Right-hand roster of `Your Beasts` plus premade defaults
 
-**No loading screen.** Menu renders immediately; 3D preview of a rotating meatbeast loads async in background.
+**Current runtime note:** a short warm-up overlay still blocks the screen while
+renderer and physics init. Direct-to-menu remains the target.
 
 **Current implementation note (2026-04-21):**
-- `QUICK FIGHT` into a bot match is live.
+- `BASH BOT` into a bot match is live.
 - `HOST MATCH` / `JOIN MATCH` are live through the Bun relay and room codes.
 - `ENTER GENE LAB` is live and swaps the home screen into a lightweight lab
   view with the current **Quick Workshop**.
@@ -128,7 +129,10 @@ The core creative experience. Players sculpt organic monstrosities.
 thin **Quick Workshop** behind the `ENTER GENE LAB` route. It supports:
 
 - archetype swap (`bipedal` / `quadruped`)
-- primary attack profile selection (`blunt` / `spike` / `shield`, filtered by archetype)
+- weight class, body size, and stability bias
+- archetype-filtered weapon authoring (`hammer` / `spike` / `shield` for
+  bipeds, `headbutt` / `shield` / `spike` for quadrupeds)
+- weapon socket, weapon length, and weapon mass
 - charge bias (`quick` / `balanced` / `heavy`)
 - color preset selection
 - localStorage persistence of forged beasts
@@ -329,7 +333,7 @@ damage = (relative_velocity × impactor_mass × material_multiplier) / defender_
 - Premade beasts are always available and cannot be trashed
 - Storage: certified beasts stored server-side keyed to localStorage token; premades are bundled with client
 
-### 5.6 Spectator Mode
+### 5.6 Planned Spectator Mode
 
 - Anyone with the match URL (e.g., `meatbash.com/watch/MEAT-4729`) can spectate
 - Read-only WebSocket feed: receives physics state, renders locally
@@ -416,43 +420,53 @@ Player keys don't directly move the beast. They apply **torques to joints:**
 
 - **Player 1 (host)** creates a match → gets code `MEAT-XXXX`
 - **Player 2** joins with code → WebSocket connects to Bun server
-- **Server role:** Relay only. Routes P1 inputs to P2's client and vice versa. The host client (P1) runs the authoritative physics simulation.
-- **Spectators** connect to the same match room. Receive state broadcasts only.
+- **Server role:** Relay only. The guest sends `input_frame` packets to the host.
+- **Host role:** Runs the authoritative physics simulation and sends `host_snapshot`
+  packets to the guest.
+- **Spectators:** planned, not implemented in the shipped runtime yet.
 
 ### 8.2 Protocol
 
 **Client → Server:**
 ```json
 {
-  "type": "input",
+  "type": "input_frame",
   "frame": 12345,
-  "keys": { "Q": true, "W": false, "E": false, "SPACE": false },
-  "mouse": { "dx": 1.2, "dy": -0.3 }
+  "keys": ["W", "SPACE"],
+  "edges": { "pressed": ["W"], "released": [] }
 }
 ```
 
-**Server → Clients (state broadcast from host):**
+**Server → Guest (host snapshot):**
 ```json
 {
-  "type": "state",
+  "type": "host_snapshot",
   "frame": 12345,
-  "bodies": [
-    { "id": 0, "pos": [x,y,z], "rot": [x,y,z,w], "vel": [x,y,z] },
-    ...
+  "match": { "phase": "FIGHTING", "timer": 142.5 },
+  "beasts": [
+    {
+      "player": "host",
+      "stamina": 0.67,
+      "mass": 0.85,
+      "attack": {
+        "state": "HELD",
+        "profile": "blunt",
+        "chargeNorm": 0.6,
+        "chargeTier": "ready"
+      },
+      "segments": [
+        { "name": "torso", "attached": true, "pos": [0, 1, 0], "rot": [0, 0, 0, 1] }
+      ]
+    }
   ],
-  "damage_events": [
-    { "beast": 0, "point": [x,y,z], "amount": 12.5, "chunk_vel": [x,y,z] }
-  ],
-  "mass": [85.2, 420.1],
-  "stamina": [67, 34],
-  "time_remaining": 142.5
+  "events": []
 }
 ```
 
 **Tick rate:**
 - Host physics: 60 Hz
 - State broadcast to opponent: 30 Hz (interpolated on receiving client)
-- State broadcast to spectators: 10-30 Hz (adaptive based on spectator count)
+- Spectator feed: planned, not implemented yet
 
 ### 8.3 Match Lifecycle
 
@@ -524,17 +538,16 @@ Beasts are stored and transmitted as JSON:
 
 ## 9. Rendering
 
-### 9.1 WebGPU Renderer Setup
+### 9.1 Renderer Setup (Current WebGL, Planned WebGPU)
 
 ```javascript
-import * as THREE from 'three/webgpu';
-import { color, time, normalWorld, positionWorld, Fn, float } from 'three/tsl';
+import * as THREE from 'three';
 
-const renderer = new THREE.WebGPURenderer();
-await renderer.init();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 ```
 
-**Fallback:** If WebGPU not available, fall back to WebGLRenderer with reduced effects. Show warning banner.
+**Planned upgrade:** move the renderer path to WebGPU only when the SDF/compute
+work makes it worthwhile. The shipped build is still plain `WebGLRenderer`.
 
 ### 9.2 Material Shading (TSL)
 
@@ -629,9 +642,6 @@ If time permits, show after combat:
 
 ### 12.1 Client-Side (localStorage)
 
-- `meatbash_username`: string
-- `meatbash_client_id`: UUID (generated on first visit, used to identify player)
-- `meatbash_garage_cache`: JSON array of beast summaries (for offline viewing; server is source of truth)
 - `meatbash_workshop_beasts_v1`: JSON array of locally forged quick-workshop beasts
 
 ### 12.2 Server-Side (SQLite on Bun server)
@@ -680,8 +690,8 @@ CREATE TABLE matches (
 
 **Goal:** A meat blob controlled with WASD that stands, walks, turns, jumps, falls, and recovers on a real heightfield arena.
 
-- [x] Project setup (Bun, Three.js WebGPU, Rapier WASM)
-- [x] WebGPU renderer with basic scene (heightfield ground, lighting, dust, walls)
+- [x] Project setup (Bun, Three.js WebGL, Rapier WASM)
+- [x] WebGL renderer with basic scene (heightfield ground, lighting, dust, walls)
 - [ ] SDF blob rendering (single meat sphere, ray-marched or marching-cubed)
 - [x] Rapier skeleton: dynamic bipedal rig with motorized hip/knee/ankle joints, foot sensors, joint contact disabled
 - [x] Active-ragdoll locomotion: WASD movement, smoothed turning, support-based standing, jump
@@ -766,13 +776,13 @@ meatbash/
 ├── MEMORY.md                       # AI learnings
 │
 ├── src/
-│   ├── index.html                  # Entry point, instant load
+│   ├── index.html                  # Entry point + brief startup warm-up overlay
 │   ├── main.ts                     # App bootstrap
 │   │
 │   ├── engine/
-│   │   ├── renderer.ts             # WebGPU renderer setup + fallback
+│   │   ├── renderer.ts             # WebGL renderer setup
 │   │   ├── scene.ts                # Scene management
-│   │   ├── camera.ts               # Follow cam, spectator cam
+│   │   ├── camera.ts               # Follow camera
 │   │   ├── input.ts                # Keyboard state manager
 │   │   └── loop.ts                 # Game loop (fixed timestep physics, variable render)
 │   │

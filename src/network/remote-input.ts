@@ -1,6 +1,10 @@
 import type { InputSource } from '../combat/bot-ai';
 import type { InputFrameMessage } from './protocol';
 
+function normalizeKey(key: string): string {
+  return key === 'SPACE' ? ' ' : key.toUpperCase();
+}
+
 export class RemoteInputBuffer implements InputSource {
   private keysDown = new Set<string>();
   private pressedThisStep = new Set<string>();
@@ -21,29 +25,25 @@ export class RemoteInputBuffer implements InputSource {
     this.releasedThisStep.clear();
 
     if (this.pendingFrames.length > 0) {
-      let previousKeys = new Set(this.keysDown);
-      let nextKeys = new Set(this.keysDown);
-      for (const frame of this.pendingFrames) {
-        nextKeys = new Set(frame.keys.map((key) => key.toUpperCase()));
-        if (frame.edges) {
-          for (const key of frame.edges.pressed) {
-            this.pressedThisStep.add(key.toUpperCase());
-          }
-          for (const key of frame.edges.released) {
-            this.releasedThisStep.add(key.toUpperCase());
-          }
-        } else {
-          for (const key of nextKeys) {
-            if (!previousKeys.has(key)) this.pressedThisStep.add(key);
-          }
-          for (const key of previousKeys) {
-            if (!nextKeys.has(key)) this.releasedThisStep.add(key);
-          }
+      const frame = this.pendingFrames.shift()!;
+      const previousKeys = new Set(this.keysDown);
+      const nextKeys = new Set(frame.keys.map(normalizeKey));
+      if (frame.edges) {
+        for (const key of frame.edges.pressed) {
+          this.pressedThisStep.add(normalizeKey(key));
         }
-        previousKeys = nextKeys;
+        for (const key of frame.edges.released) {
+          this.releasedThisStep.add(normalizeKey(key));
+        }
+      } else {
+        for (const key of nextKeys) {
+          if (!previousKeys.has(key)) this.pressedThisStep.add(key);
+        }
+        for (const key of previousKeys) {
+          if (!nextKeys.has(key)) this.releasedThisStep.add(key);
+        }
       }
       this.keysDown = nextKeys;
-      this.pendingFrames.length = 0;
       return;
     }
 
@@ -58,18 +58,19 @@ export class RemoteInputBuffer implements InputSource {
   endFrame(): void {}
 
   isDown(key: string): boolean {
-    return this.keysDown.has(key.toUpperCase());
+    const normalized = normalizeKey(key);
+    return this.keysDown.has(normalized) || this.pressedThisStep.has(normalized);
   }
 
   justPressed(key: string): boolean {
-    return this.pressedThisStep.has(key.toUpperCase());
+    return this.pressedThisStep.has(normalizeKey(key));
   }
 
   justReleased(key: string): boolean {
-    return this.releasedThisStep.has(key.toUpperCase());
+    return this.releasedThisStep.has(normalizeKey(key));
   }
 
   getHeldKeys(): string[] {
-    return [...this.keysDown];
+    return [...new Set([...this.keysDown, ...this.pressedThisStep])];
   }
 }

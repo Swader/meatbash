@@ -1,4 +1,5 @@
 import type { ClientMessage, ServerMessage } from './protocol';
+import { isServerMessage } from './protocol';
 
 export interface WsClientHooks {
   onMessage?: (message: ServerMessage) => void;
@@ -23,7 +24,11 @@ export class WsClient {
       }, { once: true });
       socket.addEventListener('message', (event) => {
         try {
-          const parsed = JSON.parse(String(event.data)) as ServerMessage;
+          const parsed = JSON.parse(String(event.data));
+          if (!isServerMessage(parsed)) {
+            console.warn('Rejected invalid websocket payload:', parsed);
+            return;
+          }
           this.hooks.onMessage?.(parsed);
         } catch (err) {
           console.warn('Failed to parse websocket payload:', err);

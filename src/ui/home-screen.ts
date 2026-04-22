@@ -27,6 +27,7 @@ import type {
   WeightClassHint,
 } from '../beast/beast-data';
 import {
+  MAX_WORKSHOP_BEASTS,
   getWorkshopColorPresets,
   getWorkshopBodySizes,
   getWorkshopChargeStyles,
@@ -1064,7 +1065,10 @@ export class HomeScreen implements ScreenHandle {
     return archetype === 'quadruped' ? 'ember' : 'crimson';
   }
 
-  private syncWorkshopToListing(listing: BeastListing | undefined): void {
+  private syncWorkshopToListing(
+    listing: BeastListing | undefined,
+    opts: { preserveStatus?: boolean } = {}
+  ): void {
     if (!listing || !this.workshopNameInput) return;
     const inferredWeaponType =
       (listing.workshopConfig?.weaponType as AttackWeaponType | undefined) ??
@@ -1113,7 +1117,9 @@ export class HomeScreen implements ScreenHandle {
       (listing.workshopConfig?.colorPreset as WorkshopColorPreset | undefined) ??
       this.chooseDefaultColor(listing.archetype as Archetype, inferredWeaponType);
     this.refreshWorkshopPreview();
-    this.workshopStatusEl.textContent = `loaded from ${listing.name}`;
+    if (!opts.preserveStatus) {
+      this.workshopStatusEl.textContent = `loaded from ${listing.name}`;
+    }
   }
 
   private syncModeUi(): void {
@@ -1151,10 +1157,11 @@ export class HomeScreen implements ScreenHandle {
       this.workshopStatusEl.textContent = 'forge failed';
       return;
     }
-    this.userBeasts = [saved, ...this.userBeasts.filter((beast) => beast.id !== saved.id)];
+    this.userBeasts = [saved, ...this.userBeasts.filter((beast) => beast.id !== saved.id)]
+      .slice(0, MAX_WORKSHOP_BEASTS);
     this.setUserBeasts(this.userBeasts);
     this.workshopStatusEl.textContent = `forged ${saved.name}`;
-    this.selectBeast(saved.id);
+    this.selectBeast(saved.id, { preserveWorkshopStatus: true });
   }
 
   // ---------- Behavior ----------
@@ -1179,12 +1186,12 @@ export class HomeScreen implements ScreenHandle {
     this.shell.emitStartMatch(this.selectedBeastId, 'bot');
   }
 
-  private selectBeast(id: string) {
+  private selectBeast(id: string, opts: { preserveWorkshopStatus?: boolean } = {}) {
     const listing =
       this.defaults.find((b) => b.id === id) ??
       this.userBeasts.find((b) => b.id === id);
     if (this.selectedBeastId === id) {
-      this.syncWorkshopToListing(listing);
+      this.syncWorkshopToListing(listing, { preserveStatus: opts.preserveWorkshopStatus });
       return;
     }
     const prev = this.selectedBeastId ? this.cardEls.get(this.selectedBeastId) : undefined;
@@ -1194,7 +1201,7 @@ export class HomeScreen implements ScreenHandle {
     if (next) next.classList.add('mb-selected');
 
     this.refreshSelectedLabel();
-    this.syncWorkshopToListing(listing);
+    this.syncWorkshopToListing(listing, { preserveStatus: opts.preserveWorkshopStatus });
   }
 
   // ---------- Public API ----------
@@ -1215,7 +1222,7 @@ export class HomeScreen implements ScreenHandle {
 
   /** Replace the list of user-created beasts and re-render the right column. */
   setUserBeasts(beasts: BeastListing[]) {
-    this.userBeasts = beasts;
+    this.userBeasts = beasts.slice(0, MAX_WORKSHOP_BEASTS);
     // Simple re-render: wipe the right panel and rebuild it.
     const old = document.getElementById('mb-home-right');
     if (!old) return;

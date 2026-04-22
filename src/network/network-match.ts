@@ -133,6 +133,10 @@ export class NetworkMatch {
     };
   }
 
+  getLocalBeast(): SerializedBeast | null {
+    return this.localBeast;
+  }
+
   private async ensureConnected(): Promise<void> {
     if (this.connected) return;
     await this.ws.connect(this.wsUrl);
@@ -180,6 +184,7 @@ export class NetworkMatch {
         if (this.role === 'guest') {
           this.role = null;
           this.roomCode = null;
+          this.localBeast = null;
         }
         this.hooks.onPeerLeft?.();
         break;

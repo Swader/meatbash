@@ -71,7 +71,9 @@ export class InputManager {
 
   /** Is the key currently held down? */
   isDown(key: string): boolean {
-    return this.matches(this.keysDown, key);
+    // Treat same-step taps as active for this physics step so very short
+    // inputs still reach locomotion and attack code before release.
+    return this.matches(this.keysDown, key) || this.matches(this.fixedPressed, key);
   }
 
   /** Was the key pressed during this fixed step? */
@@ -89,7 +91,7 @@ export class InputManager {
 
   /** Get all currently held keys (for network serialization) */
   getHeldKeys(): string[] {
-    return Array.from(this.keysDown);
+    return Array.from(new Set([...this.keysDown, ...this.fixedPressed]));
   }
 
   private matches(source: Set<string>, key: string): boolean {

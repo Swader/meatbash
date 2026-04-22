@@ -7,6 +7,7 @@ import type {
   MatchStartMessage,
   SerializedBeast,
 } from '../src/network/protocol';
+import { isClientMessage } from '../src/network/protocol';
 
 const PORT = Number.parseInt(process.env.PORT ?? '3001', 10) || 3001;
 const HOST = process.env.HOST ?? '0.0.0.0';
@@ -50,38 +51,41 @@ const server = Bun.serve<SocketData>({
         return;
       }
 
-      let message: ClientMessage;
-      try {
-        message = JSON.parse(rawText) as ClientMessage;
-      } catch {
-        socket.send(JSON.stringify({ type: 'error', message: 'Invalid JSON.' }));
+      const message = parseClientMessage(rawText);
+      if (!message) {
+        socket.send(JSON.stringify({ type: 'error', message: 'Invalid message.' }));
         return;
       }
 
-      switch (message.type) {
-        case 'hello':
-          break;
-        case 'create_room':
-          handleCreateRoom(socket, message);
-          break;
-        case 'join_room':
-          handleJoinRoom(socket, message);
-          break;
-        case 'leave_room':
-          leaveRoom(socket);
-          break;
-        case 'input_frame':
-          relayToHost(socket, message);
-          break;
-        case 'host_snapshot':
-          relayToGuest(socket, message);
-          break;
-        case 'match_start':
-          relayToGuest(socket, message);
-          break;
-        case 'ping':
-          socket.send(JSON.stringify({ type: 'pong', sentAt: message.sentAt }));
-          break;
+      try {
+        switch (message.type) {
+          case 'hello':
+            break;
+          case 'create_room':
+            handleCreateRoom(socket, message);
+            break;
+          case 'join_room':
+            handleJoinRoom(socket, message);
+            break;
+          case 'leave_room':
+            leaveRoom(socket);
+            break;
+          case 'input_frame':
+            relayToHost(socket, message);
+            break;
+          case 'host_snapshot':
+            relayToGuest(socket, message);
+            break;
+          case 'match_start':
+            relayToGuest(socket, message);
+            break;
+          case 'ping':
+            socket.send(JSON.stringify({ type: 'pong', sentAt: message.sentAt }));
+            break;
+        }
+      } catch (err) {
+        console.error('Relay message handling failed:', err);
+        socket.send(JSON.stringify({ type: 'error', message: 'Relay failed to process message.' }));
       }
     },
     close(socket) {
@@ -190,4 +194,14 @@ function createRoomCode(): string {
     code = `MEAT-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   } while (rooms.has(code));
   return code;
+}
+
+function parseClientMessage(rawText: string): ClientMessage | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawText);
+  } catch {
+    return null;
+  }
+  return isClientMessage(parsed) ? parsed : null;
 }

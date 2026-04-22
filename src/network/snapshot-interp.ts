@@ -37,6 +37,11 @@ export class SnapshotInterpolator {
       alpha,
     };
   }
+
+  isCurrentFresh(maxAgeMs: number): boolean {
+    if (!this.current) return false;
+    return performance.now() - this.current.receivedAt <= maxAgeMs;
+  }
 }
 
 export function interpolateBeastState(

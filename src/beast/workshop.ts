@@ -42,6 +42,7 @@ export interface WorkshopPreview {
 }
 
 const STORAGE_KEY = 'meatbash_workshop_beasts_v1';
+export const MAX_WORKSHOP_BEASTS = 16;
 
 const COLOR_PRESETS: Record<WorkshopColorPreset, { color: number; emissive: number; iconEmoji: string }> = {
   crimson: { color: 0xd84a4a, emissive: 0x330808, iconEmoji: '🥩' },
@@ -103,18 +104,20 @@ export function loadWorkshopBeasts(): BeastDefinition[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isBeastDefinitionLike) as BeastDefinition[];
+    return parsed.filter(isBeastDefinitionLike).slice(0, MAX_WORKSHOP_BEASTS) as BeastDefinition[];
   } catch {
     return [];
   }
 }
 
-export function saveWorkshopBeasts(beasts: BeastDefinition[]): void {
-  if (typeof localStorage === 'undefined') return;
+export function saveWorkshopBeasts(beasts: BeastDefinition[]): boolean {
+  if (typeof localStorage === 'undefined') return false;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(beasts));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(beasts.slice(0, MAX_WORKSHOP_BEASTS)));
+    return true;
   } catch (err) {
     console.warn('Failed to save workshop beasts:', err);
+    return false;
   }
 }
 
@@ -683,8 +686,77 @@ function isBeastDefinitionLike(value: unknown): value is BeastDefinition {
   return (
     typeof beast.id === 'string' &&
     typeof beast.name === 'string' &&
+    typeof beast.description === 'string' &&
     (beast.archetype === 'bipedal' || beast.archetype === 'quadruped') &&
-    !!beast.visuals &&
-    Array.isArray(beast.attackSlots)
+    typeof beast.isDefault === 'boolean' &&
+    typeof beast.personality === 'string' &&
+    isVisualsLike(beast.visuals) &&
+    Array.isArray(beast.attackSlots) &&
+    beast.attackSlots.every(isAttackSlotDefinitionLike)
+  );
+}
+
+function isVisualsLike(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false;
+  const visuals = value as Record<string, unknown>;
+  return (
+    typeof visuals.color === 'number' &&
+    Number.isFinite(visuals.color) &&
+    typeof visuals.emissive === 'number' &&
+    Number.isFinite(visuals.emissive)
+  );
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+}
+
+function isNumberRecord(value: unknown): value is Record<string, number> {
+  return !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.values(value).every((entry) => typeof entry === 'number' && Number.isFinite(entry));
+}
+
+function isAttackSlotDefinitionLike(value: unknown): value is AttackSlotDefinition {
+  if (!value || typeof value !== 'object') return false;
+  const slot = value as Partial<AttackSlotDefinition>;
+  return (
+    slot.id === 'primary' &&
+    typeof slot.appendageRoot === 'string' &&
+    isStringArray(slot.drivenJoints) &&
+    isStringArray(slot.hitSegments) &&
+    (slot.activeBodies === undefined || isStringArray(slot.activeBodies)) &&
+    (slot.blockBodies === undefined || isStringArray(slot.blockBodies)) &&
+    (slot.profile === 'blunt' || slot.profile === 'spike' || slot.profile === 'shield') &&
+    isNumberRecord(slot.windupPose) &&
+    isNumberRecord(slot.strikePose) &&
+    isNumberRecord(slot.recoverPose) &&
+    typeof slot.windupTime === 'number' &&
+    Number.isFinite(slot.windupTime) &&
+    typeof slot.recoverTime === 'number' &&
+    Number.isFinite(slot.recoverTime) &&
+    typeof slot.minHoldForCharge === 'number' &&
+    Number.isFinite(slot.minHoldForCharge) &&
+    typeof slot.maxChargeTime === 'number' &&
+    Number.isFinite(slot.maxChargeTime) &&
+    typeof slot.holdDrainPerSec === 'number' &&
+    Number.isFinite(slot.holdDrainPerSec) &&
+    typeof slot.strikeCostLight === 'number' &&
+    Number.isFinite(slot.strikeCostLight) &&
+    typeof slot.strikeCostHeavy === 'number' &&
+    Number.isFinite(slot.strikeCostHeavy) &&
+    typeof slot.damageMulLight === 'number' &&
+    Number.isFinite(slot.damageMulLight) &&
+    typeof slot.damageMulHeavy === 'number' &&
+    Number.isFinite(slot.damageMulHeavy) &&
+    typeof slot.knockbackMul === 'number' &&
+    Number.isFinite(slot.knockbackMul) &&
+    typeof slot.rootLungeForward === 'number' &&
+    Number.isFinite(slot.rootLungeForward) &&
+    typeof slot.rootLungeUp === 'number' &&
+    Number.isFinite(slot.rootLungeUp) &&
+    typeof slot.rootYawAssist === 'number' &&
+    Number.isFinite(slot.rootYawAssist)
   );
 }

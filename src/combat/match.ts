@@ -17,7 +17,7 @@ export type MatchResult = 'win' | 'lose' | 'draw';
 export interface MatchSnapshot {
   phase: MatchPhase;
   timer: number;        // seconds remaining in current phase (countdown or fight)
-  countdownSec: number; // integer seconds for COUNTDOWN display
+  countdownSec?: number; // integer seconds for COUNTDOWN display / FIGHT cue
   p1Mass: number;       // 0..1 — fraction of starting mass
   p2Mass: number;       // 0..1
   result?: MatchResult; // set when phase === 'ENDED'
@@ -36,6 +36,8 @@ export const DEFAULT_MATCH_CONFIG: MatchConfig = {
   knockoutThreshold: 0.30,
 };
 
+const FIGHT_CUE_DURATION = 0.7;
+
 /**
  * A tiny state machine. `update(dt)` advances the timer; external code
  * calls `reportMass(p1, p2)` each frame with current mass fractions
@@ -48,6 +50,7 @@ export class MatchController {
   private p1Mass = 1.0;
   private p2Mass = 1.0;
   private result: MatchResult | undefined;
+  private fightCueLeft = 0;
   private onPhaseChange?: (phase: MatchPhase) => void;
 
   constructor(
@@ -62,12 +65,15 @@ export class MatchController {
   /** Advance the internal timer. Call once per variable-rate update. */
   update(dt: number): void {
     if (this.phase === 'ENDED') return;
+    this.fightCueLeft = Math.max(0, this.fightCueLeft - dt);
     this.timer -= dt;
 
     if (this.phase === 'COUNTDOWN') {
       if (this.timer <= 0) {
+        const overshoot = Math.max(0, -this.timer);
         this.transition('FIGHTING');
-        this.timer = this.config.fightDuration;
+        this.fightCueLeft = FIGHT_CUE_DURATION;
+        this.timer = Math.max(0, this.config.fightDuration - overshoot);
       }
       return;
     }
@@ -112,10 +118,16 @@ export class MatchController {
 
   /** Get a snapshot safe to read from UI code. */
   snapshot(): MatchSnapshot {
+    const countdownSec =
+      this.phase === 'COUNTDOWN'
+        ? Math.max(0, Math.ceil(this.timer))
+        : this.phase === 'FIGHTING' && this.fightCueLeft > 0
+          ? 0
+          : undefined;
     return {
       phase: this.phase,
       timer: Math.max(0, this.timer),
-      countdownSec: Math.max(0, Math.ceil(this.timer)),
+      countdownSec,
       p1Mass: this.p1Mass,
       p2Mass: this.p2Mass,
       result: this.result,

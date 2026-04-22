@@ -26,7 +26,7 @@ The app rebuilds on refresh.
 - `J` raise and hold the primary attack
 - `K` commit the held attack
 - `ESC` leave the arena
-- `R` restart after the match ends
+- `R` restart after offline bot matches end
 
 ## Scripts
 
@@ -46,6 +46,7 @@ bun run zip    # review/archive zip (builds first)
   charge bias, color preset, localStorage persistence
 - Match-code multiplayer: host/join room flow over the Bun websocket relay
 - Arena flow: home screen, bot fights, and online 1v1 are live
+- End-state navigation: `Back to Menu` on the victory/result screen
 
 Not built yet: spectator mode, full Gene Lab sculpting, Darwin Certification,
 and server-backed beast storage.

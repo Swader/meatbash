@@ -70,7 +70,9 @@ code/
 - **Three.js** with `WebGLRenderer` today. WebGPU is planned later, but the
   active renderer path is still `three` + `WebGLRenderer`.
 - **Rapier 3D** via `@dimforge/rapier3d-compat` for physics. WASM-backed.
-- **No loading screens.** Game must be instantly playable — Vibejam rule.
+- **Keep startup blocking brief.** The current build still shows a short
+  warm-up overlay while renderer and physics init; direct-to-menu remains the
+  target.
 - **No login required.** local workshop beasts live in localStorage for now;
   server-backed certified beasts are future work.
 - **Keep local artifacts local.** Probe captures, output folders, zips, and
@@ -81,7 +83,6 @@ code/
 ## Run / build / test
 
 ```bash
-cd code/
 bun install              # once
 bun run dev              # app + relay
 bun run dev:app          # app-only dev server
@@ -230,7 +231,7 @@ sculpting lab.
   loop and never assumes a fixed value.
 - **Beast serialization:** JSON. Current custom workshop beasts are stored in
   localStorage and reuse the same `BeastDefinition` shape as premades.
-- **Match codes:** `MEAT-XXXX` format (planned, not implemented yet).
+- **Match codes:** `MEAT-XXXX` format via the Bun relay.
 - **Forces / torques are mass-normalized** at apply time. Tuning values in
   `tuning.ts` are per-kg accelerations. This way mass loss, mass variation,
   and wildly different beasts all feel right without re-tuning.

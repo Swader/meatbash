@@ -60,10 +60,10 @@ where files live and how to run the project read
 - Match controller: 3-second countdown → 3-minute fight → result
   (VICTORY / DEFEAT / DRAW).
 - Match HUD: timer, P1/P2 mass bars, stamina pips, countdown overlay,
-  result text, "press R to restart" hint.
+  result text, a bot-only "press R to restart" hint, and `Back to Menu`.
 - Theme music now switches by screen context (menu vs battle), with a
   clickable Tragikomik credit widget in the lower-right corner.
-- ESC returns to home; R restarts the same matchup.
+- ESC returns to home; R restarts bot matches only and can reroll the opponent.
 - Beasts shipping: **Chonkus** (biped tank, armed), **Stomper** (quad
   bully), **Noodlesnake** (biped skirmisher, armed), **Butterchonk** (quad
   tank).
@@ -134,8 +134,8 @@ where files live and how to run the project read
 - Quick Workshop now lives behind the `ENTER GENE LAB` route and can fork the
   selected beast into a playable custom variant.
 - Archetype choices: `bipedal` or `quadruped`.
-- Primary attack choices are filtered per archetype (`blunt` / `spike` for
-  bipeds, `shield` / `blunt` for quadrupeds).
+- Primary attack choices are filtered per archetype (`hammer` / `spike` /
+  `shield` for bipeds, `headbutt` / `shield` / `spike` for quadrupeds).
 - Charge bias choices: `quick`, `balanced`, `heavy`.
 - Color preset choices: `crimson`, `peach`, `tallow`, `ember`.
 - Workshop beasts persist in localStorage via
@@ -247,9 +247,8 @@ In rough order of "biggest jam impact per unit work":
 - Audio exists now: jump/land/miss/hit sprites plus menu/battle music are
   wired, but mixing, volume balancing, and lab-specific music still need
   polish.
-- The home screen still exposes join / certification affordances before those
-  loops are fully wired; keep the copy honest until matchmaking and Darwin
-  progression exist.
+- The home screen still exposes certification affordances before that loop is
+  fully wired; keep Darwin copy honest until progression exists.
 - The damage system is symmetric in baseline — both sides take the same
   baseDamage, with the arm bonus on top. Some matchups may feel like the
   player gets punished for landing hits; revisit if playtesting confirms.

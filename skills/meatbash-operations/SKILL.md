@@ -78,5 +78,16 @@ sudo systemctl status --no-pager meatbash-relay
 sudo journalctl -u meatbash -n 200 --no-pager
 sudo journalctl -u meatbash-relay -n 200 --no-pager
 curl -I http://127.0.0.1:3010/
-curl -I http://127.0.0.1:3011/
+curl -i -N \
+  -H 'Connection: Upgrade' \
+  -H 'Upgrade: websocket' \
+  -H 'Sec-WebSocket-Version: 13' \
+  -H 'Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==' \
+  http://127.0.0.1:3011/ws | sed -n '1,10p'
+curl -i -N \
+  -H 'Connection: Upgrade' \
+  -H 'Upgrade: websocket' \
+  -H 'Sec-WebSocket-Version: 13' \
+  -H 'Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==' \
+  https://meatbash.bitfalls.com/ws | sed -n '1,10p'
 ```

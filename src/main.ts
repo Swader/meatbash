@@ -23,7 +23,12 @@ import { processSeverance } from './physics/severance';
 import { MeatChunks } from './particles/meat-chunks';
 import { ImpactShockwaves } from './particles/impact-shockwaves';
 import { applyHitFeedback } from './combat/hit-feedback';
-import { createWorkshopBeast, loadWorkshopBeasts, saveWorkshopBeasts } from './beast/workshop';
+import {
+  MAX_WORKSHOP_BEASTS,
+  createWorkshopBeast,
+  loadWorkshopBeasts,
+  saveWorkshopBeasts,
+} from './beast/workshop';
 import { NetworkMatch } from './network/network-match';
 import { RemoteInputBuffer } from './network/remote-input';
 import { SnapshotInterpolator, interpolateBeastState } from './network/snapshot-interp';
@@ -42,13 +47,23 @@ function getRelayUrl(): string {
     : '';
   if (override) return override;
   const host = window.location.hostname || 'localhost';
-  if (!window.location.port) {
-    return `${protocol}://${host}/ws`;
+  const lowerHost = host.toLowerCase();
+  const isLocalDevHost =
+    lowerHost === 'localhost' ||
+    lowerHost === '127.0.0.1' ||
+    lowerHost === '0.0.0.0' ||
+    lowerHost === '[::1]' ||
+    lowerHost.endsWith('.localhost') ||
+    /^127(?:\.\d{1,3}){3}\.(nip\.io|sslip\.io)$/.test(lowerHost);
+  if (!isLocalDevHost) {
+    return `${window.location.origin.replace(/^http/, protocol)}/ws`;
   }
   const rawPort = Number.parseInt(window.location.port, 10);
   const port = Number.isFinite(rawPort) ? rawPort + 1 : 3001;
   return `${protocol}://${host}:${port}/ws`;
 }
+
+const REMOTE_SNAPSHOT_TIMEOUT_MS = 750;
 
 async function main() {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
@@ -78,8 +93,11 @@ async function main() {
     userBeasts: customBeasts.map(toBeastListing),
     onCreateWorkshopBeast: (draft) => {
       const created = createWorkshopBeast(draft);
-      customBeasts = [created, ...customBeasts].slice(0, 16);
-      saveWorkshopBeasts(customBeasts);
+      const nextCustomBeasts = [created, ...customBeasts].slice(0, MAX_WORKSHOP_BEASTS);
+      if (!saveWorkshopBeasts(nextCustomBeasts)) {
+        return null;
+      }
+      customBeasts = nextCustomBeasts;
       return toBeastListing(created);
     },
   });
@@ -137,8 +155,7 @@ async function main() {
       home.setHomeStatus(`Joined ${roomCode}. Waiting for host to start...`);
     },
     onPeerJoined: (roomCode, guestBeast) => {
-      const selected = home.getSelectedBeastId();
-      const hostBeast = selected ? resolveBeastDefinition(selected) : null;
+      const hostBeast = network.getLocalBeast();
       if (!hostBeast) {
         home.setHomeStatus(`Room ${roomCode} ready, but the host beast is missing.`);
         return;
@@ -150,13 +167,7 @@ async function main() {
     },
     onMatchStart: (message) => {
       if (networkRole === 'guest') {
-        const selected = home.getSelectedBeastId();
-        const guestBeast = selected ? resolveBeastDefinition(selected) : null;
-        if (!guestBeast) {
-          home.setHomeStatus(`Joined ${message.roomCode}, but your beast selection is missing.`);
-          return;
-        }
-        void startGuestMatch(guestBeast, message.hostBeast, message.roomCode);
+        void startGuestMatch(message.guestBeast, message.hostBeast, message.roomCode);
       }
     },
     onSnapshot: (snapshot) => {
@@ -174,10 +185,16 @@ async function main() {
       }
     },
     onPeerLeft: () => {
-      home.setHomeStatus('Peer left the room.');
       if (shell.getCurrentScreen() === 'ARENA') {
-        returnToHome();
+        returnToHome('Peer left the room.');
+        return;
       }
+      if (networkRole === 'guest') {
+        void network.disconnect();
+        networkRole = null;
+        networkRoomCode = null;
+      }
+      home.setHomeStatus('Peer left the room.');
     },
     onDisconnected: () => {
       const wasOnline = networkRole !== null;
@@ -387,14 +404,17 @@ async function main() {
   };
 
   /** Hand the player back to the home screen, discarding the current match. */
-  const returnToHome = () => {
+  const returnToHome = (statusMessage?: string) => {
     teardownMatch();
     if (networkRole) {
       void network.disconnect();
       networkRole = null;
       networkRoomCode = null;
     }
-    home.setHomeStatus('Bot fights and match-code hosting are live. Pick a beast, host a room, or join one by code.');
+    home.setHomeStatus(
+      statusMessage ??
+        'Bot fights and match-code hosting are live. Pick a beast, host a room, or join one by code.'
+    );
     shell.transition('HOME');
   };
   matchHud.setCallbacks({
@@ -487,6 +507,15 @@ async function main() {
     if (result === 'draw') return 'draw';
     return result === networkRole ? 'win' : 'lose';
   };
+  const hudStatusForMatch = (
+    phase: 'COUNTDOWN' | 'FIGHTING' | 'ENDED',
+    countdownSec?: number
+  ) =>
+    phase === 'ENDED'
+      ? 'ended'
+      : countdownSec != null
+        ? 'countdown'
+        : 'fighting';
   const beastForRole = (role: NetworkRole): BeastInstance | null => {
     if (!player || !opponent) return null;
     if (networkRole === 'guest') {
@@ -547,6 +576,7 @@ async function main() {
       match: {
         phase: snap.phase,
         timer: snap.timer,
+        countdownSec: snap.countdownSec,
         result,
       },
       beasts: [
@@ -740,6 +770,10 @@ async function main() {
       }
 
       if (networkRole === 'guest' && shell.getCurrentScreen() === 'ARENA' && player && opponent && latestRemoteSnapshot) {
+        if (!snapshotInterpolator.isCurrentFresh(REMOTE_SNAPSHOT_TIMEOUT_MS)) {
+          returnToHome('Connection stalled. Returned to menu.');
+          return;
+        }
         const sampled = snapshotInterpolator.sample();
         if (sampled.current) {
           const currentGuest = sampled.current.beasts.find((state) => state.player === 'guest');
@@ -757,11 +791,8 @@ async function main() {
             p2Mass: currentHost?.mass ?? 1,
             p1Stamina: currentGuest?.stamina ?? 1,
             p2Stamina: currentHost?.stamina ?? 1,
-            status:
-              sampled.current.match.phase === 'COUNTDOWN' ? 'countdown' :
-              sampled.current.match.phase === 'FIGHTING' ? 'fighting' :
-              'ended',
-            countdownSec: sampled.current.match.phase === 'COUNTDOWN' ? Math.ceil(sampled.current.match.timer) : undefined,
+            status: hudStatusForMatch(sampled.current.match.phase, sampled.current.match.countdownSec),
+            countdownSec: sampled.current.match.countdownSec,
             result: decodeResultForLocal(sampled.current.match.result) as any,
             canRestart: false,
             p1Name: player.definition?.name || 'YOU',
@@ -774,7 +805,14 @@ async function main() {
       }
 
       if (shell.getCurrentScreen() === 'ARENA' && match && player && opponent) {
-        // Advance match timer
+        // Report real mass fractions from the damage system
+        const pState = damage.getState(player);
+        const oState = damage.getState(opponent);
+        const p1Mass = pState ? pState.getMassFraction() : 1.0;
+        const p2Mass = oState ? oState.getMassFraction() : 1.0;
+        match.reportMass(p1Mass, p2Mass);
+
+        // Advance match timer after feeding this frame's real mass state.
         match.update(dt);
         const snap = match.snapshot();
 
@@ -783,22 +821,14 @@ async function main() {
         player.inputActive = fighting;
         opponent.inputActive = fighting;
 
-        // Report real mass fractions from the damage system
-        const pState = damage.getState(player);
-        const oState = damage.getState(opponent);
-        const p1Mass = pState ? pState.getMassFraction() : 1.0;
-        const p2Mass = oState ? oState.getMassFraction() : 1.0;
-        match.reportMass(p1Mass, p2Mass);
-
         matchHud.setMatchState({
           timer: snap.timer,
           p1Mass: snap.p1Mass,
           p2Mass: snap.p2Mass,
           p1Stamina: player.getStaminaFraction(),
           p2Stamina: opponent.getStaminaFraction(),
-          status: snap.phase === 'COUNTDOWN' ? 'countdown' :
-                  snap.phase === 'FIGHTING' ? 'fighting' : 'ended',
-          countdownSec: snap.phase === 'COUNTDOWN' ? snap.countdownSec : undefined,
+          status: hudStatusForMatch(snap.phase, snap.countdownSec),
+          countdownSec: snap.countdownSec,
           result: snap.result as any,
           canRestart: networkRole === null,
           p1Name: player.definition?.name || 'YOU',
