@@ -82,7 +82,17 @@ export interface DamageEvent {
   feedbackMul: number;
   knockbackScale: number;
   locationTag: 'core' | 'mid' | 'edge';
+  impactClass: DamageImpactClass;
 }
+
+export type DamageImpactClass =
+  | 'passive'
+  | 'quick'
+  | 'ready'
+  | 'heavy'
+  | 'heavy-clean'
+  | 'blocked'
+  | 'glancing';
 
 interface ResolvedIntentionalHit {
   attackerSegment: string;
@@ -100,6 +110,14 @@ interface ContactMemory {
   point: { x: number; y: number; z: number };
   impactSpeed: number;
   timeLeft: number;
+}
+
+interface StrikeSample {
+  segment: string;
+  point: { x: number; y: number; z: number };
+  radius: number;
+  bodyMass: number;
+  vel: { x: number; y: number; z: number };
 }
 
 interface LaunchWindow {
@@ -379,12 +397,14 @@ export class DamageResolver {
   ): DamageEvent | null {
     const state = this.states.get(victim);
     if (!state) return null;
+    if (!victim.isSegmentAttached(segment)) return null;
     let damageAmount = baseDamage * PASSIVE_DAMAGE_MUL;
     let source: 'passive' | 'active' = 'passive';
     let profile: AttackProfile | undefined;
     let chargeTier: ChargeTier | undefined;
     let blocked = false;
     let glancing = false;
+    let impactClass: DamageImpactClass = 'passive';
     let splashText = 'GLANCE!';
     let hitstop = 0.006;
     let shake = 0.08;
@@ -396,6 +416,7 @@ export class DamageResolver {
       (attacker && this.isChargingAttack(attacker)) || this.isChargingAttack(victim);
 
     if (attacker && attackerSegment) {
+      if (!attacker.isSegmentAttached(attackerSegment)) return null;
       const toVictim = victim.getPosition().sub(attacker.getPosition());
       const dot = this.forwardDot(attacker.getYaw(), toVictim.x, toVictim.z);
       const active =
@@ -436,20 +457,34 @@ export class DamageResolver {
         }
         if (glancing) damageAmount *= 0.65;
 
-        if (blocked) splashText = 'BLOCK!';
-        else if (glancing) splashText = 'GLANCE!';
-        else if (active.profile === 'blunt') {
+        if (blocked) {
+          impactClass = 'blocked';
+          splashText = 'BLOCK!';
+        } else if (glancing) {
+          impactClass = 'glancing';
+          splashText = 'GLANCE!';
+        } else if (chargeTier === 'heavy') {
+          impactClass = 'heavy-clean';
+          if (active.profile === 'shield') splashText = 'BOOM!';
+          else if (active.profile === 'spike') splashText = 'SKEWER!';
+          else splashText = locationTag === 'core' ? 'MEATSHOT!' : 'KRAK!';
+          damageAmount *= locationTag === 'core' ? 1.45 : 1.3;
+        } else if (active.profile === 'blunt') {
+          impactClass = chargeTier === 'ready' ? 'ready' : 'quick';
           splashText =
-            locationTag === 'core' || chargeTier === 'heavy'
+            locationTag === 'core'
               ? 'CRUNCH!'
               : 'BONK!';
         } else if (active.profile === 'spike') {
+          impactClass = chargeTier === 'ready' ? 'ready' : 'quick';
           splashText =
-            locationTag === 'core' || chargeTier === 'heavy'
+            locationTag === 'core'
               ? 'CRUNCH!'
               : 'STAB!';
+        } else {
+          impactClass = chargeTier === 'ready' ? 'ready' : 'quick';
+          splashText = 'SHOVE!';
         }
-        else splashText = chargeTier === 'heavy' ? 'BASH!' : 'SHOVE!';
 
         if (chargeTier === 'quick') {
           shake = Math.max(shake, 0.12);
@@ -458,8 +493,13 @@ export class DamageResolver {
           shake = Math.max(shake, 0.2);
           hitstop = Math.max(hitstop, 0.014);
         } else {
-          shake = Math.max(shake, 0.3);
-          hitstop = Math.max(hitstop, 0.02);
+          impactClass = blocked ? 'blocked' : glancing ? 'glancing' : impactClass;
+          shake = Math.max(shake, impactClass === 'heavy-clean' ? 0.68 : 0.38);
+          hitstop = Math.max(hitstop, impactClass === 'heavy-clean' ? 0.055 : 0.022);
+          if (impactClass === 'heavy-clean') {
+            feedbackMul *= 1.45;
+            knockbackScale *= 1.4;
+          }
         }
       }
     }
@@ -506,6 +546,7 @@ export class DamageResolver {
       feedbackMul,
       knockbackScale,
       locationTag,
+      impactClass,
     };
     this.recentEvents.push(ev);
     while (this.recentEvents.length > this.MAX_RECENT) {
@@ -653,7 +694,8 @@ export class DamageResolver {
     event: DamageEvent
   ): void {
     const chargeLaunch =
-      event.chargeTier === 'heavy' ? 1.7 :
+      event.impactClass === 'heavy-clean' ? 2.65 :
+      event.chargeTier === 'heavy' ? 1.85 :
       event.chargeTier === 'ready' ? 1.22 :
       0.9;
     const contactMul =
@@ -673,7 +715,8 @@ export class DamageResolver {
       active.knockbackMul *
       event.knockbackScale *
       chargeLaunch *
-      contactMul;
+      contactMul /
+      Math.max(0.65, victim.getKnockbackResistance());
 
     const fx = Math.sin(attacker.getYaw());
     const fz = Math.cos(attacker.getYaw());
@@ -736,11 +779,12 @@ export class DamageResolver {
       return 0;
     }
 
-    if (slot.blockBodies.includes(segment)) {
+    if (slot.blockBodies.includes(segment) && victim.isSegmentAttached(segment)) {
       return victim.getIncomingBlockReduction(attackerProfile);
     }
 
     const nearBlockBody = slot.blockBodies.some((name) => {
+      if (!victim.isSegmentAttached(name)) return false;
       const body = victim.getJointBody(name);
       if (!body) return false;
       const bp = body.translation();
@@ -773,9 +817,8 @@ export class DamageResolver {
     const dx = victimPos.x - attackerPos.x;
     const dz = victimPos.z - attackerPos.z;
     const dot = this.forwardDot(attacker.getYaw(), dx, dz);
-    const activeBodies = getSlotActiveBodies(slot);
+    const activeBodies = getSlotActiveBodies(slot).filter((name) => attacker.isSegmentAttached(name));
     const recentContacts = this.getRecentContacts(attacker, victim);
-    if (recentContacts.length === 0) return;
 
     const active =
       attacker.resolveGenericActiveAttack(dot) ??
@@ -784,10 +827,11 @@ export class DamageResolver {
         .find((ctx): ctx is ActiveAttackContext => ctx !== null);
     if (!active) return;
 
+    const reachMul = slot.reachMultiplier ?? 1;
     const range =
-      active.profile === 'spike' ? 0.45 :
-      active.profile === 'shield' ? 1.0 :
-      1.15;
+      (active.profile === 'spike' ? 0.56 :
+      active.profile === 'shield' ? 1.14 :
+      1.28) * reachMul;
 
     if (active.profile !== 'spike') {
       const broadHit = this.tryResolveBroadBodyHit(attacker, victim, slot, active, dot, recentContacts);
@@ -819,6 +863,26 @@ export class DamageResolver {
       }
     }
 
+    const proximityHit = this.tryResolveProximityHit(attacker, victim, slot, active, dot, range);
+    if (proximityHit) {
+      const ev = this.damageSegment(
+        victim,
+        proximityHit.victimSegment,
+        attacker,
+        proximityHit.attackerSegment,
+        proximityHit.point,
+        proximityHit.impactSpeed,
+        proximityHit.baseDamage,
+        active,
+        proximityHit.facingDot,
+        proximityHit.qualityMul
+      );
+      if (!ev) return;
+      pairMap.set(victim, commitSerial);
+      this.applyIntentionalKnockback(attacker, victim, active, ev);
+      return;
+    }
+
     let best:
       | (ResolvedIntentionalHit & {
           distance: number;
@@ -833,6 +897,8 @@ export class DamageResolver {
         contact.point.z - attackerPos.z
       );
       if (contactFrontDot < 0.12) return false;
+      if (!attacker.isSegmentAttached(contact.ownSegment)) return false;
+      if (!victim.isSegmentAttached(contact.otherSegment)) return false;
       return (
         activeBodies.includes(contact.ownSegment) ||
         contact.ownSegment === slot.appendageRoot ||
@@ -918,6 +984,7 @@ export class DamageResolver {
   ): ResolvedIntentionalHit | null {
     const tipSegment = slot.tipSegment ?? getSlotActiveBodies(slot)[0];
     if (!tipSegment) return null;
+    if (!attacker.isSegmentAttached(tipSegment)) return null;
     const tipBody = attacker.getJointBody(tipSegment);
     if (!tipBody) return null;
     const tipPoint = attacker.getSegmentWorldPoint(tipSegment, slot.tipLocalOffset);
@@ -932,7 +999,9 @@ export class DamageResolver {
       | null = null;
 
     const relevantContacts = recentContacts.filter((contact) =>
-      contact.ownSegment === tipSegment || getSlotActiveBodies(slot).includes(contact.ownSegment)
+      (contact.ownSegment === tipSegment || getSlotActiveBodies(slot).includes(contact.ownSegment)) &&
+      attacker.isSegmentAttached(contact.ownSegment) &&
+      victim.isSegmentAttached(contact.otherSegment)
     );
 
     for (const contact of relevantContacts) {
@@ -942,7 +1011,7 @@ export class DamageResolver {
       const dy = contact.point.y - tipPoint.y;
       const dz = contact.point.z - tipPoint.z;
       const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      if (distance > SPIKE_TIP_RANGE) continue;
+      if (distance > SPIKE_TIP_RANGE * (slot.reachMultiplier ?? 1)) continue;
 
       const vv = victimBody.linvel();
       const rvx = tipVel.x - vv.x;
@@ -998,6 +1067,117 @@ export class DamageResolver {
     return best?.hit ?? null;
   }
 
+  private tryResolveProximityHit(
+    attacker: BeastInstance,
+    victim: BeastInstance,
+    slot: AttackSlotDefinition,
+    active: ActiveAttackContext,
+    dot: number,
+    range: number
+  ): ResolvedIntentionalHit | null {
+    const minFrontDot =
+      active.profile === 'shield' ? -0.18 :
+      active.profile === 'spike' ? 0.02 :
+      -0.08;
+    if (dot < minFrontDot) return null;
+
+    const attackerPos = attacker.getPosition();
+    const samples = this.buildStrikeSamples(attacker, slot, active.profile);
+    if (samples.length === 0) return null;
+
+    let best:
+      | {
+          hit: ResolvedIntentionalHit;
+          score: number;
+        }
+      | null = null;
+
+    for (const sample of samples) {
+      for (const [victimSegment, victimJoint] of victim.skeleton.joints) {
+        if (!victim.isSegmentAttached(victimSegment)) continue;
+        const victimBody = victimJoint.body;
+        const victimPos = victimBody.translation();
+        const dx = victimPos.x - sample.point.x;
+        const dy = victimPos.y - sample.point.y;
+        const dz = victimPos.z - sample.point.z;
+        const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const victimRadius = this.getVictimSegmentRadius(victimSegment);
+        const allowed =
+          sample.radius +
+          victimRadius +
+          range * (active.profile === 'spike' ? 0.1 : active.profile === 'shield' ? 0.14 : 0.18);
+        if (distance > allowed) continue;
+
+        const victimFrontDot = this.forwardDot(
+          attacker.getYaw(),
+          victimPos.x - attackerPos.x,
+          victimPos.z - attackerPos.z
+        );
+        if (victimFrontDot < minFrontDot) continue;
+
+        const vv = victimBody.linvel();
+        const rvx = sample.vel.x - vv.x;
+        const rvy = sample.vel.y - vv.y;
+        const rvz = sample.vel.z - vv.z;
+        const relSpeed = Math.sqrt(rvx * rvx + rvy * rvy + rvz * rvz);
+        const impactSpeed = Math.max(
+          relSpeed,
+          active.profile === 'spike' ? 0.95 : active.profile === 'shield' ? 1.05 : 1.15
+        );
+        const dirLen = distance || 1;
+        const nx = dx / dirLen;
+        const ny = dy / dirLen;
+        const nz = dz / dirLen;
+        const travelDot = Math.max(0, (rvx * nx + rvy * ny + rvz * nz) / Math.max(0.001, impactSpeed));
+        const closeness = 1 - Math.min(1, distance / Math.max(0.001, allowed));
+        const desiredQuality = Math.max(
+          active.profile === 'spike' ? 0.78 : 0.74,
+          Math.min(
+            active.profile === 'spike' ? 1.28 : 1.22,
+            0.72 + closeness * 0.32 + Math.max(0, victimFrontDot) * 0.2 + travelDot * 0.18
+          )
+        );
+        const qualityMul = desiredQuality / Math.max(0.001, active.hitQualityMul);
+        const baseDamage =
+          DAMAGE_SCALE *
+          Math.pow(impactSpeed, 2) *
+          ((sample.bodyMass + victimBody.mass()) / 2) *
+          (active.profile === 'shield' ? 4.2 : active.profile === 'spike' ? 4.8 : 4.6);
+        const victimBias =
+          victimSegment === 'torso' ? 0.32 :
+          victimSegment === 'torso_rear' ? 0.18 :
+          victimSegment.startsWith('hip_') ? 0.1 :
+          0;
+        const score =
+          closeness * 2.4 +
+          Math.min(impactSpeed, 4.2) * 0.14 +
+          victimBias +
+          travelDot * 0.55;
+
+        if (!best || score > best.score) {
+          best = {
+            score,
+            hit: {
+              attackerSegment: sample.segment,
+              victimSegment,
+              point: {
+                x: (sample.point.x + victimPos.x) / 2,
+                y: (sample.point.y + victimPos.y) / 2,
+                z: (sample.point.z + victimPos.z) / 2,
+              },
+              impactSpeed,
+              baseDamage,
+              facingDot: victimFrontDot,
+              qualityMul,
+            },
+          };
+        }
+      }
+    }
+
+    return best?.hit ?? null;
+  }
+
   private tryResolveBroadBodyHit(
     attacker: BeastInstance,
     victim: BeastInstance,
@@ -1012,6 +1192,8 @@ export class DamageResolver {
       .filter(
         (contact) =>
           relevantSegments.has(contact.ownSegment) &&
+          attacker.isSegmentAttached(contact.ownSegment) &&
+          victim.isSegmentAttached(contact.otherSegment) &&
           (contact.otherSegment === 'torso' || contact.otherSegment === 'torso_rear')
       )
       .sort((a, b) => b.impactSpeed - a.impactSpeed);
@@ -1051,6 +1233,142 @@ export class DamageResolver {
     if (!ev) return false;
     this.applyIntentionalKnockback(attacker, victim, active, ev);
     return true;
+  }
+
+  private buildStrikeSamples(
+    attacker: BeastInstance,
+    slot: AttackSlotDefinition,
+    profile: AttackProfile
+  ): StrikeSample[] {
+    const segments = new Set<string>([slot.appendageRoot, ...getSlotActiveBodies(slot)]);
+    if (slot.tipSegment) segments.add(slot.tipSegment);
+    const samples: StrikeSample[] = [];
+    for (const segment of segments) {
+      if (!attacker.isSegmentAttached(segment)) continue;
+      const body = attacker.getJointBody(segment);
+      if (!body) continue;
+      const localOffset = this.getStrikeLocalOffset(slot, segment, profile);
+      const point = attacker.getSegmentWorldPoint(segment, localOffset);
+      if (!point) continue;
+      samples.push({
+        segment,
+        point,
+        radius: this.getStrikeSampleRadius(slot, segment, profile),
+        bodyMass: body.mass(),
+        vel: body.linvel(),
+      });
+      const extendedOffset = this.getExtendedStrikeLocalOffset(slot, segment, profile);
+      if (extendedOffset) {
+        const extendedPoint = attacker.getSegmentWorldPoint(segment, extendedOffset);
+        if (extendedPoint) {
+          samples.push({
+            segment,
+            point: extendedPoint,
+            radius: this.getStrikeSampleRadius(slot, segment, profile) * 1.08,
+            bodyMass: body.mass(),
+            vel: body.linvel(),
+          });
+        }
+      }
+    }
+    return samples;
+  }
+
+  private getStrikeLocalOffset(
+    slot: AttackSlotDefinition,
+    segment: string,
+    profile: AttackProfile
+  ): { x: number; y: number; z: number } | undefined {
+    const reachMul = slot.reachMultiplier ?? 1;
+    if (slot.tipSegment === segment && slot.tipLocalOffset) {
+      return {
+        x: slot.tipLocalOffset.x,
+        y: slot.tipLocalOffset.y,
+        z: slot.tipLocalOffset.z * reachMul,
+      };
+    }
+    if (segment === 'torso') {
+      return {
+        x: 0,
+        y: profile === 'shield' ? 0.04 : 0.02,
+        z: (profile === 'shield' ? 0.3 : 0.34) * reachMul,
+      };
+    }
+    if (segment.startsWith('shoulder')) {
+      return { x: 0, y: -0.18, z: 0.14 * reachMul };
+    }
+    if (segment.startsWith('elbow')) {
+      return { x: 0, y: -0.17, z: 0.18 * reachMul };
+    }
+    if (segment === 'hip_fl' || segment === 'hip_fr') {
+      return { x: 0, y: -0.06, z: 0.16 * reachMul };
+    }
+    if (segment === 'knee_fl' || segment === 'knee_fr') {
+      return { x: 0, y: -0.09, z: 0.12 * reachMul };
+    }
+    return undefined;
+  }
+
+  private getExtendedStrikeLocalOffset(
+    slot: AttackSlotDefinition,
+    segment: string,
+    profile: AttackProfile
+  ): { x: number; y: number; z: number } | undefined {
+    if (profile === 'spike' && slot.tipSegment === segment) return undefined;
+    const reachMul = slot.reachMultiplier ?? 1;
+    if (segment === 'torso') {
+      return {
+        x: 0,
+        y: profile === 'shield' ? 0.04 : 0.02,
+        z: (profile === 'shield' ? 0.46 : 0.5) * reachMul,
+      };
+    }
+    if (segment.startsWith('shoulder')) {
+      return { x: 0, y: -0.2, z: 0.28 * reachMul };
+    }
+    if (segment.startsWith('elbow')) {
+      return { x: 0, y: -0.18, z: 0.3 * reachMul };
+    }
+    if (segment === 'hip_fl' || segment === 'hip_fr') {
+      return { x: 0, y: -0.06, z: 0.24 * reachMul };
+    }
+    if (segment === 'knee_fl' || segment === 'knee_fr') {
+      return { x: 0, y: -0.1, z: 0.2 * reachMul };
+    }
+    return undefined;
+  }
+
+  private getStrikeSampleRadius(
+    slot: AttackSlotDefinition,
+    segment: string,
+    profile: AttackProfile
+  ): number {
+    const reachMul = slot.reachMultiplier ?? 1;
+    if (slot.tipSegment === segment) {
+      return (profile === 'spike' ? 0.14 : 0.18) * reachMul;
+    }
+    if (segment === 'torso') {
+      return (profile === 'shield' ? 0.38 : 0.32) * reachMul;
+    }
+    if (segment.startsWith('shoulder') || segment.startsWith('hip_')) {
+      return (profile === 'shield' ? 0.32 : 0.28) * reachMul;
+    }
+    if (segment.startsWith('elbow') || segment.startsWith('knee_')) {
+      return (profile === 'spike' ? 0.18 : 0.26) * reachMul;
+    }
+    return 0.2 * reachMul;
+  }
+
+  private getVictimSegmentRadius(segment: string): number {
+    if (segment === 'torso') return 0.44;
+    if (segment === 'torso_rear') return 0.34;
+    if (segment.startsWith('shoulder')) return 0.24;
+    if (segment.startsWith('elbow')) return 0.2;
+    if (segment === 'hip_fl' || segment === 'hip_fr') return 0.24;
+    if (segment.startsWith('hip_')) return 0.22;
+    if (segment.startsWith('knee_')) return 0.18;
+    if (segment.startsWith('ankle_')) return 0.14;
+    return 0.2;
   }
 }
 

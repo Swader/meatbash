@@ -10,21 +10,21 @@ export interface AttackProfileTuning {
 
 export const ATTACK_PROFILES: Record<AttackProfile, AttackProfileTuning> = {
   blunt: {
-    activeWindow: 0.22,
+    activeWindow: 0.28,
     blockReduction: 0.15,
     damageMul: 1.0,
     knockbackMul: 1.2,
     precisionBias: 0.0,
   },
   spike: {
-    activeWindow: 0.12,
+    activeWindow: 0.15,
     blockReduction: 0.05,
     damageMul: 1.25,
     knockbackMul: 0.8,
     precisionBias: 1.0,
   },
   shield: {
-    activeWindow: 0.18,
+    activeWindow: 0.24,
     blockReduction: 0.5,
     damageMul: 0.65,
     knockbackMul: 1.4,

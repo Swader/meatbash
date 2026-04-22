@@ -57,6 +57,18 @@ export interface LocomotionState {
   totalMass: number;
   regenPerSec: number;
   attackModifiers?: AttackMovementModifiers | null;
+  detachedSegments?: Set<string> | null;
+  massOverride?: number | null;
+  combatTargetYaw?: number | null;
+  combatAssistStrength?: number;
+  combatAssistMaxRate?: number;
+  definitionDriveMultiplier?: number;
+  definitionTurnMultiplier?: number;
+  definitionSupportMultiplier?: number;
+  definitionUprightMultiplier?: number;
+  definitionRegenMultiplier?: number;
+  definitionWalkCostMultiplier?: number;
+  definitionTurnCostMultiplier?: number;
 }
 
 export function createLocomotionState(): LocomotionState {
@@ -75,6 +87,18 @@ export function createLocomotionState(): LocomotionState {
     totalMass: 0,
     regenPerSec: 0,
     attackModifiers: null,
+    detachedSegments: null,
+    massOverride: null,
+    combatTargetYaw: null,
+    combatAssistStrength: 0,
+    combatAssistMaxRate: 0,
+    definitionDriveMultiplier: 1,
+    definitionTurnMultiplier: 1,
+    definitionSupportMultiplier: 1,
+    definitionUprightMultiplier: 1,
+    definitionRegenMultiplier: 1,
+    definitionWalkCostMultiplier: 1,
+    definitionTurnCostMultiplier: 1,
   };
 }
 
@@ -91,6 +115,17 @@ function setMotor(
 ) {
   if (!joint) return;
   joint.configureMotorPosition(target, stiffness, damping);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function shortestAngle(delta: number): number {
+  let out = delta;
+  while (out > Math.PI) out -= Math.PI * 2;
+  while (out < -Math.PI) out += Math.PI * 2;
+  return out;
 }
 
 export function applyBipedLocomotion(
@@ -117,9 +152,20 @@ export function applyBipedLocomotion(
   locoState.jumpTimer += dt;
   locoState.modeTimer += dt;
 
-  const totalMass = getTotalMass(skeleton);
+  const totalMass =
+    locoState.massOverride && locoState.massOverride > 0
+      ? locoState.massOverride
+      : getTotalMass(skeleton);
   locoState.totalMass = totalMass;
   const attackMods = locoState.attackModifiers ?? null;
+  const detachedSegments = locoState.detachedSegments ?? null;
+  const definitionDriveMul = locoState.definitionDriveMultiplier ?? 1;
+  const definitionTurnMul = locoState.definitionTurnMultiplier ?? 1;
+  const definitionSupportMul = locoState.definitionSupportMultiplier ?? 1;
+  const definitionUprightMul = locoState.definitionUprightMultiplier ?? 1;
+  const definitionRegenMul = locoState.definitionRegenMultiplier ?? 1;
+  const definitionWalkCostMul = locoState.definitionWalkCostMultiplier ?? 1;
+  const definitionTurnCostMul = locoState.definitionTurnCostMultiplier ?? 1;
 
   // ============================================================
   // HARD-FLOOR SAFETY CLAMP + NaN GUARD
@@ -203,8 +249,8 @@ export function applyBipedLocomotion(
     return hit !== null;
   };
 
-  const footL_grounded = checkFootGrounded(skeleton.footL.body);
-  const footR_grounded = checkFootGrounded(skeleton.footR.body);
+  const footL_grounded = !detachedSegments?.has('ankle_l') && checkFootGrounded(skeleton.footL.body);
+  const footR_grounded = !detachedSegments?.has('ankle_r') && checkFootGrounded(skeleton.footR.body);
   const groundedFeet =
     (footL_grounded ? 1 : 0) + (footR_grounded ? 1 : 0);
   locoState.groundedFeet = groundedFeet;
@@ -360,8 +406,8 @@ export function applyBipedLocomotion(
       driveMul = 1.0;
       break;
     case 'STUMBLING':
-      supportMul = 0.55;
-      driveMul = 0.5;
+      supportMul = 0.72;
+      driveMul = 0.65;
       break;
     case 'AIRBORNE':
       supportMul = 0.0;
@@ -479,7 +525,8 @@ export function applyBipedLocomotion(
       const supportMag =
         (tuning.heightStiffness * compression - tuning.heightDamping * pelvisVel.y) *
         supportMul *
-        attackSupportMul;
+        attackSupportMul *
+        definitionSupportMul;
       pelvis.addForce({ x: 0, y: supportMag, z: 0 }, true);
     }
   }
@@ -490,7 +537,7 @@ export function applyBipedLocomotion(
   //
   // Error = pelvisUp × reference → axis of rotation needed to align.
   // ============================================================
-  const uprightMul = supportMul * uprightBoost * attackUprightMul;
+  const uprightMul = supportMul * uprightBoost * attackUprightMul * definitionUprightMul;
   if (uprightMul > 0) {
     // Cross product: pelvisUp × ref (the torque axis to align them)
     const errX = pelvisUpY * refZ - pelvisUpZ * refY;
@@ -519,12 +566,25 @@ export function applyBipedLocomotion(
   // Further reduce turn rate based on grounded feet count (1 foot = weaker)
   const groundFootMul = Math.min(groundedFeet, 2) / 2;
 
-  const targetYawRate =
+  const currentYaw = Math.atan2(
+    2 * (rot.x * rot.z + rot.w * rot.y),
+    1 - 2 * (rot.x * rot.x + rot.y * rot.y)
+  );
+  let targetYawRate =
     locoState.turnAxis *
     tuning.maxYawRate *
     Math.max(groundFootMul, locoState.mode === 'AIRBORNE' ? 0.15 : 0) *
     speedMul *
-    attackTurnMul;
+    attackTurnMul *
+    definitionTurnMul;
+  const combatTargetYaw = locoState.combatTargetYaw;
+  if (combatTargetYaw != null) {
+    targetYawRate += clamp(
+      shortestAngle(combatTargetYaw - currentYaw) * (locoState.combatAssistStrength ?? 0),
+      -(locoState.combatAssistMaxRate ?? 0),
+      locoState.combatAssistMaxRate ?? 0
+    );
+  }
 
   locoState.yawRate = smooth(locoState.yawRate, targetYawRate, tuning.yawRateSharpness, dt);
 
@@ -567,7 +627,7 @@ export function applyBipedLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= tuning.airControlMul;
+    accel *= tuning.airControlMul * definitionDriveMul;
     const force = accel * totalMass;
     pelvis.addForce({ x: fX * force, y: 0, z: fZ * force }, true);
   } else if (driveMul > 0 && groundedFeet > 0) {
@@ -578,7 +638,7 @@ export function applyBipedLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= driveMul * tiltScale * footScale * attackDriveMul;
+    accel *= driveMul * tiltScale * footScale * attackDriveMul * definitionDriveMul;
 
     if (accel !== 0) {
       const force = accel * totalMass;
@@ -625,8 +685,8 @@ export function applyBipedLocomotion(
   // STAMINA — mass-based regen. Recovery is free.
   // ============================================================
   let staminaCost = 0;
-  if (wDown || sDown) staminaCost += tuning.walkStaminaCost * dt;
-  if (aDown || dDown) staminaCost += tuning.turnStaminaCost * dt;
+  if (wDown || sDown) staminaCost += tuning.walkStaminaCost * definitionWalkCostMul * dt;
+  if (aDown || dDown) staminaCost += tuning.turnStaminaCost * definitionTurnCostMul * dt;
   if (panicDown) staminaCost += PANIC_STAMINA_PER_SEC * dt;
 
   // Recovery doesn't cost stamina
@@ -646,7 +706,7 @@ export function applyBipedLocomotion(
   const massMul = 1.0 - 0.5 * massT;
   const anyMoveKey = wDown || sDown || aDown || dDown;
   const regenPerSec =
-    (anyMoveKey ? tuning.movingRegen : tuning.idleRegenLight) * massMul;
+    (anyMoveKey ? tuning.movingRegen : tuning.idleRegenLight) * massMul * definitionRegenMul;
   locoState.regenPerSec = regenPerSec;
 
   stamina.current = Math.max(

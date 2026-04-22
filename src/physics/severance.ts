@@ -20,6 +20,23 @@ import type { BeastInstance } from '../beast/beast-instance';
 import type { RapierWorld } from './rapier-world';
 import type { DamageResolver } from './damage';
 
+const DETACH_CASCADE: Record<string, string[]> = {
+  shoulder_l: ['elbow_l'],
+  shoulder_r: ['elbow_r'],
+  hip_l: ['knee_l', 'ankle_l'],
+  knee_l: ['ankle_l'],
+  hip_r: ['knee_r', 'ankle_r'],
+  knee_r: ['ankle_r'],
+  hip_fl: ['knee_fl', 'ankle_fl'],
+  knee_fl: ['ankle_fl'],
+  hip_fr: ['knee_fr', 'ankle_fr'],
+  knee_fr: ['ankle_fr'],
+  hip_bl: ['knee_bl', 'ankle_bl'],
+  knee_bl: ['ankle_bl'],
+  hip_br: ['knee_br', 'ankle_br'],
+  knee_br: ['ankle_br'],
+};
+
 /** Result of a severance pass. Used for particle/audio hooks. */
 export interface SeveranceEvent {
   beast: BeastInstance;
@@ -69,7 +86,10 @@ export function processSeverance(
       // the call a no-op, so the severed body just floats free.
       joint.joint = undefined;
 
-      state.segmentAttached.set(segmentName, false);
+      for (const detachedName of expandDetachedSegments(segmentName)) {
+        state.segmentAttached.set(detachedName, false);
+      }
+      beast.markSegmentDetached(segmentName);
 
       const pos = joint.body.translation();
       events.push({
@@ -81,4 +101,18 @@ export function processSeverance(
   }
 
   return events;
+}
+
+function expandDetachedSegments(root: string): string[] {
+  const out = new Set<string>();
+  const queue = [root];
+  while (queue.length > 0) {
+    const next = queue.shift()!;
+    if (out.has(next)) continue;
+    out.add(next);
+    for (const child of DETACH_CASCADE[next] ?? []) {
+      queue.push(child);
+    }
+  }
+  return [...out];
 }

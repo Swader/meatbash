@@ -4,9 +4,45 @@ import { InputManager } from '../engine/input';
 import { RapierWorld } from '../physics/rapier-world';
 import { BipedSkeleton } from '../physics/skeleton';
 import { applyBipedLocomotion, createLocomotionState, type LocomotionState } from '../physics/locomotion';
-import type { BeastDefinition } from './beast-data';
+import type { BeastDefinition, BeastRuntimeTuning } from './beast-data';
 import { AttackController } from '../combat/attack-controller';
-import type { ActiveAttackContext, AttackSlotDefinition, AttackTelemetry, AttackVisualRigType } from '../combat/attack-types';
+import type {
+  ActiveAttackContext,
+  AttackSlotDefinition,
+  AttackTelemetry,
+  AttackVisualRigType,
+  ChargeTier,
+} from '../combat/attack-types';
+
+const ATTACK_AIM_ASSIST_ARC_DOT = -0.28;
+const ATTACK_AIM_ASSIST_STRENGTH = 0.9;
+const ATTACK_AIM_ASSIST_MAX_RATE = 1.6;
+const COMMIT_AIM_ASSIST_ARC_DOT = -0.34;
+const COMMIT_AIM_ASSIST_STRENGTH = 0.56;
+const COMMIT_AIM_ASSIST_MAX_RATE = 1.08;
+const MOVE_AIM_ASSIST_ARC_DOT = -0.2;
+const MOVE_AIM_ASSIST_STRENGTH = 0.42;
+const MOVE_AIM_ASSIST_MAX_RATE = 1.0;
+const COUNTDOWN_FACE_ASSIST_STRENGTH = 1.65;
+const COUNTDOWN_FACE_ASSIST_MAX_RATE = 2.6;
+const COUNTDOWN_STABILITY_MULTIPLIER = 1.24;
+const HIT_FLASH_BASE_INTENSITY = 0.2;
+const DETACH_CASCADE: Record<string, string[]> = {
+  shoulder_l: ['elbow_l'],
+  shoulder_r: ['elbow_r'],
+  hip_l: ['knee_l', 'ankle_l'],
+  knee_l: ['ankle_l'],
+  hip_r: ['knee_r', 'ankle_r'],
+  knee_r: ['ankle_r'],
+  hip_fl: ['knee_fl', 'ankle_fl'],
+  knee_fl: ['ankle_fl'],
+  hip_fr: ['knee_fr', 'ankle_fr'],
+  knee_fr: ['ankle_fr'],
+  hip_bl: ['knee_bl', 'ankle_bl'],
+  knee_bl: ['ankle_bl'],
+  hip_br: ['knee_br', 'ankle_br'],
+  knee_br: ['ankle_br'],
+};
 
 /**
  * Generic skeleton shape that any archetype can provide. BipedSkeleton
@@ -15,7 +51,7 @@ import type { ActiveAttackContext, AttackSlotDefinition, AttackTelemetry, Attack
  * (knee joint names, foot count) are hidden behind the joint map.
  */
 export interface GenericSkeleton {
-  joints: Map<string, { name: string; body: RAPIER.RigidBody; joint?: RAPIER.RevoluteImpulseJoint }>;
+  joints: Map<string, { name: string; body: RAPIER.RigidBody; joint?: RAPIER.RevoluteImpulseJoint; additionalMass: number }>;
   allBodies: RAPIER.RigidBody[];
   pelvis: RAPIER.RigidBody;
   restingPelvisY: number;
@@ -87,6 +123,53 @@ function storeOriginalPositions(geometry: THREE.BufferGeometry): Float32Array {
   return new Float32Array(pos.array as Float32Array);
 }
 
+function createChargeGlowTexture(
+  colors: Array<{ stop: number; color: string }>,
+  width: number = 128,
+  height: number = 128
+): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d')!;
+  const gradient = ctx.createRadialGradient(width / 2, height / 2, 4, width / 2, height / 2, width / 2);
+  for (const stop of colors) {
+    gradient.addColorStop(stop.stop, stop.color);
+  }
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createChargeStreakTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d')!;
+  const gradient = ctx.createLinearGradient(0, canvas.height / 2, canvas.width, canvas.height / 2);
+  gradient.addColorStop(0, 'rgba(255,180,70,0)');
+  gradient.addColorStop(0.2, 'rgba(255,200,90,0.3)');
+  gradient.addColorStop(0.5, 'rgba(255,255,220,0.95)');
+  gradient.addColorStop(0.8, 'rgba(255,200,90,0.3)');
+  gradient.addColorStop(1, 'rgba(255,180,70,0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+const NO_INPUT_SOURCE = {
+  isDown: (_key: string) => false,
+  justPressed: (_key: string) => false,
+  justReleased: (_key: string) => false,
+  beginFixedStep: () => {},
+  endFrame: () => {},
+  getHeldKeys: () => [] as string[],
+};
+
 /**
  * A beast instance in the game world.
  * Links physics skeleton to Three.js visual meshes.
@@ -105,6 +188,7 @@ export class BeastInstance {
   // Per-archetype locomotion update function
   private locomotionUpdate: LocomotionUpdate;
   private attackController?: AttackController;
+  private remoteAttackTelemetry: AttackTelemetry | null = null;
 
   // Map from joint name -> visual mesh
   private visuals = new Map<string, THREE.Mesh>();
@@ -117,16 +201,24 @@ export class BeastInstance {
   private originalPositions = new Map<string, Float32Array>();
   private prevPositions = new Map<string, THREE.Vector3>();
   private attackIndicatorGroup?: THREE.Group;
-  private attackIndicatorCore?: THREE.Mesh;
-  private attackIndicatorRing?: THREE.Mesh;
-  private attackIndicatorBeam?: THREE.Mesh;
+  private attackIndicatorFlare?: THREE.Sprite;
+  private attackIndicatorStreak?: THREE.Sprite;
+  private attackIndicatorBloom?: THREE.Sprite;
+  private attackHeatOverlays = new Map<string, THREE.Mesh>();
   private attackTempQuat = new THREE.Quaternion();
   private attackTempVec = new THREE.Vector3();
   private attackTempVec2 = new THREE.Vector3();
   private attackTempVec3 = new THREE.Vector3();
   private pendingAudioEvents: Array<{ type: 'jump' | 'land' | 'miss' }> = [];
+  private pendingHudEvents: string[] = [];
   private prevGroundedForAudio: boolean | null = null;
   private prevJumpTimerForAudio: number | null = null;
+  private detachedSegments = new Set<string>();
+  private combatTarget: BeastInstance | null = null;
+  private hitFlashStrength = 0;
+  private hitFlashUntilMs = 0;
+  private initialAttachedMass = 1;
+  private weaponVisualRoot?: THREE.Group;
 
   constructor(
     skeleton: GenericSkeleton,
@@ -206,6 +298,11 @@ gl_FragColor.rgb += rimColor;
     });
 
     this.createVisuals();
+    this.createAttackIndicator();
+    this.createAttackHeatOverlays();
+    this.createWeaponVisuals();
+    this.applyDefinitionTuning();
+    this.initialAttachedMass = Math.max(0.001, this.getAttachedMass());
   }
 
   private createVisuals() {
@@ -328,7 +425,164 @@ gl_FragColor.rgb += rimColor;
   }
 
   private createAttackIndicator() {
-    return;
+    if (this.attackIndicatorGroup) return;
+    const group = new THREE.Group();
+    group.visible = false;
+    const flare = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: createChargeGlowTexture([
+          { stop: 0, color: 'rgba(255,255,240,0.95)' },
+          { stop: 0.18, color: 'rgba(255,225,140,0.9)' },
+          { stop: 0.45, color: 'rgba(255,145,40,0.42)' },
+          { stop: 1, color: 'rgba(255,90,0,0)' },
+        ]),
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    flare.scale.set(0.8, 0.8, 0.8);
+    group.add(flare);
+
+    const streak = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: createChargeStreakTexture(),
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    streak.scale.set(1.2, 0.28, 1);
+    group.add(streak);
+
+    const bloom = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: createChargeGlowTexture([
+          { stop: 0, color: 'rgba(255,250,220,0.45)' },
+          { stop: 0.3, color: 'rgba(255,170,60,0.2)' },
+          { stop: 1, color: 'rgba(255,110,0,0)' },
+        ], 96, 96),
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    bloom.scale.set(1.35, 1.35, 1.35);
+    group.add(bloom);
+
+    this.group.add(group);
+    this.attackIndicatorGroup = group;
+    this.attackIndicatorFlare = flare;
+    this.attackIndicatorStreak = streak;
+    this.attackIndicatorBloom = bloom;
+  }
+
+  private createAttackHeatOverlays(): void {
+    const slot = this.getPrimaryAttackSlot();
+    if (!slot) return;
+    const segments = new Set<string>([
+      ...slot.drivenJoints,
+      ...(slot.activeBodies ?? slot.hitSegments),
+      slot.appendageRoot,
+    ]);
+    for (const name of segments) {
+      const source = this.visuals.get(name);
+      if (!source) continue;
+      const overlay = new THREE.Mesh(
+        source.geometry,
+        new THREE.MeshBasicMaterial({
+          color: 0xff7a2f,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        })
+      );
+      overlay.visible = false;
+      overlay.renderOrder = 3;
+      this.group.add(overlay);
+      this.attackHeatOverlays.set(name, overlay);
+    }
+  }
+
+  private createWeaponVisuals(): void {
+    const slot = this.getPrimaryAttackSlot();
+    if (!slot) return;
+    const anchorName = this.getWeaponVisualAnchorName(slot);
+    const anchor = this.visuals.get(anchorName);
+    if (!anchor) return;
+
+    const root = new THREE.Group();
+    const reachMul = this.getWeaponReachMultiplier(slot);
+    const visualMul = this.definition?.runtimeTuning?.weaponVisualScale ?? 1;
+    const weaponType = slot.weaponType ?? this.inferWeaponType(slot);
+
+    if (weaponType === 'hammer') {
+      const head = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.12 * visualMul, 1),
+        this.meatMaterial
+      );
+      head.position.set(0, -0.16 * reachMul, 0.08 * reachMul);
+      head.scale.set(1.15, 1.0, 1.25);
+      root.add(head);
+    } else if (weaponType === 'spike') {
+      const spikeMat = this.boneMaterial.clone();
+      spikeMat.emissive = new THREE.Color(0x231108);
+      const spike = new THREE.Mesh(
+        new THREE.ConeGeometry(0.09 * visualMul, 0.34 * reachMul * visualMul, 8),
+        spikeMat
+      );
+      spike.rotation.x = Math.PI;
+      spike.position.set(0, -0.16 * reachMul, 0.12 * reachMul);
+      root.add(spike);
+    } else if (weaponType === 'shield') {
+      const shieldMat = this.boneMaterial.clone();
+      shieldMat.color = new THREE.Color(0xf1d7bf);
+      const shield = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.16 * visualMul, 0.18 * visualMul, 0.08 * visualMul, 12),
+        shieldMat
+      );
+      shield.rotation.x = Math.PI * 0.5;
+      shield.position.set(0, 0.02, this.isQuadruped() ? 0.34 * reachMul : 0.1 * reachMul);
+      root.add(shield);
+    } else {
+      const hornMat = this.boneMaterial.clone();
+      hornMat.color = new THREE.Color(0xf1d7bf);
+      for (const side of [-1, 1]) {
+        const horn = new THREE.Mesh(
+          new THREE.ConeGeometry(0.05 * visualMul, 0.22 * reachMul * visualMul, 8),
+          hornMat
+        );
+        horn.position.set(side * 0.08, 0.02, 0.34 * reachMul);
+        horn.rotation.x = -Math.PI * 0.5;
+        horn.rotation.z = side * 0.18;
+        root.add(horn);
+      }
+    }
+
+    anchor.add(root);
+    this.weaponVisualRoot = root;
+  }
+
+  private applyDefinitionTuning(): void {
+    const tuning = this.definition?.runtimeTuning;
+    if (!tuning) return;
+    const slot = this.getPrimaryAttackSlot();
+    const attackSegments = new Set<string>(this.getAttackRequiredSegments(slot));
+    const bodyMassScale = tuning.bodyMassScale ?? 1;
+    const weaponMassScale = tuning.weaponMassScale ?? 1;
+
+    for (const [name, joint] of this.skeleton.joints) {
+      const scale = attackSegments.has(name) ? bodyMassScale * weaponMassScale : bodyMassScale;
+      joint.body.setAdditionalMass(Math.max(0.05, joint.additionalMass * scale), true);
+    }
+
+    const staminaMaxMul = tuning.staminaMaxMultiplier ?? 1;
+    this.stamina.max = Math.round(100 * staminaMaxMul);
+    this.stamina.current = this.stamina.max;
   }
 
   /**
@@ -344,14 +598,36 @@ gl_FragColor.rgb += rimColor;
 
   /** Apply player input as physics torques */
   applyInput(input: InputManager, dt: number) {
-    if (!this.inputActive) return;
-    const src = this.inputOverride || input;
+    const controlsEnabled = this.inputActive;
+    const activeInputSource = this.inputOverride || input;
+    const src = controlsEnabled ? activeInputSource : (NO_INPUT_SOURCE as any);
     // Bot-driven inputs need beginFixedStep called too
     if (this.inputOverride && typeof (this.inputOverride as any).beginFixedStep === 'function') {
       (this.inputOverride as any).beginFixedStep();
     }
+    const attackAvailable = this.hasPrimaryAttackCapability();
+    this.attackController?.setAttackAvailable(attackAvailable);
     (this.locoState as any).attackModifiers =
       this.attackController?.getMovementModifiers(src as any) ?? null;
+    (this.locoState as any).detachedSegments = this.detachedSegments;
+    (this.locoState as any).massOverride = this.getAttachedMass();
+    const runtime = this.getRuntimeTuning();
+    const stabilityMul = controlsEnabled ? 1 : COUNTDOWN_STABILITY_MULTIPLIER;
+    (this.locoState as any).definitionDriveMultiplier =
+      (runtime.moveAccelMultiplier ?? 1) * (controlsEnabled ? 1 : 0);
+    (this.locoState as any).definitionTurnMultiplier =
+      (runtime.turnMultiplier ?? 1) * stabilityMul;
+    (this.locoState as any).definitionSupportMultiplier =
+      (runtime.supportMultiplier ?? 1) * stabilityMul;
+    (this.locoState as any).definitionUprightMultiplier =
+      (runtime.uprightMultiplier ?? 1) * stabilityMul;
+    (this.locoState as any).definitionRegenMultiplier = runtime.staminaRegenMultiplier ?? 1;
+    (this.locoState as any).definitionWalkCostMultiplier = runtime.walkCostMultiplier ?? 1;
+    (this.locoState as any).definitionTurnCostMultiplier = runtime.turnCostMultiplier ?? 1;
+    const facingAssist = this.computeFacingAssistConfig(activeInputSource as any, controlsEnabled);
+    (this.locoState as any).combatTargetYaw = facingAssist?.targetYaw ?? null;
+    (this.locoState as any).combatAssistStrength = facingAssist?.strength ?? 0;
+    (this.locoState as any).combatAssistMaxRate = facingAssist?.maxRate ?? 0;
     this.locomotionUpdate(this.skeleton as any, src, dt, this.stamina, this.physics, this.locoState);
     this.attackController?.update(src as any, dt, this.stamina);
     this.captureAudioEvents();
@@ -361,7 +637,11 @@ gl_FragColor.rgb += rimColor;
   syncFromPhysics() {
     const slot = this.getPrimaryAttackSlot();
     const tele = this.getAttackTelemetry();
-    const useCustomRig = !!slot && !!tele && this.hasCustomAttackRig(slot);
+    const useCustomRig =
+      !!slot &&
+      !!tele &&
+      this.hasCustomAttackRig(slot) &&
+      this.areSegmentsAttached(this.getAttackRigSegments(slot));
     for (const [name, joint] of this.skeleton.joints) {
       const mesh = this.visuals.get(name);
       if (!mesh) continue;
@@ -371,8 +651,8 @@ gl_FragColor.rgb += rimColor;
 
       mesh.position.set(pos.x, pos.y, pos.z);
       mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
-      mesh.scale.setScalar(1);
-      if (slot && tele && !useCustomRig) {
+      mesh.scale.setScalar(this.getSegmentBaseScale(name));
+      if (slot && tele && !useCustomRig && this.isSegmentAttached(name)) {
         this.applyAttackVisualPose(mesh, name, slot, tele);
       }
 
@@ -440,7 +720,9 @@ gl_FragColor.rgb += rimColor;
     if (slot && tele && useCustomRig) {
       this.applyAttackVisualRig(slot, tele);
     }
+    this.updateAttackHeatOverlays(slot, tele);
     this.updateAttackTelegraph();
+    this.meatMaterial.emissiveIntensity = HIT_FLASH_BASE_INTENSITY + this.getHitFlashStrength();
   }
 
   /** Get the torso position (for camera follow) */
@@ -478,8 +760,7 @@ gl_FragColor.rgb += rimColor;
 
   /** Get current mass fraction of starting mass (for HP display). */
   getMassPercent(): number {
-    // Phase 1: always 100%. Phase 2 Block 2 will track real mass loss.
-    return 100;
+    return (this.getAttachedMass() / Math.max(0.001, this.initialAttachedMass)) * 100;
   }
 
   getStaminaPercent(): number {
@@ -503,14 +784,20 @@ gl_FragColor.rgb += rimColor;
   }
 
   getAttackTelemetry(): AttackTelemetry | null {
-    return this.attackController?.getTelemetry() ?? null;
+    return this.remoteAttackTelemetry ?? this.attackController?.getTelemetry() ?? null;
+  }
+
+  setRemoteAttackTelemetry(telemetry: AttackTelemetry | null): void {
+    this.remoteAttackTelemetry = telemetry;
   }
 
   resolveActiveAttackForSegment(segment: string, attackerForwardDot: number): ActiveAttackContext | null {
+    if (!this.isSegmentAttached(segment) || !this.hasPrimaryAttackCapability()) return null;
     return this.attackController?.resolveActiveHit(segment, attackerForwardDot) ?? null;
   }
 
   resolveGenericActiveAttack(attackerForwardDot: number): ActiveAttackContext | null {
+    if (!this.hasPrimaryAttackCapability()) return null;
     return this.attackController?.resolveGenericActiveHit(attackerForwardDot) ?? null;
   }
 
@@ -520,6 +807,12 @@ gl_FragColor.rgb += rimColor;
 
   registerAttackHit(): void {
     this.attackController?.registerConfirmedHit();
+  }
+
+  consumeHudEvents(): string[] {
+    const out = this.pendingHudEvents;
+    this.pendingHudEvents = [];
+    return out;
   }
 
   consumeAudioEvents(): Array<{ type: 'jump' | 'land' | 'miss' }> {
@@ -551,16 +844,292 @@ gl_FragColor.rgb += rimColor;
     return this.attackController?.getIncomingBlockReduction(attackerProfile) ?? 0;
   }
 
+  setCombatTarget(target: BeastInstance | null): void {
+    this.combatTarget = target;
+  }
+
+  getKnockbackResistance(): number {
+    return this.getRuntimeTuning().knockbackResistance ?? 1;
+  }
+
+  flashImpact(intensity: number, durationSec: number = 0.08): void {
+    this.hitFlashStrength = Math.max(this.hitFlashStrength, intensity);
+    this.hitFlashUntilMs = Math.max(this.hitFlashUntilMs, performance.now() + durationSec * 1000);
+  }
+
+  markSegmentDetached(segment: string): void {
+    const wasAttackCapable = this.hasPrimaryAttackCapability();
+    for (const name of expandDetachedSegments(segment)) {
+      this.detachedSegments.add(name);
+    }
+    const isAttackCapable = this.hasPrimaryAttackCapability();
+    if (wasAttackCapable && !isAttackCapable) {
+      this.pendingHudEvents.push('DISARMED!');
+    }
+    this.attackController?.setAttackAvailable(isAttackCapable);
+  }
+
+  isSegmentAttached(name: string): boolean {
+    return !this.detachedSegments.has(name);
+  }
+
+  areSegmentsAttached(names: string[]): boolean {
+    return names.every((name) => this.isSegmentAttached(name));
+  }
+
+  getAttachedMass(): number {
+    let total = 0;
+    for (const [name, joint] of this.skeleton.joints) {
+      if (!this.isSegmentAttached(name)) continue;
+      total += joint.body.mass();
+    }
+    return total;
+  }
+
+  private getRuntimeTuning(): BeastRuntimeTuning {
+    return this.definition?.runtimeTuning ?? {};
+  }
+
+  private hasPrimaryAttackCapability(): boolean {
+    const slot = this.getPrimaryAttackSlot();
+    if (!slot) return false;
+    return this.areSegmentsAttached(this.getAttackRequiredSegments(slot));
+  }
+
+  private getAttackRequiredSegments(slot: AttackSlotDefinition | null): string[] {
+    if (!slot) return [];
+    return Array.from(
+      new Set([
+        slot.appendageRoot,
+        ...slot.drivenJoints,
+        ...(slot.activeBodies ?? slot.hitSegments),
+        ...(slot.blockBodies ?? []),
+        ...(slot.tipSegment ? [slot.tipSegment] : []),
+      ])
+    );
+  }
+
+  private getAttackRigSegments(slot: AttackSlotDefinition): string[] {
+    return Array.from(
+      new Set([
+        slot.appendageRoot,
+        ...slot.drivenJoints,
+        ...(slot.activeBodies ?? slot.hitSegments),
+      ])
+    );
+  }
+
+  private getSegmentBaseScale(_name: string): number {
+    return this.definition?.runtimeTuning?.bodyVisualScale ?? this.definition?.visuals.bodyScale ?? 1;
+  }
+
+  private inferWeaponType(slot: AttackSlotDefinition): 'hammer' | 'spike' | 'shield' | 'headbutt' {
+    if (slot.weaponType) return slot.weaponType;
+    if (slot.visualRigType === 'headbutt_lunge') return 'headbutt';
+    if (slot.profile === 'spike') return 'spike';
+    if (slot.profile === 'shield') return 'shield';
+    return 'hammer';
+  }
+
+  private getWeaponVisualAnchorName(slot: AttackSlotDefinition): string {
+    if (slot.weaponSocket === 'head_front' || slot.weaponSocket === 'forebody') {
+      return 'torso';
+    }
+    if (slot.weaponSocket === 'left_arm') {
+      return slot.tipSegment ?? slot.activeBodies?.find((name) => name.endsWith('_l')) ?? 'elbow_l';
+    }
+    if (slot.weaponSocket === 'right_arm') {
+      return slot.tipSegment ?? slot.activeBodies?.find((name) => name.endsWith('_r')) ?? 'elbow_r';
+    }
+    return slot.tipSegment ?? slot.activeBodies?.[0] ?? slot.appendageRoot;
+  }
+
+  private getWeaponReachMultiplier(slot: AttackSlotDefinition | null = this.getPrimaryAttackSlot()): number {
+    return (this.getRuntimeTuning().weaponReachMultiplier ?? 1) * (slot?.reachMultiplier ?? 1);
+  }
+
+  private isQuadruped(): boolean {
+    return this.definition?.archetype === 'quadruped';
+  }
+
+  private computeFacingAssistConfig(
+    input: { isDown(key: string): boolean },
+    controlsEnabled: boolean
+  ): { targetYaw: number; strength: number; maxRate: number } | null {
+    if (!this.combatTarget) return null;
+    const selfPos = this.getPosition();
+    const targetPos = this.combatTarget.getPosition();
+    const dx = targetPos.x - selfPos.x;
+    const dz = targetPos.z - selfPos.z;
+    const len = Math.sqrt(dx * dx + dz * dz);
+    if (len < 0.001) return null;
+    const targetYaw = Math.atan2(dx, dz);
+    const yawDelta = shortestAngle(targetYaw - this.getYaw());
+    const facingDot = Math.cos(yawDelta);
+
+    if (!controlsEnabled) {
+      return {
+        targetYaw,
+        strength: COUNTDOWN_FACE_ASSIST_STRENGTH,
+        maxRate: COUNTDOWN_FACE_ASSIST_MAX_RATE,
+      };
+    }
+
+    const tele = this.getAttackTelemetry();
+    if (tele && (tele.state === 'WINDUP' || tele.state === 'HELD')) {
+      if (facingDot < ATTACK_AIM_ASSIST_ARC_DOT) return null;
+      const distanceFactor = Math.max(0, Math.min(1, 1 - Math.max(0, len - 1.2) / 3.4));
+      const chargeFactor = 0.8 + tele.chargeNorm * 0.55;
+      return {
+        targetYaw,
+        strength: ATTACK_AIM_ASSIST_STRENGTH * chargeFactor * (0.85 + distanceFactor * 0.35),
+        maxRate: ATTACK_AIM_ASSIST_MAX_RATE * (0.8 + distanceFactor * 0.35),
+      };
+    }
+
+    if (tele && tele.state === 'COMMIT') {
+      if (facingDot < COMMIT_AIM_ASSIST_ARC_DOT) return null;
+      const distanceFactor = Math.max(0, Math.min(1, 1 - Math.max(0, len - 1.1) / 3.2));
+      return {
+        targetYaw,
+        strength: COMMIT_AIM_ASSIST_STRENGTH * (0.85 + distanceFactor * 0.35),
+        maxRate: COMMIT_AIM_ASSIST_MAX_RATE * (0.8 + distanceFactor * 0.3),
+      };
+    }
+
+    const moving = input.isDown('W') || input.isDown('S');
+    const manuallyTurning = input.isDown('A') || input.isDown('D');
+    if (moving && !manuallyTurning && facingDot >= MOVE_AIM_ASSIST_ARC_DOT) {
+      const distanceFactor = Math.max(0, Math.min(1, 1 - Math.max(0, len - 1.4) / 3.8));
+      return {
+        targetYaw,
+        strength: MOVE_AIM_ASSIST_STRENGTH * (0.7 + distanceFactor * 0.45),
+        maxRate: MOVE_AIM_ASSIST_MAX_RATE * (0.75 + distanceFactor * 0.35),
+      };
+    }
+
+    return null;
+  }
+
+  private getHitFlashStrength(): number {
+    if (this.hitFlashUntilMs <= 0) return 0;
+    const now = performance.now();
+    if (now >= this.hitFlashUntilMs) {
+      this.hitFlashUntilMs = 0;
+      this.hitFlashStrength = 0;
+      return 0;
+    }
+    const remaining = Math.max(0, this.hitFlashUntilMs - now);
+    return this.hitFlashStrength * Math.min(1, remaining / 80);
+  }
+
+  private updateAttackHeatOverlays(
+    slot: AttackSlotDefinition | null,
+    tele: AttackTelemetry | null
+  ): void {
+    const heating =
+      !!slot &&
+      !!tele &&
+      this.hasPrimaryAttackCapability() &&
+      (tele.state === 'WINDUP' || tele.state === 'HELD');
+    const chargeNorm = tele?.chargeNorm ?? 0;
+    const heatOpacity =
+      heating
+        ? 0.08 + chargeNorm * 0.24 + (tele?.chargeTier === 'heavy' ? 0.1 : 0)
+        : 0;
+
+    for (const [name, overlay] of this.attackHeatOverlays) {
+      const source = this.visuals.get(name);
+      const attached = this.isSegmentAttached(name);
+      if (!heating || !source || !attached) {
+        overlay.visible = false;
+        continue;
+      }
+      overlay.visible = true;
+      overlay.position.copy(source.position);
+      overlay.quaternion.copy(source.quaternion);
+      overlay.scale.copy(source.scale).multiplyScalar(1.06 + chargeNorm * 0.05);
+      const mat = overlay.material as THREE.MeshBasicMaterial;
+      mat.opacity = heatOpacity;
+      mat.color.setHex(
+        tele?.chargeTier === 'heavy'
+          ? 0xfff08a
+          : tele?.chargeTier === 'ready'
+            ? 0xffb04c
+            : 0xff7a2f
+      );
+    }
+  }
+
   private updateAttackTelegraph(): void {
-    if (!this.attackController || !this.definition?.attackSlots?.length) {
+    if (!this.definition?.attackSlots?.length) {
       if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
       return;
     }
     const slot = this.definition.attackSlots[0];
     if (!slot) return;
-    const tele = this.attackController.getTelemetry();
-    this.meatMaterial.emissiveIntensity = 0.2;
-    if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
+    const tele = this.getAttackTelemetry();
+    if (!tele) {
+      if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
+      return;
+    }
+    if (
+      !this.attackIndicatorGroup ||
+      tele.state === 'IDLE' ||
+      tele.state === 'RECOVER' ||
+      !this.hasPrimaryAttackCapability()
+    ) {
+      if (this.attackIndicatorGroup) this.attackIndicatorGroup.visible = false;
+      return;
+    }
+
+    const anchorName = slot.tipSegment ?? slot.activeBodies?.[0] ?? slot.appendageRoot;
+    if (!this.isSegmentAttached(anchorName)) {
+      this.attackIndicatorGroup.visible = false;
+      return;
+    }
+    const anchorPoint =
+      this.getSegmentWorldPoint(slot.tipSegment ?? slot.appendageRoot, slot.tipLocalOffset) ??
+      this.getSegmentWorldPoint(anchorName);
+    if (!anchorPoint) {
+      this.attackIndicatorGroup.visible = false;
+      return;
+    }
+
+    const now = performance.now();
+    const pulse = tele.state === 'HELD' ? 0.95 + 0.18 * Math.sin(now * 0.024) : 0.84 + tele.stateProgress * 0.22;
+    const reachMul = this.getWeaponReachMultiplier(slot);
+    const heavyBoost = tele.chargeTier === 'heavy' ? 1.35 : tele.chargeTier === 'ready' ? 1.05 : 0.86;
+    const hueColor =
+      tele.chargeTier === 'heavy' ? 0xfff2aa :
+      tele.chargeTier === 'ready' ? 0xffc85a :
+      0xff9d52;
+
+    this.attackIndicatorGroup.visible = true;
+    this.attackIndicatorGroup.position.set(anchorPoint.x, anchorPoint.y, anchorPoint.z);
+    if (this.attackIndicatorFlare) {
+      this.attackIndicatorFlare.scale.setScalar((0.9 + tele.chargeNorm * 1.1) * pulse * reachMul);
+      const mat = this.attackIndicatorFlare.material as THREE.SpriteMaterial;
+      mat.color.setHex(hueColor);
+      mat.opacity = tele.state === 'HELD' ? 0.45 + tele.chargeNorm * 0.35 : 0.24 + tele.stateProgress * 0.22;
+    }
+    if (this.attackIndicatorStreak) {
+      this.attackIndicatorStreak.scale.set(
+        (1.1 + tele.chargeNorm * 1.4) * heavyBoost * reachMul,
+        0.24 + tele.chargeNorm * 0.24,
+        1
+      );
+      this.attackIndicatorStreak.material.rotation = (now * 0.0018) % (Math.PI * 2);
+      const mat = this.attackIndicatorStreak.material as THREE.SpriteMaterial;
+      mat.color.setHex(tele.chargeTier === 'heavy' ? 0xffdd8c : 0xffb14b);
+      mat.opacity = 0.12 + tele.chargeNorm * 0.22;
+    }
+    if (this.attackIndicatorBloom) {
+      this.attackIndicatorBloom.scale.setScalar((1.35 + tele.chargeNorm * 1.9) * heavyBoost * reachMul);
+      const mat = this.attackIndicatorBloom.material as THREE.SpriteMaterial;
+      mat.color.setHex(tele.chargeTier === 'heavy' ? 0xfff3c8 : 0xffd18a);
+      mat.opacity = tele.chargeTier === 'heavy' ? 0.2 + tele.chargeNorm * 0.16 : 0.08 + tele.chargeNorm * 0.1;
+    }
   }
 
   private captureAudioEvents(): void {
@@ -581,8 +1150,12 @@ gl_FragColor.rgb += rimColor;
       }
     }
 
-    if (this.attackController?.consumePendingMiss()) {
+    const missTier = this.attackController?.consumePendingMissTier();
+    if (missTier) {
       this.pendingAudioEvents.push({ type: 'miss' });
+      if (missTier === 'ready' || missTier === 'heavy') {
+        this.pendingHudEvents.push('WHIFF!');
+      }
     }
 
     this.prevGroundedForAudio = grounded;
@@ -593,6 +1166,7 @@ gl_FragColor.rgb += rimColor;
     slot: AttackSlotDefinition,
     tele: AttackTelemetry
   ) {
+    if (!this.areSegmentsAttached(this.getAttackRigSegments(slot))) return;
     const rigType = slot.visualRigType ?? 'generic';
     if (rigType === 'overhand_smash') {
       this.applyConnectedOverhandSmashVisual(slot, tele);
@@ -604,6 +1178,10 @@ gl_FragColor.rgb += rimColor;
     }
     if (rigType === 'forequarters_shove') {
       this.applyForequartersShoveVisual(slot, tele);
+      return;
+    }
+    if (rigType === 'headbutt_lunge') {
+      this.applyHeadbuttLungeVisual(slot, tele);
     }
   }
 
@@ -614,29 +1192,33 @@ gl_FragColor.rgb += rimColor;
     if (slot.visualRigType !== 'overhand_smash' || tele.state === 'IDLE') {
       return;
     }
+    const side = slot.appendageRoot.endsWith('_l') ? -1 : 1;
+    const shoulderName = slot.drivenJoints.find((name) => name.startsWith('shoulder')) ?? `shoulder_${side > 0 ? 'r' : 'l'}`;
+    const elbowName = slot.drivenJoints.find((name) => name.startsWith('elbow')) ?? `elbow_${side > 0 ? 'r' : 'l'}`;
+    if (!this.areSegmentsAttached([shoulderName, elbowName])) return;
 
     const torsoBody = this.getJointBody('torso');
-    const shoulderMesh = this.visuals.get('shoulder_r');
-    const elbowMesh = this.visuals.get('elbow_r');
+    const shoulderMesh = this.visuals.get(shoulderName);
+    const elbowMesh = this.visuals.get(elbowName);
     if (!torsoBody || !shoulderMesh || !elbowMesh) return;
 
     const torsoPos = torsoBody.translation();
     const torsoRot = torsoBody.rotation();
     this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
 
-    const shoulderAnchorLocal = this.attackTempVec.set(0.34, 0.18, 0.02);
+    const shoulderAnchorLocal = this.attackTempVec.set(0.34 * side, 0.18, 0.02);
     const shoulderAnchorWorld = this.attackTempVec2
       .copy(shoulderAnchorLocal)
       .applyQuaternion(this.attackTempQuat)
       .add(new THREE.Vector3(torsoPos.x, torsoPos.y, torsoPos.z));
 
-    const upperRest = new THREE.Vector3(0.52, -0.84, 0.12);
-    const upperWindup = new THREE.Vector3(0.16, 0.92, 0.36);
-    const upperStrike = new THREE.Vector3(0.08, -0.5, 0.86);
+    const upperRest = new THREE.Vector3(0.52 * side, -0.84, 0.12);
+    const upperWindup = new THREE.Vector3(0.16 * side, 0.92, 0.36);
+    const upperStrike = new THREE.Vector3(0.08 * side, -0.5, 0.86);
 
-    const lowerRest = new THREE.Vector3(0.48, -0.86, 0.16);
-    const lowerWindup = new THREE.Vector3(0.1, 0.96, 0.24);
-    const lowerStrike = new THREE.Vector3(0.06, -0.78, 0.62);
+    const lowerRest = new THREE.Vector3(0.48 * side, -0.86, 0.16);
+    const lowerWindup = new THREE.Vector3(0.1 * side, 0.96, 0.24);
+    const lowerStrike = new THREE.Vector3(0.06 * side, -0.78, 0.62);
 
     let upperDir = new THREE.Vector3();
     let lowerDir = new THREE.Vector3();
@@ -682,8 +1264,8 @@ gl_FragColor.rgb += rimColor;
     elbowMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), lowerDir);
 
     const scaleBoost = tele.state === 'COMMIT' ? 1.22 : 1.1 + tele.chargeNorm * 0.08;
-    shoulderMesh.scale.setScalar(scaleBoost);
-    elbowMesh.scale.setScalar(scaleBoost * 1.02);
+    shoulderMesh.scale.setScalar(this.getSegmentBaseScale(shoulderName) * scaleBoost);
+    elbowMesh.scale.setScalar(this.getSegmentBaseScale(elbowName) * scaleBoost * 1.02);
   }
 
   private applyConnectedArmChainSpikeVisual(
@@ -691,29 +1273,33 @@ gl_FragColor.rgb += rimColor;
     tele: AttackTelemetry
   ): void {
     if (slot.visualRigType !== 'arm_chain_spike' || tele.state === 'IDLE') return;
+    const side = slot.appendageRoot.endsWith('_r') ? 1 : -1;
+    const shoulderName = slot.drivenJoints.find((name) => name.startsWith('shoulder')) ?? `shoulder_${side > 0 ? 'r' : 'l'}`;
+    const elbowName = slot.drivenJoints.find((name) => name.startsWith('elbow')) ?? `elbow_${side > 0 ? 'r' : 'l'}`;
+    if (!this.areSegmentsAttached([shoulderName, elbowName])) return;
 
     const torsoBody = this.getJointBody('torso');
-    const shoulderMesh = this.visuals.get('shoulder_l');
-    const elbowMesh = this.visuals.get('elbow_l');
+    const shoulderMesh = this.visuals.get(shoulderName);
+    const elbowMesh = this.visuals.get(elbowName);
     if (!torsoBody || !shoulderMesh || !elbowMesh) return;
 
     const torsoPos = torsoBody.translation();
     const torsoRot = torsoBody.rotation();
     this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
 
-    const shoulderAnchorLocal = this.attackTempVec.set(-0.32, 0.18, 0.05);
+    const shoulderAnchorLocal = this.attackTempVec.set(0.32 * side, 0.18, 0.05);
     const shoulderAnchorWorld = this.attackTempVec2
       .copy(shoulderAnchorLocal)
       .applyQuaternion(this.attackTempQuat)
       .add(new THREE.Vector3(torsoPos.x, torsoPos.y, torsoPos.z));
 
-    const upperRest = new THREE.Vector3(-0.32, -0.88, 0.06);
-    const upperWindup = new THREE.Vector3(-0.18, 0.94, 0.28);
-    const upperStrike = new THREE.Vector3(-0.08, -0.06, 1.08);
+    const upperRest = new THREE.Vector3(0.32 * side, -0.88, 0.06);
+    const upperWindup = new THREE.Vector3(0.18 * side, 0.94, 0.28);
+    const upperStrike = new THREE.Vector3(0.08 * side, -0.06, 1.08);
 
-    const lowerRest = new THREE.Vector3(-0.42, -0.88, 0.12);
-    const lowerWindup = new THREE.Vector3(-0.08, 0.98, 0.3);
-    const lowerStrike = new THREE.Vector3(-0.04, -0.02, 1.2);
+    const lowerRest = new THREE.Vector3(0.42 * side, -0.88, 0.12);
+    const lowerWindup = new THREE.Vector3(0.08 * side, 0.98, 0.3);
+    const lowerStrike = new THREE.Vector3(0.04 * side, -0.02, 1.2);
 
     let upperDir = new THREE.Vector3();
     let lowerDir = new THREE.Vector3();
@@ -752,8 +1338,8 @@ gl_FragColor.rgb += rimColor;
     elbowMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), lowerDir);
 
     const scaleBoost = tele.state === 'COMMIT' ? 1.16 : 1.08 + tele.chargeNorm * 0.08;
-    shoulderMesh.scale.setScalar(scaleBoost);
-    elbowMesh.scale.setScalar(scaleBoost * 1.03);
+    shoulderMesh.scale.setScalar(this.getSegmentBaseScale(shoulderName) * scaleBoost);
+    elbowMesh.scale.setScalar(this.getSegmentBaseScale(elbowName) * scaleBoost * 1.03);
   }
 
   private applyForequartersShoveVisual(
@@ -761,6 +1347,7 @@ gl_FragColor.rgb += rimColor;
     tele: AttackTelemetry
   ): void {
     if (slot.visualRigType !== 'forequarters_shove' || tele.state === 'IDLE') return;
+    if (!this.areSegmentsAttached(['torso', 'hip_fl', 'hip_fr', 'knee_fl', 'knee_fr'])) return;
 
     const torsoBody = this.getJointBody('torso');
     const torsoMesh = this.visuals.get('torso');
@@ -811,7 +1398,7 @@ gl_FragColor.rgb += rimColor;
     torsoMesh.position.add(this.attackTempVec);
     this.attackTempQuat.setFromAxisAngle(this.attackTempVec2.set(1, 0, 0), chestPitch);
     torsoMesh.quaternion.multiply(this.attackTempQuat);
-    torsoMesh.scale.setScalar(tele.state === 'COMMIT' ? 1.12 : 1.05);
+    torsoMesh.scale.setScalar(this.getSegmentBaseScale('torso') * (tele.state === 'COMMIT' ? 1.12 : 1.05));
 
     const frontOffset = 0.1;
     const hipLift = 0.08 + Math.max(0, hipTuck);
@@ -826,7 +1413,78 @@ gl_FragColor.rgb += rimColor;
       const vertical = mesh === frontHipL || mesh === frontHipR ? hipLift : hipLift * 0.75;
       this.attackTempVec.set(lateral, vertical, forward).applyQuaternion(mesh.quaternion);
       mesh.position.add(this.attackTempVec);
-      mesh.scale.setScalar(tele.state === 'COMMIT' ? 1.08 : 1.04);
+      mesh.scale.setScalar(
+        this.getSegmentBaseScale(mesh === frontHipL || mesh === frontHipR ? 'hip_fl' : 'knee_fl') *
+          (tele.state === 'COMMIT' ? 1.08 : 1.04)
+      );
+    }
+  }
+
+  private applyHeadbuttLungeVisual(
+    slot: AttackSlotDefinition,
+    tele: AttackTelemetry
+  ): void {
+    if (slot.visualRigType !== 'headbutt_lunge' || tele.state === 'IDLE') return;
+    if (!this.areSegmentsAttached(['torso', 'hip_fl', 'hip_fr', 'knee_fl', 'knee_fr'])) return;
+
+    const torsoBody = this.getJointBody('torso');
+    const torsoMesh = this.visuals.get('torso');
+    const frontHipL = this.visuals.get('hip_fl');
+    const frontHipR = this.visuals.get('hip_fr');
+    const frontKneeL = this.visuals.get('knee_fl');
+    const frontKneeR = this.visuals.get('knee_fr');
+    if (!torsoBody || !torsoMesh || !frontHipL || !frontHipR || !frontKneeL || !frontKneeR) return;
+
+    const torsoRot = torsoBody.rotation();
+    this.attackTempQuat.set(torsoRot.x, torsoRot.y, torsoRot.z, torsoRot.w);
+
+    let headDrop = 0;
+    let headDrive = 0;
+    let pitch = 0;
+    let brace = 0;
+    if (tele.state === 'WINDUP') {
+      headDrop = 0.1 * tele.stateProgress;
+      headDrive = -0.18 * tele.stateProgress;
+      pitch = 0.72 * tele.stateProgress;
+      brace = 0.12 * tele.stateProgress;
+    } else if (tele.state === 'HELD') {
+      headDrop = 0.1;
+      headDrive = -0.18;
+      pitch = 0.72;
+      brace = 0.12;
+    } else if (tele.state === 'COMMIT') {
+      const t = Math.max(tele.stateProgress, 0.22);
+      headDrop = this.lerp(0.1, 0.02, t);
+      headDrive = this.lerp(-0.18, 0.42, t);
+      pitch = this.lerp(0.72, -0.28, t);
+      brace = this.lerp(0.12, -0.05, t);
+    } else {
+      headDrop = this.lerp(0.02, 0, tele.stateProgress);
+      headDrive = this.lerp(0.18, 0, tele.stateProgress);
+      pitch = this.lerp(-0.18, 0, tele.stateProgress);
+      brace = this.lerp(-0.03, 0, tele.stateProgress);
+    }
+
+    this.attackTempVec.set(0, -headDrop, headDrive).applyQuaternion(this.attackTempQuat);
+    torsoMesh.position.add(this.attackTempVec);
+    this.attackTempQuat.setFromAxisAngle(this.attackTempVec2.set(1, 0, 0), pitch);
+    torsoMesh.quaternion.multiply(this.attackTempQuat);
+    torsoMesh.scale.setScalar(this.getSegmentBaseScale('torso') * (tele.state === 'COMMIT' ? 1.14 : 1.06));
+
+    for (const [mesh, side, segmentName] of [
+      [frontHipL, -1, 'hip_fl'],
+      [frontHipR, 1, 'hip_fr'],
+      [frontKneeL, -1, 'knee_fl'],
+      [frontKneeR, 1, 'knee_fr'],
+    ] as const) {
+      const lateral = side * (segmentName.startsWith('hip_') ? 0.03 : 0.02);
+      const vertical = segmentName.startsWith('hip_') ? 0.1 + brace : 0.06 + brace * 0.7;
+      const forward = segmentName.startsWith('hip_') ? -0.04 + brace : -0.01 + brace * 0.8;
+      this.attackTempVec.set(lateral, vertical, forward).applyQuaternion(mesh.quaternion);
+      mesh.position.add(this.attackTempVec);
+      mesh.scale.setScalar(
+        this.getSegmentBaseScale(segmentName) * (tele.state === 'COMMIT' ? 1.1 : 1.04)
+      );
     }
   }
 
@@ -838,6 +1496,7 @@ gl_FragColor.rgb += rimColor;
   ): void {
     if (!slot.drivenJoints.includes(name)) return;
     if (tele.state === 'IDLE') return;
+    if (!this.isSegmentAttached(name)) return;
 
     let poseAngle = 0;
     if (tele.state === 'WINDUP') {
@@ -877,7 +1536,7 @@ gl_FragColor.rgb += rimColor;
     mesh.position.add(this.attackTempVec);
 
     const scaleBoost = tele.state === 'COMMIT' ? 1.32 : 1.14 + tele.chargeNorm * 0.14;
-    mesh.scale.setScalar(scaleBoost);
+    mesh.scale.setScalar(this.getSegmentBaseScale(name) * scaleBoost);
   }
 
   private getAttackVisualAxis(name: string): THREE.Vector3 | null {
@@ -901,4 +1560,25 @@ gl_FragColor.rgb += rimColor;
   private lerp(a: number, b: number, t: number): number {
     return a + (b - a) * Math.max(0, Math.min(1, t));
   }
+}
+
+function expandDetachedSegments(root: string): string[] {
+  const out = new Set<string>();
+  const queue = [root];
+  while (queue.length > 0) {
+    const next = queue.shift()!;
+    if (out.has(next)) continue;
+    out.add(next);
+    for (const child of DETACH_CASCADE[next] ?? []) {
+      queue.push(child);
+    }
+  }
+  return [...out];
+}
+
+function shortestAngle(delta: number): number {
+  let out = delta;
+  while (out > Math.PI) out -= Math.PI * 2;
+  while (out < -Math.PI) out += Math.PI * 2;
+  return out;
 }

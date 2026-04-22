@@ -5,10 +5,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run src/dev-server.ts",
+    "dev": "bun run src/dev-run.ts",
+    "dev:app": "bun run src/dev-server.ts",
     "build": "bun run src/build.ts",
     "serve": "bun run src/prod-server.ts",
-    "zip": "bun run src/zip.ts"
+    "typecheck": "bunx tsc --noEmit",
+    "zip": "bun run src/zip.ts",
+    "relay": "bun run server/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

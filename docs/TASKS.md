@@ -1,6 +1,6 @@
 # MEATBASH — Status & Tasks
 
-**Last updated:** 2026-04-21
+**Last updated:** 2026-04-22
 
 This is the *current* picture of what's built, what's in flight, and what's
 next. For game-design context read [MEATBASH_PRD.md](MEATBASH_PRD.md). For
@@ -16,7 +16,7 @@ where files live and how to run the project read
 | 1 — Core loop | Bipedal beast walks/jumps/falls on a real arena | ✅ DONE |
 | 2 Block 1 — Playable demo | Pick a beast, fight a bot, end-to-end match | ✅ DONE |
 | 2 Block 2 — Combat & damage | Hits matter, meat flies off, limbs sever | ✅ PLAYABLE, STILL TUNING |
-| 2 Block 3 — Multiplayer | Two players over WS | ⏳ NOT STARTED |
+| 2 Block 3 — Multiplayer | Two players over WS | 🚧 PARTIAL |
 | 2 Block 4 — Quick Workshop / Gene Lab | Forge custom beasts now; full sculpt lab later | 🚧 PARTIAL |
 | 2 Block 5 — Certification + polish | Darwin challenges, ship polish, expanded content | 🚧 PARTIAL |
 
@@ -111,16 +111,22 @@ where files live and how to run the project read
 - Per-material damage matrix (meat vs chitin vs bone).
 - Splatter decals on arena surfaces.
 
-## ⏳ Phase 2 Block 3 — Multiplayer (NOT STARTED)
+## 🚧 Phase 2 Block 3 — Multiplayer (PARTIAL)
 
+**Done now:**
 - Bun WebSocket relay server (`server/index.ts`).
 - Match creation → `MEAT-XXXX` codes.
-- Host-authoritative protocol: P1 runs physics, broadcasts state at 30 Hz.
+- Host-authoritative protocol: host runs physics and broadcasts snapshots.
 - Beast serialization exchange at match start.
+- Guest input relay to the host.
 - Client-side interpolation for the remote beast.
+- Remote attack-state replication for guest telegraphs and HUD state.
+
+**Not yet:**
 - Spectator mode (read-only state feed at 10–30 Hz).
 - SQLite (`bun:sqlite`) for persisted certified beasts, keyed to a
   localStorage client id.
+- Production matchmaking / relay observability beyond the direct room-code flow.
 
 ## 🚧 Phase 2 Block 4 — Quick Workshop / Gene Lab (PARTIAL)
 

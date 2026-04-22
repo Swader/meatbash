@@ -136,3 +136,66 @@ Original prompt: Study this project, read its @code/docs , and then implement @c
     - held `J` now shows a visible telegraph marker while in `HELD`
     - `J` then `K` stays visually in `COMMIT` longer
     - smarter natural Playwright probe still lands active hits after the visual changes
+2026-04-21 (control/oomph/workshop/network refactor)
+- Refactor goal: implement the 04-21 plan in code, not just docs, while keeping the build/package loop green.
+- Core control/combat changes landed:
+  - spawn yaw is now applied in `spawnBeast`, and local fights start face-to-face (`player` at `+PI/2`, opponent at `-PI/2`)
+  - brace aim assist now flows through locomotion state with a weak combat-target yaw assist while charging
+  - locomotion now uses calmer turn tuning defaults and ignores detached feet/attached-mass lies
+  - severance now cascades through whole limb chains (e.g. shoulder -> elbow, hip -> knee -> ankle), and `BeastInstance` owns detached-segment state so attack visuals/telegraphs stop resurrecting severed limbs
+  - charge telegraph is back as an appendage-local aura/ring/beam instead of a whole-body emissive fake
+  - heavy hits now classify as `heavy-clean`, get bigger launch/feedback, spawn shockwaves, and flash the victim
+  - whiff punishment moved into the attack controller so missed charged commits push `WHIFF!` and drain stamina harder than a connect
+- Identity/workshop changes landed:
+  - premades now author weapon semantics explicitly (hammer / spike / shield / headbutt), with Stomper switched to a headbutt lunge and Butterchonk kept as the shield wall
+  - added visible weapon-tip meshes and side-aware custom arm rigs so socket choice is readable
+  - workshop generator was rewritten around real combat knobs: weight class, body size, stability bias, weapon type/socket/length/mass, charge style, color
+  - Gene Lab UI now exposes those knobs and shows derived stat bars for speed / stability / reach / damage / stamina / control
+- Multiplayer changes landed:
+  - added `code/server/index.ts` Bun relay and `relay` script
+  - added shared network protocol, websocket client, remote input buffer, snapshot interpolation, and main-loop host/guest integration
+  - host now simulates both beasts and relays snapshots; guest sends input frames and renders host-authoritative state
+  - home screen now supports `BASH BOT`, `HOST MATCH`, and `JOIN MATCH`
+- Verification completed:
+  - `bun run build` passes after all refactor + multiplayer work
+  - `bun run zip` passes and includes `code/server/`
+  - deterministic/browser runtime probes under `output/runtime-probes/` confirm:
+    - face-to-face spawn yaw (`core-facing`)
+    - live charge-state/runtime arena probes (`core-charge`, `core-whiff*` — note keyboard-driven commit probing is still flaky in headless automation even though the runtime path compiles and the game loop remains stable)
+    - workshop forge -> roster -> arena flow (`workshop-smoke`)
+    - host/join multiplayer smoke and 30s soak (`multiplayer-smoke`, `multiplayer-soak`)
+- Remaining caveats:
+  - direct headless keyboard automation outside the dedicated game harness is still flaky for precise `J/K` combat assertions, so combat visual/logic verification is partly from the deterministic harness and partly from smoke-state/runtime screenshots rather than a perfect scripted combo test
+  - multiplayer works through the Bun relay on port `3001`; deployment/runtime polish beyond local/dev smoke still needs real host testing on separate machines
+2026-04-21 (follow-up feel pass)
+- User feedback after the big refactor:
+  - beasts technically spawned face-to-face, but because countdown disabled the controller they slumped under gravity and stood up in random directions
+  - movement still felt too clumsy / unpredictable
+  - fully powered clean knockback hits should do more damage
+  - charge telegraph should read as limb heat + glare / tension, not a floating orb/ring marker
+- Follow-up changes landed:
+  - `BeastInstance.applyInput()` no longer hard-stops locomotion when controls are locked; countdown now uses neutral input while the balance controller stays active
+  - added strong countdown face assist and mild forward-move face assist, so beasts keep looking at each other and movement lines up more reliably even before charging
+  - biped / quadruped `STUMBLING` multipliers were raised and `airMotorMul` increased to reduce useless ragdoll flail
+  - replaced the old charge marker with sprite-based glare/bloom/streak VFX plus additive heat overlays on the active limb segments
+  - added low-amplitude charge camera shake pulses while holding a charge
+  - `heavy-clean` hits now multiply damage harder instead of only increasing launch/feedback
+- Verification:
+  - `bun run build` passes after the follow-up feel/VFX changes
+  - deterministic post-countdown probe (`output/runtime-probes/facing-followup`) shows player yaw ~`1.6` and opponent yaw ~`-1.56` right as countdown ends, instead of random stand-up facing
+  - direct browser probe confirms held charge state is really reaching `HELD` and renders the new limb heat/glare (`output/runtime-probes/charge-visual-followup.png`)
+  - heavy-tier direct browser probe confirms full charge reaches `chargeTier: "heavy"` and the heavier glare/tension render is visible (`output/runtime-probes/charge-visual-heavy.png`)
+2026-04-22 (connectivity + aim pass)
+- User follow-up: swings still felt like guesswork and too many apparent overlaps passed through without a real hit.
+- Changes landed:
+  - stronger forward-facing assist while moving, charging, and committing in `src/beast/beast-instance.ts`
+  - `COMMIT` locomotion now preserves a little more turn authority in `src/combat/attack-controller.ts`
+  - widened active windows in `src/combat/attack-profiles.ts`
+  - `src/physics/damage.ts` now has a proximity-based intentional-hit fallback during `COMMIT`, plus extra forward strike samples for blunt/shield/headbutt attacks so visible swing/front-body space is better aligned with hit logic
+  - commit follow-through was bumped in `src/combat/attack-controller.ts` so the weapon/root lunge carries farther into likely contact space
+- Verification:
+  - `bun run build` passes after the connectivity pass
+  - live browser walk-and-swing probe produced opponent mass drop plus `hit_blunt` in `recentAudio`, indicating active-hit feedback fired in the real loop
+  - fully synthetic direct browser commit probes remain flaky / noisy for precise active-hit assertions because scripted key injection and close-range passive ragdoll contacts can still muddy the exact frame-level signal
+- Interpretation:
+  - the code now gives swings more authored overlap forgiveness and better aim assistance, but this pass still needs live human feel-checking in-editor because the automated probes are useful for regressions, not perfect judges of “does this feel guessy?”

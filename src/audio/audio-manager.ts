@@ -198,7 +198,7 @@ export class AudioManager {
   private musicSource?: AudioBufferSourceNode;
   private musicGain?: GainNode;
   private musicAnalyser?: AnalyserNode;
-  private musicAnalyserData?: Uint8Array;
+  private musicAnalyserData?: Uint8Array<ArrayBuffer>;
   private musicToken = 0;
   private interactionArmed = false;
 

@@ -14,7 +14,7 @@
  *   HOW STRONG it is when it fires.
  */
 
-import { Pane, BindingApi } from 'tweakpane';
+import { Pane } from 'tweakpane';
 
 export const tuning = {
   // ---- Joint motors ----
@@ -26,7 +26,7 @@ export const tuning = {
   ankleDamping: 3,
 
   /** Multiplier applied to joint motor stiffness while airborne. */
-  airMotorMul: 0.10,
+  airMotorMul: 0.16,
 
   // ---- Balance: upright torque ----
   uprightStiffness: 50,
@@ -74,13 +74,13 @@ export const tuning = {
 
   // ---- Movement (mass-normalized) ----
   /** Forward acceleration per kg of total body mass when W is held (m/s² equivalent). */
-  forwardAccel: 3.2,
+  forwardAccel: 3.0,
   /** Backward acceleration per kg. */
-  backwardAccel: 2.0,
+  backwardAccel: 1.8,
   /** Soft cap on horizontal speed (m/s). */
   maxSpeed: 2.2,
   /** Horizontal damping when no drive input and supported (N per m/s per kg). */
-  horizontalBrake: 1.4,
+  horizontalBrake: 1.0,
   /** Jump velocity (m/s). Applied as impulse = totalMass * jumpVelocity. */
   jumpVelocity: 11.0,
   jumpCooldown: 0.35,
@@ -95,23 +95,23 @@ export const tuning = {
    * Prevents the beast from rolling off ledges it just landed on.
    * Multiplied into horizontalBrake when groundNormal.y < 0.98.
    */
-  slopeStabilityBoost: 4.0,
+  slopeStabilityBoost: 3.2,
 
   // ---- Turning ----
   /** Maximum yaw rate (rad/s) when fully supported. */
-  maxYawRate: 3.0,
+  maxYawRate: 2.0,
   /** Smoothing speed for raw turn input. */
-  turnSharpness: 18.0,
+  turnSharpness: 9.0,
   /** Smoothing speed for desired yaw rate. */
-  yawRateSharpness: 16.0,
+  yawRateSharpness: 7.0,
   /** Yaw error gain per kg of total body mass. */
-  turnTorquePerKg: 3.0,
+  turnTorquePerKg: 2.4,
   /**
    * Per-kg damping applied to pelvis X/Z angular velocity WHILE turning,
    * to stop yaw torque from leaking into tilt and tipping the beast over.
    * Higher = more rigid turn-in-place, lower = more wobbly.
    */
-  turnTiltDamp: 1.2,
+  turnTiltDamp: 1.6,
 
   // ---- Foot ----
   footFriction: 1.2,
@@ -132,10 +132,10 @@ export const tuning = {
 
 export type Tuning = typeof tuning;
 
-let pane: Pane | null = null;
+let pane: any = null;
 
 /** Attach a native browser tooltip to a tweakpane binding. */
-function tip(binding: BindingApi, text: string): BindingApi {
+function tip(binding: any, text: string): any {
   const el = (binding as any).element as HTMLElement | undefined;
   if (el) {
     el.title = text;

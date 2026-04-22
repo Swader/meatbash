@@ -62,6 +62,18 @@ export interface QuadLocomotionState {
   totalMass: number;
   regenPerSec: number;
   attackModifiers?: AttackMovementModifiers | null;
+  detachedSegments?: Set<string> | null;
+  massOverride?: number | null;
+  combatTargetYaw?: number | null;
+  combatAssistStrength?: number;
+  combatAssistMaxRate?: number;
+  definitionDriveMultiplier?: number;
+  definitionTurnMultiplier?: number;
+  definitionSupportMultiplier?: number;
+  definitionUprightMultiplier?: number;
+  definitionRegenMultiplier?: number;
+  definitionWalkCostMultiplier?: number;
+  definitionTurnCostMultiplier?: number;
 }
 
 export function createQuadLocomotionState(): QuadLocomotionState {
@@ -80,6 +92,18 @@ export function createQuadLocomotionState(): QuadLocomotionState {
     totalMass: 0,
     regenPerSec: 0,
     attackModifiers: null,
+    detachedSegments: null,
+    massOverride: null,
+    combatTargetYaw: null,
+    combatAssistStrength: 0,
+    combatAssistMaxRate: 0,
+    definitionDriveMultiplier: 1,
+    definitionTurnMultiplier: 1,
+    definitionSupportMultiplier: 1,
+    definitionUprightMultiplier: 1,
+    definitionRegenMultiplier: 1,
+    definitionWalkCostMultiplier: 1,
+    definitionTurnCostMultiplier: 1,
   };
 }
 
@@ -96,6 +120,17 @@ function setMotor(
 ) {
   if (!joint) return;
   joint.configureMotorPosition(target, stiffness, damping);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function shortestAngle(delta: number): number {
+  let out = delta;
+  while (out > Math.PI) out -= Math.PI * 2;
+  while (out < -Math.PI) out += Math.PI * 2;
+  return out;
 }
 
 export function applyQuadLocomotion(
@@ -171,9 +206,20 @@ export function applyQuadLocomotion(
     }
   }
 
-  const totalMass = getTotalMassQuad(skeleton);
+  const totalMass =
+    locoState.massOverride && locoState.massOverride > 0
+      ? locoState.massOverride
+      : getTotalMassQuad(skeleton);
   locoState.totalMass = totalMass;
   const attackMods = locoState.attackModifiers ?? null;
+  const detachedSegments = locoState.detachedSegments ?? null;
+  const definitionDriveMul = locoState.definitionDriveMultiplier ?? 1;
+  const definitionTurnMul = locoState.definitionTurnMultiplier ?? 1;
+  const definitionSupportMul = locoState.definitionSupportMultiplier ?? 1;
+  const definitionUprightMul = locoState.definitionUprightMultiplier ?? 1;
+  const definitionRegenMul = locoState.definitionRegenMultiplier ?? 1;
+  const definitionWalkCostMul = locoState.definitionWalkCostMultiplier ?? 1;
+  const definitionTurnCostMul = locoState.definitionTurnCostMultiplier ?? 1;
 
   // ============================================================
   // GROUNDED DETECTION — per-foot downward raycast against arena.
@@ -197,10 +243,10 @@ export function applyQuadLocomotion(
     return hit !== null;
   };
 
-  const flGrounded = checkFootGrounded(skeleton.footFL.body);
-  const frGrounded = checkFootGrounded(skeleton.footFR.body);
-  const blGrounded = checkFootGrounded(skeleton.footBL.body);
-  const brGrounded = checkFootGrounded(skeleton.footBR.body);
+  const flGrounded = !detachedSegments?.has('ankle_fl') && checkFootGrounded(skeleton.footFL.body);
+  const frGrounded = !detachedSegments?.has('ankle_fr') && checkFootGrounded(skeleton.footFR.body);
+  const blGrounded = !detachedSegments?.has('ankle_bl') && checkFootGrounded(skeleton.footBL.body);
+  const brGrounded = !detachedSegments?.has('ankle_br') && checkFootGrounded(skeleton.footBR.body);
 
   const groundedFeet =
     (flGrounded ? 1 : 0) +
@@ -350,8 +396,8 @@ export function applyQuadLocomotion(
       driveMul = 1.0;
       break;
     case 'STUMBLING':
-      supportMul = 0.70;
-      driveMul = 0.65;
+      supportMul = 0.82;
+      driveMul = 0.78;
       break;
     case 'AIRBORNE':
       supportMul = 0.0;
@@ -468,7 +514,8 @@ export function applyQuadLocomotion(
       const supportMag =
         (tuning.heightStiffness * compression - tuning.heightDamping * pelvisVel.y) *
         supportMul *
-        attackSupportMul;
+        attackSupportMul *
+        definitionSupportMul;
       pelvis.addForce({ x: 0, y: supportMag, z: 0 }, true);
     }
   }
@@ -480,7 +527,8 @@ export function applyQuadLocomotion(
   // beast noticeably harder to knock over than the biped.
   // ============================================================
   const QUAD_UPRIGHT_BOOST = 1.2;
-  const uprightMul = supportMul * uprightBoost * QUAD_UPRIGHT_BOOST * attackUprightMul;
+  const uprightMul =
+    supportMul * uprightBoost * QUAD_UPRIGHT_BOOST * attackUprightMul * definitionUprightMul;
   if (uprightMul > 0) {
     const errX = pelvisUpY * refZ - pelvisUpZ * refY;
     const errY = pelvisUpZ * refX - pelvisUpX * refZ;
@@ -506,12 +554,25 @@ export function applyQuadLocomotion(
   // Scale turn rate by foot count out of 4.
   const groundFootMul = Math.min(groundedFeet, 4) / 4;
 
-  const targetYawRate =
+  const currentYaw = Math.atan2(
+    2 * (rot.x * rot.z + rot.w * rot.y),
+    1 - 2 * (rot.x * rot.x + rot.y * rot.y)
+  );
+  let targetYawRate =
     locoState.turnAxis *
     tuning.maxYawRate *
     Math.max(groundFootMul, locoState.mode === 'AIRBORNE' ? 0.15 : 0) *
     speedMul *
-    attackTurnMul;
+    attackTurnMul *
+    definitionTurnMul;
+  const combatTargetYaw = locoState.combatTargetYaw;
+  if (combatTargetYaw != null) {
+    targetYawRate += clamp(
+      shortestAngle(combatTargetYaw - currentYaw) * (locoState.combatAssistStrength ?? 0),
+      -(locoState.combatAssistMaxRate ?? 0),
+      locoState.combatAssistMaxRate ?? 0
+    );
+  }
 
   locoState.yawRate = smooth(locoState.yawRate, targetYawRate, tuning.yawRateSharpness, dt);
 
@@ -547,7 +608,7 @@ export function applyQuadLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= tuning.airControlMul;
+    accel *= tuning.airControlMul * definitionDriveMul;
     const force = accel * totalMass;
     pelvis.addForce({ x: fX * force, y: 0, z: fZ * force }, true);
   } else if (driveMul > 0 && groundedFeet > 0) {
@@ -559,7 +620,7 @@ export function applyQuadLocomotion(
     let accel = 0;
     if (wDown) accel += tuning.forwardAccel;
     if (sDown) accel -= tuning.backwardAccel;
-    accel *= driveMul * tiltScale * footScale * attackDriveMul;
+    accel *= driveMul * tiltScale * footScale * attackDriveMul * definitionDriveMul;
 
     if (accel !== 0) {
       const force = accel * totalMass;
@@ -602,8 +663,8 @@ export function applyQuadLocomotion(
   // STAMINA — mass-based regen, same formula as biped.
   // ============================================================
   let staminaCost = 0;
-  if (wDown || sDown) staminaCost += tuning.walkStaminaCost * dt;
-  if (aDown || dDown) staminaCost += tuning.turnStaminaCost * dt;
+  if (wDown || sDown) staminaCost += tuning.walkStaminaCost * definitionWalkCostMul * dt;
+  if (aDown || dDown) staminaCost += tuning.turnStaminaCost * definitionTurnCostMul * dt;
   if (panicDown) staminaCost += PANIC_STAMINA_PER_SEC * dt;
 
   if (locoState.mode === 'RECOVERING' || locoState.mode === 'FALLEN') {
@@ -621,7 +682,7 @@ export function applyQuadLocomotion(
   const massMul = 1.0 - 0.5 * massT;
   const anyMoveKey = wDown || sDown || aDown || dDown;
   const regenPerSec =
-    (anyMoveKey ? tuning.movingRegen : tuning.idleRegenLight) * massMul;
+    (anyMoveKey ? tuning.movingRegen : tuning.idleRegenLight) * massMul * definitionRegenMul;
   locoState.regenPerSec = regenPerSec;
 
   stamina.current = Math.max(

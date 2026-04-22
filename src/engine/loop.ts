@@ -11,6 +11,7 @@ export interface GameLoopConfig {
   physics: RapierWorld;
   input: InputManager;
   beasts: BeastInstance[];
+  onBeforeFixedStep?: (dt: number, frame: number) => void;
   /** Per-fixed-step hook fired AFTER physics.step() and BEFORE beast sync. */
   onPostPhysics?: (dt: number) => void;
   onVariableUpdate?: (dt: number) => void;
@@ -38,6 +39,7 @@ export class GameLoop {
   private fpsTime = 0;
   private currentFps = 0;
   private hitstopLeft = 0;
+  private fixedFrame = 0;
 
   constructor(config: GameLoopConfig) {
     this.config = config;
@@ -130,6 +132,7 @@ export class GameLoop {
    */
   private fixedUpdate(dt: number) {
     const { input, physics, beasts } = this.config;
+    this.config.onBeforeFixedStep?.(dt, this.fixedFrame);
 
     // Apply beast locomotion from input
     for (const beast of beasts) {
@@ -169,6 +172,7 @@ export class GameLoop {
         console.error('[loop] beast.syncFromPhysics threw', e);
       }
     }
+    this.fixedFrame += 1;
   }
 
   /** Variable-rate update: camera, visual effects, animations */
@@ -198,5 +202,9 @@ export class GameLoop {
 
   addHitstop(duration: number): void {
     this.hitstopLeft = Math.max(this.hitstopLeft, duration);
+  }
+
+  getFixedFrame(): number {
+    return this.fixedFrame;
   }
 }

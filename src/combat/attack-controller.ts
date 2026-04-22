@@ -41,6 +41,8 @@ export class AttackController {
   private commitSerial = 0;
   private hitRegisteredThisCommit = false;
   private pendingMiss = false;
+  private pendingMissTier: ChargeTier | null = null;
+  private attackAvailable = true;
 
   constructor(
     private readonly skeleton: SkeletonLike,
@@ -52,6 +54,9 @@ export class AttackController {
   update(input: InputLike, dt: number, stamina: { current: number; max: number }): void {
     this.recomputeMassScaling();
     this.stateTimer += dt;
+    if (!this.attackAvailable && this.state !== 'IDLE' && this.state !== 'RECOVER') {
+      this.enterState('RECOVER');
+    }
     const raiseHeld = input.isDown(ATTACK_RAISE_KEY);
     const raiseReleased = input.justReleased(ATTACK_RAISE_KEY) || !raiseHeld;
     const commitRequested =
@@ -60,12 +65,16 @@ export class AttackController {
 
     switch (this.state) {
       case 'IDLE': {
-        if (raiseHeld && stamina.current > 1) {
+        if (this.attackAvailable && raiseHeld && stamina.current > 1) {
           this.enterState('WINDUP');
         }
         break;
       }
       case 'WINDUP': {
+        if (!this.attackAvailable) {
+          this.enterState('RECOVER');
+          break;
+        }
         const windupNorm = Math.min(1, this.stateTimer / Math.max(0.01, this.slot.windupTime * this.massScale));
         this.applyPose(this.slot.windupPose, windupNorm);
         if (raiseReleased) {
@@ -78,6 +87,10 @@ export class AttackController {
         break;
       }
       case 'HELD': {
+        if (!this.attackAvailable) {
+          this.enterState('RECOVER');
+          break;
+        }
         this.holdTimer = Math.min(this.slot.maxChargeTime, this.holdTimer + dt);
         stamina.current = Math.max(0, stamina.current - this.slot.holdDrainPerSec * this.massScale * dt);
         this.applyPose(this.slot.windupPose, 1);
@@ -91,12 +104,18 @@ export class AttackController {
         break;
       }
       case 'COMMIT': {
+        if (!this.attackAvailable) {
+          this.enterState('RECOVER');
+          break;
+        }
         this.commitActiveLeft = Math.max(0, this.commitActiveLeft - dt);
         this.commitVisualLeft = Math.max(0, this.commitVisualLeft - dt);
         this.applyPose(this.slot.strikePose, 1);
         if (this.commitVisualLeft <= 0) {
           if (!this.hitRegisteredThisCommit) {
             this.pendingMiss = true;
+            this.pendingMissTier = this.commitTier;
+            this.applyWhiffPenalty(stamina);
           }
           this.enterState('RECOVER');
         }
@@ -173,7 +192,7 @@ export class AttackController {
     if (effectiveState === 'COMMIT') {
       return {
         driveMultiplier: 0.72,
-        turnMultiplier: 0.92,
+        turnMultiplier: 1.08,
         supportMultiplier: 1.08,
         uprightMultiplier: 1.08,
         brakeMultiplier: 1.08,
@@ -197,10 +216,19 @@ export class AttackController {
     }
   }
 
-  consumePendingMiss(): boolean {
-    if (!this.pendingMiss) return false;
+  consumePendingMissTier(): ChargeTier | null {
+    if (!this.pendingMiss) return null;
     this.pendingMiss = false;
-    return true;
+    const tier = this.pendingMissTier;
+    this.pendingMissTier = null;
+    return tier;
+  }
+
+  setAttackAvailable(available: boolean): void {
+    this.attackAvailable = available;
+    if (!available && this.state !== 'IDLE' && this.state !== 'RECOVER') {
+      this.enterState('RECOVER');
+    }
   }
 
   getVisualPoseSnapshot():
@@ -299,6 +327,7 @@ export class AttackController {
       this.commitVisualDuration = 0;
       this.commitTier = 'quick';
       this.pendingMiss = false;
+      this.pendingMissTier = null;
       this.hitRegisteredThisCommit = false;
     }
     if (next === 'RECOVER') {
@@ -308,6 +337,10 @@ export class AttackController {
   }
 
   private enterCommit(stamina: { current: number }): void {
+    if (!this.attackAvailable) {
+      this.enterState('RECOVER');
+      return;
+    }
     const holdSeconds = this.getCommittedHoldSeconds();
     const chargeNorm = Math.min(1, holdSeconds / Math.max(0.001, this.slot.maxChargeTime));
     const tier = getChargeTier(holdSeconds);
@@ -330,9 +363,9 @@ export class AttackController {
     this.hitRegisteredThisCommit = false;
 
     const commitImpulseMul =
-      tier === 'heavy' ? 1.28 :
-      tier === 'ready' ? 1.12 :
-      1;
+      tier === 'heavy' ? 1.42 :
+      tier === 'ready' ? 1.2 :
+      1.08;
     const lungeForward =
       this.lerp(this.slot.rootLungeForward * 0.7, this.slot.rootLungeForward, chargeNorm) *
       commitImpulseMul;
@@ -363,9 +396,9 @@ export class AttackController {
       const segMass = body.mass();
       body.applyImpulse(
         {
-          x: forward.x * lungeForward * segMass * 1.08,
+          x: forward.x * lungeForward * segMass * 1.18,
           y: lungeUp * segMass * 0.42,
-          z: forward.z * lungeForward * segMass * 1.08,
+          z: forward.z * lungeForward * segMass * 1.18,
         },
         true
       );
@@ -444,5 +477,17 @@ export class AttackController {
       out[key] = value * scale;
     }
     return out;
+  }
+
+  private applyWhiffPenalty(stamina: { current: number; max?: number }): void {
+    if (this.commitTier === 'quick') {
+      stamina.current = Math.max(0, stamina.current - 4);
+      return;
+    }
+    if (this.commitTier === 'ready') {
+      stamina.current = Math.max(0, stamina.current - 14);
+      return;
+    }
+    stamina.current = Math.min(stamina.current, 8);
   }
 }

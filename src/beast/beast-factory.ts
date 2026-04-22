@@ -25,7 +25,7 @@ import type { BeastDefinition } from './beast-data';
 export interface SpawnOptions {
   x: number;
   z: number;
-  /** Optional facing yaw (radians). Not yet applied — reserved for future. */
+  /** Optional facing yaw (radians). 0 = +Z, PI/2 = +X. */
   yaw?: number;
   /**
    * 0-based beast index used to compute per-beast collision groups so
@@ -60,6 +60,7 @@ export function spawnBeast(
     const skeleton = createBipedSkeleton(physics, opts.x, opts.z, groundY, {
       withArms: !!def.hasArms,
     });
+    applyInitialYaw(skeleton, opts.x, opts.z, opts.yaw ?? 0);
     return new BeastInstance(
       skeleton,
       physics,
@@ -72,6 +73,7 @@ export function spawnBeast(
 
   if (def.archetype === 'quadruped') {
     const skeleton = createQuadSkeleton(physics, opts.x, opts.z, groundY);
+    applyInitialYaw(skeleton, opts.x, opts.z, opts.yaw ?? 0);
     return new BeastInstance(
       skeleton as any,
       physics,
@@ -83,4 +85,34 @@ export function spawnBeast(
   }
 
   throw new Error(`Unknown archetype: ${(def as any).archetype}`);
+}
+
+function applyInitialYaw(
+  skeleton: { allBodies: Array<{ translation(): { x: number; y: number; z: number }; setTranslation(v: { x: number; y: number; z: number }, wakeUp: boolean): void; setRotation(v: { x: number; y: number; z: number; w: number }, wakeUp: boolean): void; setLinvel(v: { x: number; y: number; z: number }, wakeUp: boolean): void; setAngvel(v: { x: number; y: number; z: number }, wakeUp: boolean): void }> },
+  originX: number,
+  originZ: number,
+  yaw: number
+): void {
+  if (Math.abs(yaw) < 0.0001) return;
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  const half = yaw * 0.5;
+  const q = { x: 0, y: Math.sin(half), z: 0, w: Math.cos(half) };
+
+  for (const body of skeleton.allBodies) {
+    const p = body.translation();
+    const dx = p.x - originX;
+    const dz = p.z - originZ;
+    body.setTranslation(
+      {
+        x: originX + dx * c + dz * s,
+        y: p.y,
+        z: originZ - dx * s + dz * c,
+      },
+      true
+    );
+    body.setRotation(q, true);
+    body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+  }
 }

@@ -12,8 +12,18 @@
 
 export type Archetype = 'bipedal' | 'quadruped';
 export type WeightClassHint = 'light' | 'middle' | 'heavy' | 'superheavy';
+export type BeastBodySize = 'small' | 'normal' | 'chonk';
+export type BeastStabilityBias = 'wobbly' | 'balanced' | 'stable';
+export type BeastWeaponLength = 'short' | 'medium' | 'long';
+export type BeastWeaponMass = 'light' | 'normal' | 'heavy';
+export type BeastChargeStyle = 'quick' | 'balanced' | 'heavy';
 
-import type { AttackSlotDefinition, AttackProfile } from '../combat/attack-types';
+import type {
+  AttackProfile,
+  AttackSlotDefinition,
+  AttackWeaponSocket,
+  AttackWeaponType,
+} from '../combat/attack-types';
 
 export interface BeastVisuals {
   /** Primary meat color (CSS hex, e.g. 0xdd4444). */
@@ -22,8 +32,49 @@ export interface BeastVisuals {
   emissive: number;
   /** Radius multiplier for the visible torso blob. */
   torsoScale: number;
+  /** Uniform visual scale applied to the rest of the body meshes. */
+  bodyScale?: number;
   /** Name displayed on beast cards. */
   iconEmoji?: string;
+}
+
+export interface BeastRuntimeTuning {
+  bodyMassScale?: number;
+  weaponMassScale?: number;
+  moveAccelMultiplier?: number;
+  turnMultiplier?: number;
+  supportMultiplier?: number;
+  uprightMultiplier?: number;
+  bodyVisualScale?: number;
+  weaponReachMultiplier?: number;
+  weaponVisualScale?: number;
+  staminaMaxMultiplier?: number;
+  staminaRegenMultiplier?: number;
+  walkCostMultiplier?: number;
+  turnCostMultiplier?: number;
+  knockbackResistance?: number;
+}
+
+export interface BeastWorkshopConfig {
+  sourceBeastId?: string | null;
+  weightClass: WeightClassHint;
+  bodySize: BeastBodySize;
+  stabilityBias: BeastStabilityBias;
+  weaponType: AttackWeaponType;
+  weaponSocket: AttackWeaponSocket;
+  weaponLength: BeastWeaponLength;
+  weaponMass: BeastWeaponMass;
+  chargeStyle: BeastChargeStyle;
+  colorPreset?: string;
+}
+
+export interface BeastStatSummary {
+  speed: number;
+  stability: number;
+  reach: number;
+  damage: number;
+  staminaEconomy: number;
+  controlDifficulty: number;
 }
 
 export interface BeastDefinition {
@@ -51,6 +102,9 @@ export interface BeastDefinition {
   attackSlots?: AttackSlotDefinition[];
   weightClassHint?: WeightClassHint;
   playstyleSummary?: string;
+  runtimeTuning?: BeastRuntimeTuning;
+  workshopConfig?: BeastWorkshopConfig;
+  statSummary?: BeastStatSummary;
 }
 
 /**
@@ -67,6 +121,8 @@ export interface BeastListing {
   weightClass: WeightClassHint;
   attackProfile: AttackProfile | 'none';
   playstyleSummary: string;
+  workshopConfig?: BeastWorkshopConfig;
+  statSummary?: BeastStatSummary;
 }
 
 /** Convert a full definition down to the listing format. */
@@ -81,5 +137,7 @@ export function toBeastListing(def: BeastDefinition): BeastListing {
     weightClass: def.weightClassHint ?? 'middle',
     attackProfile: def.attackSlots?.[0]?.profile ?? 'none',
     playstyleSummary: def.playstyleSummary ?? def.description,
+    workshopConfig: def.workshopConfig,
+    statSummary: def.statSummary,
   };
 }

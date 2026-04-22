@@ -14,6 +14,8 @@ health checks, and ops troubleshooting.
   server changes.
 - Use the committed systemd unit at
   [`../../deploy/meatbash.service`](../../deploy/meatbash.service).
+- Use the committed relay unit at
+  [`../../deploy/meatbash-relay.service`](../../deploy/meatbash-relay.service).
 - The Bun production entrypoint is
   [`../../src/prod-server.ts`](../../src/prod-server.ts).
 
@@ -31,14 +33,15 @@ ssh -i /Users/swader/.ssh/codex-kvasyr-prod swader@178.62.192.123
 
 - Shared apps root convention: `/var/www`
 - App proxy target: `127.0.0.1:3010`
+- Relay proxy target: `127.0.0.1:3011`
 
 ## Deployment rules
 
 - Use **Bun**, not Node or PM2.
 - Use **systemd** service files, not ad hoc background processes.
-- Build from the repo’s `code/` app root.
+- Build from `/var/www/meatbash`.
 - After updates: `bun install --frozen-lockfile`, `bun run build`, then
-  `systemctl restart meatbash`.
+  `systemctl restart meatbash meatbash-relay`.
 
 ## Standard flow
 
@@ -46,8 +49,10 @@ ssh -i /Users/swader/.ssh/codex-kvasyr-prod swader@178.62.192.123
 2. Sync or clone the repo under `/var/www/meatbash`.
 3. Build from `/var/www/meatbash`.
 4. Install or refresh `deploy/meatbash.service`.
-5. Install or refresh the nginx vhost for `meatbash.bitfalls.com`.
-6. Restart `meatbash` and verify with `systemctl`, `journalctl`, and `curl`.
+5. Install or refresh `deploy/meatbash-relay.service`.
+6. Install or refresh the nginx vhost for `meatbash.bitfalls.com`, including
+   the `/ws` upgrade route.
+7. Restart both services and verify with `systemctl`, `journalctl`, and `curl`.
 
 ## Access verification
 
@@ -67,7 +72,11 @@ cd /var/www/meatbash
 ~/.bun/bin/bun install --frozen-lockfile
 ~/.bun/bin/bun run build
 sudo systemctl restart meatbash
+sudo systemctl restart meatbash-relay
 sudo systemctl status --no-pager meatbash
+sudo systemctl status --no-pager meatbash-relay
 sudo journalctl -u meatbash -n 200 --no-pager
-curl -I http://127.0.0.1:3000/
+sudo journalctl -u meatbash-relay -n 200 --no-pager
+curl -I http://127.0.0.1:3010/
+curl -I http://127.0.0.1:3011/
 ```

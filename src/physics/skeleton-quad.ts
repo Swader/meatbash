@@ -102,7 +102,7 @@ export function createQuadSkeleton(
     8
   );
   physics.addCapsuleCollider(frontTorso, torsoHalfH, torsoRadius, 1.0, 0.25, 0.0);
-  joints.set('torso', { name: 'torso', body: frontTorso });
+  joints.set('torso', { name: 'torso', body: frontTorso, additionalMass: 4.0 });
   allBodies.push(frontTorso);
 
   // ============================================================
@@ -116,7 +116,7 @@ export function createQuadSkeleton(
     8
   );
   physics.addCapsuleCollider(rearTorso, torsoHalfH, torsoRadius, 1.0, 0.25, 0.0);
-  joints.set('torso_rear', { name: 'torso_rear', body: rearTorso });
+  joints.set('torso_rear', { name: 'torso_rear', body: rearTorso, additionalMass: 1.5 });
   allBodies.push(rearTorso);
 
   // ============================================================
@@ -176,7 +176,12 @@ export function createQuadSkeleton(
         damping: tuning.hipDamping,
       }
     );
-    joints.set(`hip_${legKey}`, { name: `hip_${legKey}`, body: upperLeg, joint: hipJoint });
+    joints.set(`hip_${legKey}`, {
+      name: `hip_${legKey}`,
+      body: upperLeg,
+      joint: hipJoint,
+      additionalMass: 0.4,
+    });
 
     // ---- Lower leg ----
     const lowerLeg = physics.createDynamicBody(
@@ -198,7 +203,12 @@ export function createQuadSkeleton(
         damping: tuning.kneeDamping,
       }
     );
-    joints.set(`knee_${legKey}`, { name: `knee_${legKey}`, body: lowerLeg, joint: kneeJoint });
+    joints.set(`knee_${legKey}`, {
+      name: `knee_${legKey}`,
+      body: lowerLeg,
+      joint: kneeJoint,
+      additionalMass: 0.3,
+    });
 
     // ---- Foot ----
     const foot = physics.createDynamicBody(
@@ -228,7 +238,12 @@ export function createQuadSkeleton(
         damping: tuning.ankleDamping,
       }
     );
-    joints.set(`ankle_${legKey}`, { name: `ankle_${legKey}`, body: foot, joint: ankleJoint });
+    joints.set(`ankle_${legKey}`, {
+      name: `ankle_${legKey}`,
+      body: foot,
+      joint: ankleJoint,
+      additionalMass: 0.22,
+    });
 
     return { body: foot, sensor };
   };

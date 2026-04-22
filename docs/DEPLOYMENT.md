@@ -3,6 +3,11 @@
 This app should be deployed with **Bun + systemd**. Do not use PM2, Node, or
 an ad hoc static-file daemon.
 
+The shipped game now has two runtime pieces:
+
+- the HTTP app server on `127.0.0.1:3010`
+- the websocket relay on `127.0.0.1:3011`
+
 ## Current access defaults
 
 - Current MEATBASH deploy target: `swader@meatbash.bitfalls.com`
@@ -94,14 +99,21 @@ Install the systemd unit:
 
 ```bash
 sudo cp /var/www/meatbash/deploy/meatbash.service /etc/systemd/system/meatbash.service
+sudo cp /var/www/meatbash/deploy/meatbash-relay.service /etc/systemd/system/meatbash-relay.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now meatbash
+sudo systemctl enable --now meatbash-relay
 sudo systemctl restart meatbash
+sudo systemctl restart meatbash-relay
 sudo systemctl status --no-pager meatbash
+sudo systemctl status --no-pager meatbash-relay
 ```
 
 The unit starts `bun run serve`, which uses `src/prod-server.ts` to serve the
 built `dist/` directory on `127.0.0.1:3010`.
+
+`meatbash-relay.service` starts `bun run relay`, which exposes the room-code
+websocket relay on `127.0.0.1:3011`.
 
 Install the nginx vhost:
 
@@ -109,6 +121,17 @@ Install the nginx vhost:
 cat <<'EOF' | sudo tee /etc/nginx/sites-available/meatbash >/dev/null
 server {
     server_name meatbash.bitfalls.com;
+
+    location /ws {
+        proxy_pass http://127.0.0.1:3011/ws;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:3010;
@@ -135,7 +158,9 @@ git pull --ff-only
 ~/.bun/bin/bun install --frozen-lockfile
 ~/.bun/bin/bun run build
 sudo systemctl restart meatbash
+sudo systemctl restart meatbash-relay
 sudo systemctl status --no-pager meatbash
+sudo systemctl status --no-pager meatbash-relay
 ```
 
 ## Logs and health checks
@@ -143,7 +168,10 @@ sudo systemctl status --no-pager meatbash
 ```bash
 sudo journalctl -u meatbash -n 200 --no-pager
 sudo journalctl -u meatbash -f
+sudo journalctl -u meatbash-relay -n 200 --no-pager
+sudo journalctl -u meatbash-relay -f
 curl -I http://127.0.0.1:3010/
+curl -I http://127.0.0.1:3011/
 curl -I https://meatbash.bitfalls.com/
 ```
 
@@ -153,8 +181,9 @@ Point `meatbash.bitfalls.com` at the Bun service, typically via nginx or
 Caddy proxying to:
 
 ```text
-http://127.0.0.1:3010
+http://127.0.0.1:3010        # app
+ws://127.0.0.1:3011/ws      # relay
 ```
 
-Keep TLS/proxy config outside this repo; the app service itself should stay a
-plain Bun systemd unit.
+Keep TLS/proxy config outside this repo; the runtime should stay two plain Bun
+systemd units behind the reverse proxy.

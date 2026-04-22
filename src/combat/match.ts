@@ -77,7 +77,8 @@ export class MatchController {
       const p1KO = this.p1Mass <= this.config.knockoutThreshold;
       const p2KO = this.p2Mass <= this.config.knockoutThreshold;
       if (p1KO && p2KO) {
-        this.end(this.p1Mass < this.p2Mass ? 'lose' : 'win');
+        if (Math.abs(this.p1Mass - this.p2Mass) < 0.02) this.end('draw');
+        else this.end(this.p1Mass < this.p2Mass ? 'lose' : 'win');
         return;
       }
       if (p2KO) {

@@ -6,6 +6,7 @@ export interface SkeletonJoint {
   name: string;
   body: RAPIER.RigidBody;
   joint?: RAPIER.RevoluteImpulseJoint;
+  additionalMass: number;
 }
 
 export interface FootInfo {
@@ -110,7 +111,7 @@ export function createBipedSkeleton(
   );
   // Bigger, smoother pelvis collider — low friction so it doesn't catch on rocks.
   physics.addCapsuleCollider(pelvis, pelvisHalfH, pelvisRadius, 1.0, 0.25, 0.0);
-  joints.set('torso', { name: 'torso', body: pelvis });
+  joints.set('torso', { name: 'torso', body: pelvis, additionalMass: 5.5 });
   allBodies.push(pelvis);
 
   // ============================================================
@@ -143,7 +144,12 @@ export function createBipedSkeleton(
         damping: tuning.hipDamping,
       }
     );
-    joints.set(`hip_${side}`, { name: `hip_${side}`, body: upperLeg, joint: hipJoint });
+    joints.set(`hip_${side}`, {
+      name: `hip_${side}`,
+      body: upperLeg,
+      joint: hipJoint,
+      additionalMass: 0.5,
+    });
 
     // ---- Lower leg ----
     const lowerLeg = physics.createDynamicBody(
@@ -165,7 +171,12 @@ export function createBipedSkeleton(
         damping: tuning.kneeDamping,
       }
     );
-    joints.set(`knee_${side}`, { name: `knee_${side}`, body: lowerLeg, joint: kneeJoint });
+    joints.set(`knee_${side}`, {
+      name: `knee_${side}`,
+      body: lowerLeg,
+      joint: kneeJoint,
+      additionalMass: 0.4,
+    });
 
     // ---- Foot (cuboid with high friction) ----
     const foot = physics.createDynamicBody(
@@ -194,7 +205,12 @@ export function createBipedSkeleton(
         damping: tuning.ankleDamping,
       }
     );
-    joints.set(`ankle_${side}`, { name: `ankle_${side}`, body: foot, joint: ankleJoint });
+    joints.set(`ankle_${side}`, {
+      name: `ankle_${side}`,
+      body: foot,
+      joint: ankleJoint,
+      additionalMass: 0.3,
+    });
 
     return { body: foot, sensor };
   };
@@ -293,6 +309,7 @@ export function createBipedSkeleton(
         name: `shoulder_${side}`,
         body: upperArm,
         joint: shoulderJoint,
+        additionalMass: 0.6,
       });
 
       // ---- Lower arm ----
@@ -325,6 +342,7 @@ export function createBipedSkeleton(
         name: `elbow_${side}`,
         body: lowerArm,
         joint: elbowJoint,
+        additionalMass: 0.45,
       });
     };
 

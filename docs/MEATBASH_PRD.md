@@ -115,10 +115,10 @@ MEATBASH is an organic destruction derby with **WASD active-ragdoll arena combat
 
 **Current implementation note (2026-04-21):**
 - `QUICK FIGHT` into a bot match is live.
+- `HOST MATCH` / `JOIN MATCH` are live through the Bun relay and room codes.
 - `ENTER GENE LAB` is live and swaps the home screen into a lightweight lab
   view with the current **Quick Workshop**.
-- `JOIN MATCH` and Darwin Certification are still planned directions rather
-  than completed game loops.
+- Darwin Certification is still planned rather than a completed game loop.
 
 ### 5.2 Gene Lab (Beast Creator)
 
@@ -719,11 +719,11 @@ CREATE TABLE matches (
 
 **Goal:** Two players fighting over WebSocket.
 
-- [ ] Bun WebSocket server (match creation, code generation, relay)
-- [ ] Client-side input sending
-- [ ] Host-authoritative state broadcast
-- [ ] Beast exchange on match start
-- [ ] Interpolation on receiving client
+- [x] Bun WebSocket server (match creation, code generation, relay)
+- [x] Client-side input sending
+- [x] Host-authoritative state broadcast
+- [x] Beast exchange on match start
+- [x] Interpolation on receiving client
 - [ ] Spectator mode (read-only WS feed, free camera)
 
 ### Phase 5: Darwin Certification (Days 14–15) — April 26–27

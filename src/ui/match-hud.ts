@@ -6,7 +6,7 @@
  *   - Top-left: Player 1 meat-bar (mass) + stamina pip
  *   - Top-right: Player 2 meat-bar (mass) + stamina pip (mirrored)
  *   - Center: countdown ("3"/"2"/"1"/"FIGHT!") or result ("VICTORY"/"DEFEAT"/"DRAW")
- *   - Bottom center: "press R to restart" (only when match has ended)
+ *   - Bottom center: optional restart hint + a Back to Menu button
  *
  * Call `setMatchState(...)` every frame from the game loop.
  * Call `setVisible(false)` when leaving the ARENA screen.
@@ -33,12 +33,18 @@ export interface MatchState {
   countdownSec?: number;
   /** Final result (only when status === 'ended'). */
   result?: MatchResult;
+  /** Whether restart via keyboard is valid in this match context. */
+  canRestart?: boolean;
   /** Display name for player 1 — defaults to "YOU". */
   p1Name?: string;
   /** Display name for player 2 — defaults to "BOT". */
   p2Name?: string;
   p1AttackState?: string;
   p2AttackState?: string;
+}
+
+export interface MatchHudCallbacks {
+  onBackToMenu?: () => void;
 }
 
 const STYLE_ID = 'meatbash-match-hud-style';
@@ -243,6 +249,29 @@ const STYLES = `
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.45);
 }
+#mb-hud-menu-button {
+  position: absolute;
+  bottom: 92px; left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  background: linear-gradient(180deg, rgba(60, 25, 30, 0.94), rgba(28, 12, 16, 0.94));
+  border: 1px solid rgba(255, 120, 140, 0.45);
+  border-radius: 10px;
+  padding: 12px 20px;
+  color: #ffd8d8;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+#mb-hud-menu-button:hover {
+  filter: brightness(1.08);
+}
+#mb-hud-menu-button:active {
+  transform: translateX(-50%) translateY(1px);
+}
 .mb-combat-text-layer {
   position: absolute;
   left: 50%;
@@ -285,6 +314,7 @@ function formatTimer(seconds: number): string {
 
 export class MatchHud implements ScreenHandle {
   private root: HTMLDivElement;
+  private callbacks: MatchHudCallbacks = {};
 
   private timerValue!: HTMLDivElement;
 
@@ -302,6 +332,7 @@ export class MatchHud implements ScreenHandle {
   private resultEl!: HTMLDivElement;
 
   private restartHint!: HTMLDivElement;
+  private menuButton!: HTMLButtonElement;
   private combatTextLayer!: HTMLDivElement;
   private lastCombatTextKey: string | null = null;
   private lastCombatTextAt = 0;
@@ -378,6 +409,14 @@ export class MatchHud implements ScreenHandle {
     this.root.appendChild(hint);
     this.restartHint = hint;
 
+    const menuButton = document.createElement('button');
+    menuButton.id = 'mb-hud-menu-button';
+    menuButton.textContent = 'Back to Menu';
+    menuButton.style.display = 'none';
+    menuButton.addEventListener('click', () => this.callbacks.onBackToMenu?.());
+    this.root.appendChild(menuButton);
+    this.menuButton = menuButton;
+
     const combatTextLayer = document.createElement('div');
     combatTextLayer.className = 'mb-combat-text-layer';
     this.root.appendChild(combatTextLayer);
@@ -430,6 +469,10 @@ export class MatchHud implements ScreenHandle {
 
   // ---------- Public API ----------
 
+  setCallbacks(callbacks: MatchHudCallbacks): void {
+    this.callbacks = { ...this.callbacks, ...callbacks };
+  }
+
   setMatchState(state: MatchState) {
     // Names
     if (state.p1Name) this.p1NameEl.textContent = state.p1Name;
@@ -466,19 +509,22 @@ export class MatchHud implements ScreenHandle {
         this.renderCountdown(state.countdownSec ?? 0);
         this.resultEl.style.display = 'none';
         this.restartHint.style.display = 'none';
+        this.menuButton.style.display = 'none';
         break;
 
       case 'fighting':
         this.countdownEl.style.display = 'none';
         this.resultEl.style.display = 'none';
         this.restartHint.style.display = 'none';
+        this.menuButton.style.display = 'none';
         this.lastCountdownDisplay = null;
         break;
 
       case 'ended':
         this.countdownEl.style.display = 'none';
         this.renderResult(state.result ?? 'draw');
-        this.restartHint.style.display = 'block';
+        this.restartHint.style.display = state.canRestart ? 'block' : 'none';
+        this.menuButton.style.display = 'block';
         break;
     }
   }
@@ -545,6 +591,7 @@ export class MatchHud implements ScreenHandle {
     this.countdownEl.style.display = 'none';
     this.resultEl.style.display = 'none';
     this.restartHint.style.display = 'none';
+    this.menuButton.style.display = 'none';
     this.p1AttackStateEl.textContent = 'PRIMARY: IDLE';
     this.p2AttackStateEl.textContent = 'PRIMARY: IDLE';
     this.combatTextLayer.innerHTML = '';

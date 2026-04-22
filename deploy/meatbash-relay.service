@@ -1,0 +1,20 @@
+[Unit]
+Description=MEATBASH Bun websocket relay
+After=network.target
+
+[Service]
+Type=simple
+User=swader
+Group=swader
+WorkingDirectory=/var/www/meatbash
+Environment=PATH=/home/swader/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOST=127.0.0.1
+Environment=PORT=3011
+ExecStart=/home/swader/.bun/bin/bun run relay
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

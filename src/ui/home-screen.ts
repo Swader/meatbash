@@ -14,27 +14,33 @@
  * All styling is injected once into <head> via a <style> block.
  */
 
-import type { AttackProfile } from '../combat/attack-types';
-import type { Archetype } from '../beast/beast-data';
+import type { AttackWeaponSocket, AttackWeaponType } from '../combat/attack-types';
+import type {
+  Archetype,
+  BeastBodySize,
+  BeastChargeStyle,
+  BeastListing,
+  BeastStatSummary,
+  BeastStabilityBias,
+  BeastWeaponLength,
+  BeastWeaponMass,
+  WeightClassHint,
+} from '../beast/beast-data';
 import {
   getWorkshopColorPresets,
-  getWorkshopProfiles,
-  type WorkshopChargeBias,
+  getWorkshopBodySizes,
+  getWorkshopChargeStyles,
+  getWorkshopPreview,
+  getWorkshopStabilityBiases,
+  getWorkshopWeaponLengths,
+  getWorkshopWeaponMasses,
+  getWorkshopWeaponSockets,
+  getWorkshopWeaponTypes,
+  getWorkshopWeightClasses,
   type WorkshopColorPreset,
   type WorkshopDraft,
 } from '../beast/workshop';
 import type { GameShell, ScreenHandle } from './game-shell';
-
-export interface BeastListing {
-  id: string;
-  name: string;
-  archetype: string;
-  attackProfile: string;
-  weightClass: string;
-  playstyleSummary: string;
-  iconEmoji?: string;
-  isDefault?: boolean;
-}
 
 export interface HomeScreenOptions {
   shell: GameShell;
@@ -348,6 +354,49 @@ const STYLES = `
   letter-spacing: 1px;
   color: rgba(255, 210, 150, 0.8);
 }
+.mb-workshop-preview {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(8, 4, 4, 0.45);
+  border: 1px solid rgba(255, 110, 110, 0.18);
+  border-radius: 10px;
+  text-align: left;
+}
+.mb-workshop-preview-summary {
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255, 214, 180, 0.88);
+}
+.mb-workshop-stats {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+.mb-workshop-stat-row {
+  display: grid;
+  grid-template-columns: 108px 1fr 36px;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 190, 190, 0.75);
+}
+.mb-workshop-stat-bar {
+  position: relative;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 110, 110, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.mb-workshop-stat-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: linear-gradient(90deg, #ff9e66, #ff5d5d);
+  box-shadow: 0 0 8px rgba(255, 100, 100, 0.35);
+}
 
 .mb-beast-list {
   display: flex;
@@ -497,10 +546,18 @@ export class HomeScreen implements ScreenHandle {
   private homeStatusEl!: HTMLDivElement;
   private workshopNameInput!: HTMLInputElement;
   private workshopArchetypeSelect!: HTMLSelectElement;
-  private workshopProfileSelect!: HTMLSelectElement;
-  private workshopChargeSelect!: HTMLSelectElement;
+  private workshopWeightSelect!: HTMLSelectElement;
+  private workshopBodySizeSelect!: HTMLSelectElement;
+  private workshopStabilitySelect!: HTMLSelectElement;
+  private workshopWeaponTypeSelect!: HTMLSelectElement;
+  private workshopWeaponSocketSelect!: HTMLSelectElement;
+  private workshopLengthSelect!: HTMLSelectElement;
+  private workshopMassSelect!: HTMLSelectElement;
+  private workshopChargeStyleSelect!: HTMLSelectElement;
   private workshopColorSelect!: HTMLSelectElement;
   private workshopStatusEl!: HTMLDivElement;
+  private workshopPreviewSummaryEl!: HTMLDivElement;
+  private workshopStatsEl!: HTMLDivElement;
 
   constructor(opts: HomeScreenOptions) {
     this.shell = opts.shell;
@@ -580,24 +637,29 @@ export class HomeScreen implements ScreenHandle {
 
     const makeBtn = document.createElement('button');
     makeBtn.className = 'mb-button mb-center-primary';
-    makeBtn.textContent = 'MAKE A MATCH';
+    makeBtn.textContent = 'BASH BOT';
     makeBtn.addEventListener('click', () => this.handleMakeMatch());
     homeActions.appendChild(makeBtn);
+
+    const hostBtn = document.createElement('button');
+    hostBtn.className = 'mb-button mb-secondary mb-center-primary';
+    hostBtn.textContent = 'HOST MATCH';
+    hostBtn.addEventListener('click', () => this.handleHostMatch());
+    homeActions.appendChild(hostBtn);
 
     const joinRow = document.createElement('div');
     joinRow.className = 'mb-join-row';
     this.codeInput = document.createElement('input');
     this.codeInput.type = 'text';
     this.codeInput.className = 'mb-input';
-    this.codeInput.placeholder = 'MATCHMAKING SOON';
+    this.codeInput.placeholder = 'ROOM CODE';
     this.codeInput.maxLength = 9;
-    this.codeInput.disabled = true;
     joinRow.appendChild(this.codeInput);
 
     const joinBtn = document.createElement('button');
-    joinBtn.className = 'mb-button mb-secondary mb-disabled';
-    joinBtn.textContent = 'JOIN MATCH (SOON)';
-    joinBtn.disabled = true;
+    joinBtn.className = 'mb-button mb-secondary';
+    joinBtn.textContent = 'JOIN MATCH';
+    joinBtn.addEventListener('click', () => this.handleJoin());
     joinRow.appendChild(joinBtn);
     homeActions.appendChild(joinRow);
 
@@ -609,7 +671,7 @@ export class HomeScreen implements ScreenHandle {
 
     this.homeStatusEl = document.createElement('div');
     this.homeStatusEl.className = 'mb-home-status';
-    this.homeStatusEl.textContent = 'Bot fights are live now. Online match-code join is not live yet.';
+    this.homeStatusEl.textContent = 'Bot fights and match-code hosting are live. Pick a beast, host a room, or join one by code.';
     homeActions.appendChild(this.homeStatusEl);
     this.homeSection.appendChild(homeActions);
 
@@ -665,22 +727,84 @@ export class HomeScreen implements ScreenHandle {
       option.textContent = archetype;
       this.workshopArchetypeSelect.appendChild(option);
     }
-    this.workshopArchetypeSelect.addEventListener('change', () => this.updateWorkshopProfileOptions());
+    this.workshopArchetypeSelect.addEventListener('change', () => this.updateWorkshopSelections());
     grid.appendChild(this.createWorkshopField('Archetype', this.workshopArchetypeSelect));
 
-    this.workshopProfileSelect = document.createElement('select');
-    this.workshopProfileSelect.className = 'mb-select';
-    grid.appendChild(this.createWorkshopField('Primary Attack', this.workshopProfileSelect));
-
-    this.workshopChargeSelect = document.createElement('select');
-    this.workshopChargeSelect.className = 'mb-select';
-    for (const bias of ['quick', 'balanced', 'heavy'] as const) {
+    this.workshopWeightSelect = document.createElement('select');
+    this.workshopWeightSelect.className = 'mb-select';
+    for (const value of getWorkshopWeightClasses()) {
       const option = document.createElement('option');
-      option.value = bias;
-      option.textContent = bias;
-      this.workshopChargeSelect.appendChild(option);
+      option.value = value;
+      option.textContent = value;
+      this.workshopWeightSelect.appendChild(option);
     }
-    grid.appendChild(this.createWorkshopField('Charge Bias', this.workshopChargeSelect));
+    this.workshopWeightSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Weight Class', this.workshopWeightSelect));
+
+    this.workshopBodySizeSelect = document.createElement('select');
+    this.workshopBodySizeSelect.className = 'mb-select';
+    for (const value of getWorkshopBodySizes()) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      this.workshopBodySizeSelect.appendChild(option);
+    }
+    this.workshopBodySizeSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Body Size', this.workshopBodySizeSelect));
+
+    this.workshopStabilitySelect = document.createElement('select');
+    this.workshopStabilitySelect.className = 'mb-select';
+    for (const value of getWorkshopStabilityBiases()) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      this.workshopStabilitySelect.appendChild(option);
+    }
+    this.workshopStabilitySelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Stability Bias', this.workshopStabilitySelect));
+
+    this.workshopWeaponTypeSelect = document.createElement('select');
+    this.workshopWeaponTypeSelect.className = 'mb-select';
+    this.workshopWeaponTypeSelect.addEventListener('change', () => this.updateWorkshopSelections());
+    grid.appendChild(this.createWorkshopField('Weapon Type', this.workshopWeaponTypeSelect));
+
+    this.workshopWeaponSocketSelect = document.createElement('select');
+    this.workshopWeaponSocketSelect.className = 'mb-select';
+    this.workshopWeaponSocketSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Weapon Socket', this.workshopWeaponSocketSelect));
+
+    this.workshopLengthSelect = document.createElement('select');
+    this.workshopLengthSelect.className = 'mb-select';
+    for (const value of getWorkshopWeaponLengths()) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      this.workshopLengthSelect.appendChild(option);
+    }
+    this.workshopLengthSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Weapon Length', this.workshopLengthSelect));
+
+    this.workshopMassSelect = document.createElement('select');
+    this.workshopMassSelect.className = 'mb-select';
+    for (const value of getWorkshopWeaponMasses()) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      this.workshopMassSelect.appendChild(option);
+    }
+    this.workshopMassSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Weapon Mass', this.workshopMassSelect));
+
+    this.workshopChargeStyleSelect = document.createElement('select');
+    this.workshopChargeStyleSelect.className = 'mb-select';
+    for (const value of getWorkshopChargeStyles()) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      this.workshopChargeStyleSelect.appendChild(option);
+    }
+    this.workshopChargeStyleSelect.addEventListener('change', () => this.refreshWorkshopPreview());
+    grid.appendChild(this.createWorkshopField('Charge Style', this.workshopChargeStyleSelect));
 
     this.workshopColorSelect = document.createElement('select');
     this.workshopColorSelect.className = 'mb-select';
@@ -690,9 +814,20 @@ export class HomeScreen implements ScreenHandle {
       option.textContent = preset;
       this.workshopColorSelect.appendChild(option);
     }
+    this.workshopColorSelect.addEventListener('change', () => this.refreshWorkshopPreview());
     grid.appendChild(this.createWorkshopField('Color', this.workshopColorSelect));
 
     this.labSection.appendChild(grid);
+
+    const preview = document.createElement('div');
+    preview.className = 'mb-workshop-preview';
+    this.workshopPreviewSummaryEl = document.createElement('div');
+    this.workshopPreviewSummaryEl.className = 'mb-workshop-preview-summary';
+    preview.appendChild(this.workshopPreviewSummaryEl);
+    this.workshopStatsEl = document.createElement('div');
+    this.workshopStatsEl.className = 'mb-workshop-stats';
+    preview.appendChild(this.workshopStatsEl);
+    this.labSection.appendChild(preview);
 
     const actions = document.createElement('div');
     actions.className = 'mb-workshop-actions';
@@ -718,9 +853,14 @@ export class HomeScreen implements ScreenHandle {
 
     panel.appendChild(inner);
     this.workshopArchetypeSelect.value = 'bipedal';
-    this.workshopChargeSelect.value = 'balanced';
+    this.workshopWeightSelect.value = 'middle';
+    this.workshopBodySizeSelect.value = 'normal';
+    this.workshopStabilitySelect.value = 'balanced';
+    this.workshopLengthSelect.value = 'medium';
+    this.workshopMassSelect.value = 'normal';
+    this.workshopChargeStyleSelect.value = 'balanced';
     this.workshopColorSelect.value = 'crimson';
-    this.updateWorkshopProfileOptions();
+    this.updateWorkshopSelections();
 
     return panel;
   }
@@ -771,7 +911,7 @@ export class HomeScreen implements ScreenHandle {
     const centerSelectedLabel = document.createElement('div');
     centerSelectedLabel.className = 'mb-center-selected';
     centerSelectedLabel.textContent = '';
-    this.centerMetaEl.appendChild(centerSelectedLabel);
+    this.centerMetaEl.replaceChildren(centerSelectedLabel);
 
     return { panel, centerSelectedLabel };
   }
@@ -842,37 +982,137 @@ export class HomeScreen implements ScreenHandle {
     return field;
   }
 
-  private updateWorkshopProfileOptions(): void {
-    if (!this.workshopArchetypeSelect || !this.workshopProfileSelect) return;
+  private updateWorkshopSelections(): void {
+    if (!this.workshopArchetypeSelect || !this.workshopWeaponTypeSelect || !this.workshopWeaponSocketSelect) return;
     const archetype = this.workshopArchetypeSelect.value as Archetype;
-    const current = this.workshopProfileSelect.value as AttackProfile;
-    const supported = getWorkshopProfiles(archetype);
-    this.workshopProfileSelect.innerHTML = '';
-    for (const profile of supported) {
+    const currentType = this.workshopWeaponTypeSelect.value as AttackWeaponType;
+    const supportedTypes = getWorkshopWeaponTypes(archetype);
+    this.workshopWeaponTypeSelect.innerHTML = '';
+    for (const weaponType of supportedTypes) {
       const option = document.createElement('option');
-      option.value = profile;
-      option.textContent = profile;
-      this.workshopProfileSelect.appendChild(option);
+      option.value = weaponType;
+      option.textContent = weaponType;
+      this.workshopWeaponTypeSelect.appendChild(option);
     }
-    this.workshopProfileSelect.value = supported.includes(current) ? current : supported[0]!;
+    this.workshopWeaponTypeSelect.value = supportedTypes.includes(currentType) ? currentType : supportedTypes[0]!;
+
+    const currentSocket = this.workshopWeaponSocketSelect.value as AttackWeaponSocket;
+    const supportedSockets = getWorkshopWeaponSockets(archetype, this.workshopWeaponTypeSelect.value as AttackWeaponType);
+    this.workshopWeaponSocketSelect.innerHTML = '';
+    for (const socket of supportedSockets) {
+      const option = document.createElement('option');
+      option.value = socket;
+      option.textContent = socket.replace('_', ' ');
+      this.workshopWeaponSocketSelect.appendChild(option);
+    }
+    this.workshopWeaponSocketSelect.value = supportedSockets.includes(currentSocket) ? currentSocket : supportedSockets[0]!;
+    this.refreshWorkshopPreview();
   }
 
-  private chooseDefaultColor(archetype: Archetype, attackProfile: string): WorkshopColorPreset {
-    if (attackProfile === 'spike') return 'peach';
-    if (attackProfile === 'shield') return 'tallow';
+  private getWorkshopDraft(): WorkshopDraft {
+    return {
+      sourceBeastId: this.selectedBeastId,
+      name: this.workshopNameInput.value,
+      archetype: this.workshopArchetypeSelect.value as Archetype,
+      weightClass: this.workshopWeightSelect.value as WeightClassHint,
+      bodySize: this.workshopBodySizeSelect.value as BeastBodySize,
+      stabilityBias: this.workshopStabilitySelect.value as BeastStabilityBias,
+      weaponType: this.workshopWeaponTypeSelect.value as AttackWeaponType,
+      weaponSocket: this.workshopWeaponSocketSelect.value as AttackWeaponSocket,
+      weaponLength: this.workshopLengthSelect.value as BeastWeaponLength,
+      weaponMass: this.workshopMassSelect.value as BeastWeaponMass,
+      chargeStyle: this.workshopChargeStyleSelect.value as BeastChargeStyle,
+      colorPreset: this.workshopColorSelect.value as WorkshopColorPreset,
+    };
+  }
+
+  private refreshWorkshopPreview(): void {
+    if (!this.workshopPreviewSummaryEl || !this.workshopStatsEl) return;
+    const preview = getWorkshopPreview(this.getWorkshopDraft());
+    this.workshopPreviewSummaryEl.textContent =
+      `${preview.profile.toUpperCase()} PRIMARY. ${preview.playstyleSummary}`;
+    this.renderWorkshopStats(preview.statSummary);
+  }
+
+  private renderWorkshopStats(stats: BeastStatSummary): void {
+    const rows: Array<[label: string, value: number]> = [
+      ['Speed', stats.speed],
+      ['Stability', stats.stability],
+      ['Reach', stats.reach],
+      ['Damage', stats.damage],
+      ['Stamina', stats.staminaEconomy],
+      ['Control', 1 - stats.controlDifficulty],
+    ];
+    this.workshopStatsEl.innerHTML = '';
+    for (const [label, value] of rows) {
+      const row = document.createElement('div');
+      row.className = 'mb-workshop-stat-row';
+      const valuePct = Math.round(Math.max(0, Math.min(1, value)) * 100);
+      row.innerHTML = `
+        <span>${label}</span>
+        <span class="mb-workshop-stat-bar"><span class="mb-workshop-stat-fill" style="width:${valuePct}%"></span></span>
+        <span>${valuePct}</span>
+      `;
+      this.workshopStatsEl.appendChild(row);
+    }
+  }
+
+  private chooseDefaultColor(archetype: Archetype, weaponType: AttackWeaponType): WorkshopColorPreset {
+    if (weaponType === 'spike') return 'peach';
+    if (weaponType === 'shield') return 'tallow';
+    if (weaponType === 'headbutt') return 'ember';
     return archetype === 'quadruped' ? 'ember' : 'crimson';
   }
 
   private syncWorkshopToListing(listing: BeastListing | undefined): void {
     if (!listing || !this.workshopNameInput) return;
+    const inferredWeaponType =
+      (listing.workshopConfig?.weaponType as AttackWeaponType | undefined) ??
+      (
+        listing.attackProfile === 'spike' ? 'spike' :
+        listing.attackProfile === 'shield' ? 'shield' :
+        listing.archetype === 'quadruped' ? 'headbutt' :
+        'hammer'
+      );
+    const inferredSocket =
+      (listing.workshopConfig?.weaponSocket as AttackWeaponSocket | undefined) ??
+      (
+        listing.archetype === 'bipedal'
+          ? (inferredWeaponType === 'spike' ? 'left_arm' : 'right_arm')
+          : (inferredWeaponType === 'shield' ? 'forebody' : 'head_front')
+      );
+
     this.workshopNameInput.value = listing.isDefault ? `${listing.name} MkII` : listing.name;
     this.workshopArchetypeSelect.value = listing.archetype as Archetype;
-    this.updateWorkshopProfileOptions();
-    this.workshopProfileSelect.value = getWorkshopProfiles(listing.archetype as Archetype).includes(listing.attackProfile as AttackProfile)
-      ? listing.attackProfile
-      : getWorkshopProfiles(listing.archetype as Archetype)[0]!;
-    this.workshopChargeSelect.value = 'balanced';
-    this.workshopColorSelect.value = this.chooseDefaultColor(listing.archetype as Archetype, listing.attackProfile);
+    this.workshopWeightSelect.value =
+      (listing.workshopConfig?.weightClass as WeightClassHint | undefined) ??
+      (listing.weightClass as WeightClassHint) ??
+      'middle';
+    this.workshopBodySizeSelect.value =
+      (listing.workshopConfig?.bodySize as BeastBodySize | undefined) ??
+      (
+        listing.weightClass === 'superheavy' || listing.weightClass === 'heavy'
+          ? 'chonk'
+          : listing.weightClass === 'light'
+            ? 'small'
+            : 'normal'
+      );
+    this.workshopStabilitySelect.value =
+      (listing.workshopConfig?.stabilityBias as BeastStabilityBias | undefined) ??
+      (listing.archetype === 'quadruped' ? 'stable' : 'balanced');
+    this.workshopWeaponTypeSelect.value = inferredWeaponType;
+    this.updateWorkshopSelections();
+    this.workshopWeaponSocketSelect.value = inferredSocket;
+    this.workshopLengthSelect.value =
+      (listing.workshopConfig?.weaponLength as BeastWeaponLength | undefined) ?? 'medium';
+    this.workshopMassSelect.value =
+      (listing.workshopConfig?.weaponMass as BeastWeaponMass | undefined) ?? 'normal';
+    this.workshopChargeStyleSelect.value =
+      (listing.workshopConfig?.chargeStyle as BeastChargeStyle | undefined) ?? 'balanced';
+    this.workshopColorSelect.value =
+      (listing.workshopConfig?.colorPreset as WorkshopColorPreset | undefined) ??
+      this.chooseDefaultColor(listing.archetype as Archetype, inferredWeaponType);
+    this.refreshWorkshopPreview();
     this.workshopStatusEl.textContent = `loaded from ${listing.name}`;
   }
 
@@ -905,14 +1145,7 @@ export class HomeScreen implements ScreenHandle {
       this.workshopStatusEl.textContent = 'workshop save unavailable';
       return;
     }
-    const draft: WorkshopDraft = {
-      sourceBeastId: this.selectedBeastId,
-      name: this.workshopNameInput.value,
-      archetype: this.workshopArchetypeSelect.value as Archetype,
-      attackProfile: this.workshopProfileSelect.value as AttackProfile,
-      chargeBias: this.workshopChargeSelect.value as WorkshopChargeBias,
-      colorPreset: this.workshopColorSelect.value as WorkshopColorPreset,
-    };
+    const draft = this.getWorkshopDraft();
     const saved = this.onCreateWorkshopBeast(draft);
     if (!saved) {
       this.workshopStatusEl.textContent = 'forge failed';
@@ -936,9 +1169,13 @@ export class HomeScreen implements ScreenHandle {
     this.shell.emitStartMatch(this.selectedBeastId, 'join', code);
   }
 
+  private handleHostMatch() {
+    if (!this.selectedBeastId) return;
+    this.shell.emitStartMatch(this.selectedBeastId, 'host');
+  }
+
   private handleMakeMatch() {
     if (!this.selectedBeastId) return;
-    // Block 1 scope: always vs bot. Multiplayer host flow comes later.
     this.shell.emitStartMatch(this.selectedBeastId, 'bot');
   }
 

@@ -95,7 +95,7 @@ export class RapierWorld {
     // Default is 4. Active ragdoll needs more.
     this.world.numSolverIterations = 8;
     this.world.numInternalPgsIterations = 2;
-    this.world.numAdditionalFrictionIterations = 4;
+    (this.world as any).numAdditionalFrictionIterations = 4;
 
     this.eventQueue = new RAPIER.EventQueue(true);
     this.initialized = true;

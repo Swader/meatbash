@@ -13,7 +13,11 @@ export function applyHitFeedback(events: DamageEvent[], hooks: HitFeedbackHooks)
   if (!primary) return 0;
   hooks.pushCombatText(primary.splashText);
   const horizontalBias = primary.profile === 'shield' ? 0.85 : 0.5;
-  hooks.addShake(primary.shake, 0.14 + Math.min(0.1, primary.feedbackMul * 0.05), horizontalBias);
+  const duration =
+    primary.impactClass === 'heavy-clean'
+      ? 0.24
+      : 0.14 + Math.min(0.1, primary.feedbackMul * 0.05);
+  hooks.addShake(primary.shake, duration, horizontalBias);
   hooks.playSfx?.(`hit_${primary.profile ?? 'body'}`, primary.point.x, primary.point.y, primary.point.z);
   maxHitstop = Math.max(maxHitstop, primary.hitstop);
   return maxHitstop;

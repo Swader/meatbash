@@ -20,10 +20,11 @@ For details, branch out from here:
 ## What this is
 
 Organic destruction derby for **Vibejam 2026**. The live code today is a
-playable local arena prototype: premade beasts, quick-forged workshop beasts,
-vs-bot matches, readable `J` / `K` attack intent, meat loss, severance, and
-contextual music. Full sculpting, certification, and multiplayer are still
-future work.
+playable arena prototype: premade beasts, quick-forged workshop beasts,
+vs-bot matches, match-code online fights through a Bun websocket relay,
+readable `J` / `K` attack intent, meat loss, severance, and contextual music.
+Full sculpting, certification, spectator mode, and server-backed beast storage
+are still future work.
 
 **Deadline:** May 1, 2026 @ 13:37 UTC.
 
@@ -49,7 +50,7 @@ code/
 ├── skills/
 │   └── meatbash-operations/     repo-local deployment and ops skill
 ├── src/                         client TypeScript
-├── server/                      planned Bun WS relay
+├── server/                      Bun WS relay
 ├── public/                      static assets
 ├── sound/                       local audio assets used in dev/build
 ├── dist/                        build output
@@ -82,14 +83,18 @@ code/
 ```bash
 cd code/
 bun install              # once
-bun run dev              # dev server on http://localhost:3000
+bun run dev              # app + relay
+bun run dev:app          # app-only dev server
 bun run build            # production build to dist/
+bun run relay            # websocket relay only
+bun run typecheck        # TypeScript validation
 bun run zip              # distribution zip
 ```
 
-The dev server (`src/dev-server.ts`) rebuilds the bundle on every page load,
-so a hard refresh picks up code changes — no HMR yet. Bun's bundler is fast
-enough that this is fine.
+`bun run dev` starts the HTTP app on `http://localhost:3000` and the relay on
+`ws://localhost:3001/ws`. The app dev server (`src/dev-server.ts`) rebuilds
+the bundle on every page load, so a hard refresh picks up code changes —
+no HMR yet. Bun's bundler is fast enough that this is fine.
 
 There is **no formal test suite**. Verification is still browser-first, with a
 few runtime hooks exposed from `src/main.ts`:
@@ -185,10 +190,11 @@ Key invariants:
   music context switching.
 
 ### What's *not* built yet
-The PRD still describes bigger future systems that are not live in code yet:
-full Gene Lab sculpting, multiplayer, Darwin Certification, server-backed
-garage/storage, and the broader archetype roster. The quick workshop is real,
-but it is intentionally much thinner than the planned sculpting lab.
+The PRD still describes bigger future systems that are not fully live in code
+yet: spectator multiplayer, full Gene Lab sculpting, Darwin Certification,
+server-backed garage/storage, and the broader archetype roster. The quick
+workshop is real, but it is intentionally much thinner than the planned
+sculpting lab.
 
 ---
 

@@ -12,8 +12,12 @@ bun install
 bun run dev
 ```
 
-The dev server runs at [http://localhost:3000](http://localhost:3000) and
-rebuilds on refresh.
+`bun run dev` starts both the app and the match-code relay:
+
+- app: [http://localhost:3000](http://localhost:3000)
+- relay: `ws://localhost:3001/ws`
+
+The app rebuilds on refresh.
 
 ## Controls
 
@@ -28,7 +32,10 @@ rebuilds on refresh.
 
 ```bash
 bun run dev    # local dev server
+bun run dev:app # app-only dev server
 bun run build  # production bundle in dist/
+bun run relay  # websocket relay
+bun run typecheck
 bun run zip    # review/archive zip (builds first)
 ```
 
@@ -37,10 +44,11 @@ bun run zip    # review/archive zip (builds first)
 - Playable premades: Chonkus, Stomper, Noodlesnake, Butterchonk
 - Quick Gene Lab workshop: biped/quadruped archetype, primary attack profile,
   charge bias, color preset, localStorage persistence
-- Arena-only flow for now: home screen and bot matches are live
+- Match-code multiplayer: host/join room flow over the Bun websocket relay
+- Arena flow: home screen, bot fights, and online 1v1 are live
 
-Not built yet: multiplayer, full Gene Lab sculpting, Darwin Certification,
-server-backed beast storage.
+Not built yet: spectator mode, full Gene Lab sculpting, Darwin Certification,
+and server-backed beast storage.
 
 ## Debug hooks
 
