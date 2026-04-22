@@ -49,7 +49,7 @@ where files live and how to run the project read
 - Game shell state machine: HOME / ARENA screens.
 - Glassmorphic homepage HTML overlay over the live arena scene.
 - Beast selector: 4 default beasts shown in cards on the right.
-- "BASH!" button starts a vs-bot match.
+- `BASH BOT` starts a vs-bot match.
 - Quadruped skeleton (front + rear torso joined by a tight spine hinge,
   4 motorized leg chains).
 - Quadruped locomotion: diagonal-trot gait (FL+BR / FR+BL pairs),

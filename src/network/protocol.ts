@@ -243,6 +243,36 @@ function isSerializedAttackState(value: unknown): value is SerializedBeastState[
     isAttackVisualRigType(value.visualRigType);
 }
 
+function isAttackSlotDefinitionLike(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return value.id === 'primary' &&
+    typeof value.appendageRoot === 'string' &&
+    isStringArray(value.drivenJoints) &&
+    isStringArray(value.hitSegments) &&
+    (value.activeBodies === undefined || isStringArray(value.activeBodies)) &&
+    (value.blockBodies === undefined || isStringArray(value.blockBodies)) &&
+    isAttackProfile(value.profile) &&
+    isRecord(value.windupPose) &&
+    Object.values(value.windupPose).every(isFiniteNumber) &&
+    isRecord(value.strikePose) &&
+    Object.values(value.strikePose).every(isFiniteNumber) &&
+    isRecord(value.recoverPose) &&
+    Object.values(value.recoverPose).every(isFiniteNumber) &&
+    isFiniteNumber(value.windupTime) &&
+    isFiniteNumber(value.recoverTime) &&
+    isFiniteNumber(value.minHoldForCharge) &&
+    isFiniteNumber(value.maxChargeTime) &&
+    isFiniteNumber(value.holdDrainPerSec) &&
+    isFiniteNumber(value.strikeCostLight) &&
+    isFiniteNumber(value.strikeCostHeavy) &&
+    isFiniteNumber(value.damageMulLight) &&
+    isFiniteNumber(value.damageMulHeavy) &&
+    isFiniteNumber(value.knockbackMul) &&
+    isFiniteNumber(value.rootLungeForward) &&
+    isFiniteNumber(value.rootLungeUp) &&
+    isFiniteNumber(value.rootYawAssist);
+}
+
 function isSerializedSegmentState(
   value: unknown
 ): value is SerializedBeastState['segments'][number] {
@@ -263,7 +293,11 @@ export function isSerializedBeast(value: unknown): value is SerializedBeast {
     typeof value.personality === 'string' &&
     isRecord(value.visuals) &&
     isFiniteNumber(value.visuals.color) &&
-    isFiniteNumber(value.visuals.emissive);
+    isFiniteNumber(value.visuals.emissive) &&
+    isFiniteNumber(value.visuals.torsoScale) &&
+    (value.visuals.bodyScale === undefined || isFiniteNumber(value.visuals.bodyScale)) &&
+    (value.visuals.iconEmoji === undefined || typeof value.visuals.iconEmoji === 'string') &&
+    (value.attackSlots === undefined || (Array.isArray(value.attackSlots) && value.attackSlots.every(isAttackSlotDefinitionLike)));
 }
 
 export function isInputFrameMessage(value: unknown): value is InputFrameMessage {
